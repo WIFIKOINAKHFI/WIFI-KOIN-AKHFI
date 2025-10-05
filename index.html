@@ -1,465 +1,688 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>WIFI KOIN AKHFI</title>
-<style>
-  /* ===== dasar layout ===== */
-  body {font-family: Arial, sans-serif; margin: 0; background: #f5f8ff; color:#222;}
-  header {background: #0044cc; color: white; padding: 15px; display:flex; align-items:center; justify-content:center;}
-  header img {height: 40px; margin-right: 10px;}
-  nav {display: flex; background: #007bff; flex-wrap: wrap;}
-  nav button {flex: 1; padding: 14px; border: none; background: #007bff; color: white; font-size: 16px; cursor: pointer; min-width: 120px;}
-  nav button:hover, nav button.active {background: #0056b3;}
-  section {display: none; padding: 20px;}
-  section.active {display: block;}
-  label {display: inline-block; width: 120px; font-weight: bold; margin-top: 10px;}
-  input, select, textarea {padding: 6px; margin: 5px 0; width: calc(100% - 140px); max-width: 400px; box-sizing: border-box;}
-  textarea {width: calc(100% - 140px); max-width: 600px;}
-  table {width: 100%; border-collapse: collapse; margin-top: 15px;}
-  table, th, td {border: 1px solid #ccc;}
-  th, td {padding: 8px; text-align: left;}
-  .btn {background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; margin-top: 10px; cursor: pointer;}
-  .btn:hover {background: #0056b3;}
-  .btn-danger {background: red;}
-  .btn-danger:hover {background: darkred;}
-  #previewBox {background: #fff; border: 1px solid #ccc; padding: 15px; margin-top: 20px; white-space: pre; font-family: monospace; font-size:12px;}
-  .small { font-size: 13px; color: #666; }
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>WIFI KOIN AKHFI</title>
+    <style>
+        /* ===== dasar layout ===== */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f5f8ff;
+            color: #222;
+        }
+        
+        header {
+            background: #0044cc;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        header img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        nav {
+            display: flex;
+            background: #007bff;
+            flex-wrap: wrap;
+        }
+        
+        nav button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            min-width: 120px;
+        }
+        
+        nav button:hover,
+        nav button.active {
+            background: #0056b3;
+        }
+        
+        section {
+            display: none;
+            padding: 20px;
+        }
+        
+        section.active {
+            display: block;
+        }
+        
+        label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        input,
+        select,
+        textarea {
+            padding: 6px;
+            margin: 5px 0;
+            width: calc(100% - 140px);
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            width: calc(100% - 140px);
+            max-width: 600px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        table,
+        th,
+        td {
+            border: 1px solid #ccc;
+        }
+        
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn-danger {
+            background: red;
+        }
+        
+        .btn-danger:hover {
+            background: darkred;
+        }
+        
+        #previewBox {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-top: 20px;
+            white-space: pre;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .small {
+            font-size: 13px;
+            color: #666;
+        }
 
-  /* Pastikan kolom checkbox terlihat di semua device */
-  #clientTable td:first-child, #clientTable th:first-child { width: 56px; text-align:center; }
-  #clientTable input[type="checkbox"] { display:inline-block; width:18px; height:18px; }
+        /* Pastikan kolom checkbox terlihat di semua device */
+        #clientTable td:first-child,
+        #clientTable th:first-child {
+            width: 56px;
+            text-align: center;
+        }
+        
+        #clientTable input[type="checkbox"] {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+        }
 
-  /* Styling untuk area print */
-  .print-container { width: 80mm; margin: 0 auto; font-family: monospace; font-size: 12px; }
-  .print-line { margin: 2px 0; }
-  .print-divider { border-top: 1px dashed #000; margin: 5px 0; }
+        @media (max-width: 600px) {
+            input,
+            select,
+            textarea {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            label {
+                display: block;
+                width: auto;
+            }
+            
+            #clientTable td:first-child {
+                width: 44px;
+            }
+            
+            #clientTable input[type="checkbox"] {
+                transform: scale(1.3);
+                margin: 6px;
+            }
+            
+            nav button {
+                min-width: 90px;
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
 
-  @media (max-width: 600px) {
-    input, select, textarea { width: 100%; max-width: 100%; }
-    label {display:block; width:auto;}
-    #clientTable td:first-child { width: 44px; }
-    #clientTable input[type="checkbox"] { transform: scale(1.3); margin: 6px; }
-    nav button { min-width: 90px; font-size: 14px; padding: 10px; }
-  }
-
-  /* print rules: set page size 80mm */
-  @media print {
-    @page { size: 80mm auto; margin: 2mm; }
-    body { margin: 0; }
-    /* only show preview when printing */
-    body * { visibility: hidden; }
-    #printArea, #printArea * { visibility: visible; }
-    #printArea { position: absolute; left: 0; top: 0; width: 80mm; font-family: monospace; font-size: 12px; }
-    .no-print { display: none !important; }
-  }
-</style>
+        /* print rules: set page size 80mm */
+        @media print {
+            @page {
+                size: 80mm auto;
+                margin: 2mm;
+            }
+            
+            body {
+                margin: 0;
+            }
+            
+            /* only show preview when printing */
+            body * {
+                visibility: hidden;
+            }
+            
+            #printArea,
+            #printArea * {
+                visibility: visible;
+            }
+            
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 80mm;
+                font-family: monospace;
+                font-size: 12px;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <header>
-    <img src="gatotkaca.png" alt="Logo">
-    <h1>WIFI KOIN AKHFI</h1>
-  </header>
+    <header>
+        <img src="gatotkaca.png" alt="Logo">
+        <h1>WIFI KOIN AKHFI</h1>
+    </header>
 
-  <nav>
-    <button onclick="showTab('clientTab')" class="active">Client</button>
-    <button onclick="showTab('produkTab')">Produk</button>
-    <button onclick="showTab('rekeningTab')">Rekening/DANA</button>
-    <button onclick="showTab('invoiceTab')">Buat Invoice</button>
-  </nav>
+    <nav>
+        <button onclick="showTab('clientTab')" class="active">Client</button>
+        <button onclick="showTab('produkTab')">Produk</button>
+        <button onclick="showTab('rekeningTab')">Rekening/DANA</button>
+        <button onclick="showTab('invoiceTab')">Buat Invoice</button>
+    </nav>
 
-  <!-- CLIENT -->
-  <section id="clientTab" class="active">
-    <h2>Manajemen Client</h2>
-    <form id="clientForm">
-      <label>Nama</label><input type="text" id="clientName" required><br>
-      <label>WhatsApp</label><input type="text" id="clientWhatsapp" required placeholder="Contoh: 628123456789"><br>
+    <!-- CLIENT -->
+    <section id="clientTab" class="active">
+        <h2>Manajemen Client</h2>
+        <form id="clientForm">
+            <label>Nama</label>
+            <input type="text" id="clientName" required><br>
 
-      <button type="submit" class="btn">Tambah Client</button>
-      <button type="button" id="deleteSelectedBtn" class="btn btn-danger">Hapus Terpilih</button>
-      <input type="file" id="importClients" style="margin-left:10px;" accept=".json">
-    </form>
+            <label>WhatsApp</label>
+            <input type="text" id="clientWhatsapp" required placeholder="Contoh: 628123456789"><br>
 
-    <table id="clientTable">
-      <thead>
-        <tr>
-          <th>Pilih</th>
-          <th>Nama</th>
-          <th>WhatsApp</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <div class="small">*Pastikan nomor WA diawali dengan kode negara (62...).</div>
-  </section>
+            <button type="submit" class="btn">Tambah Client</button>
+            <button type="button" id="deleteSelectedBtn" class="btn btn-danger">Hapus Terpilih</button>
+            <input type="file" id="importClients" style="margin-left:10px;" accept=".json">
+        </form>
 
-  <!-- PRODUK -->
-  <section id="produkTab">
-    <h2>Manajemen Produk</h2>
-    <label>Nama Produk</label><input id="produkNama"><br>
-    <label>Harga</label><input id="produkHarga" type="number"><br>
-    <label>Satuan</label><input id="produkSatuan"><br>
-    <label>Deskripsi</label><input id="produkDeskripsi"><br>
-    <button class="btn" onclick="addProduk()">Tambah Produk</button>
-    <table id="produkTable">
-      <thead>
-        <tr><th>Nama</th><th>Harga</th><th>Satuan</th><th>Deskripsi</th><th>Aksi</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
+        <table id="clientTable">
+            <thead>
+                <tr>
+                    <th>Pilih</th>
+                    <th>Nama</th>
+                    <th>WhatsApp</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="small">*Pastikan nomor WA diawali dengan kode negara (62...).</div>
+    </section>
 
-  <!-- REKENING -->
-  <section id="rekeningTab">
-    <h2>Rekening & DANA</h2>
-    <form id="rekeningForm">
-      <label>Bank</label><input type="text" id="bank" required><br>
-      <label>No Rekening</label><input type="text" id="noRekening" required><br>
-      <label>No DANA</label><input type="text" id="noDana"><br>
-      <label>Upload QRIS</label><input type="file" id="qrisFile" accept="image/*"><br>
-      <button type="submit" class="btn">Simpan Rekening</button>
-    </form>
-    <table id="rekeningTable">
-      <thead>
-        <tr><th>Bank</th><th>No Rekening</th><th>No DANA</th><th>QRIS</th><th>Aksi</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
+    <!-- PRODUK -->
+    <section id="produkTab">
+        <h2>Manajemen Produk</h2>
+        <label>Nama Produk</label>
+        <input id="produkNama"><br>
+        <label>Harga</label>
+        <input id="produkHarga" type="number"><br>
+        <label>Satuan</label>
+        <input id="produkSatuan"><br>
+        <label>Deskripsi</label>
+        <input id="produkDeskripsi"><br>
+        <button class="btn" onclick="addProduk()">Tambah Produk</button>
+        <table id="produkTable">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Harga</th>
+                    <th>Satuan</th>
+                    <th>Deskripsi</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
 
-  <!-- INVOICE -->
-  <section id="invoiceTab">
-    <h2>Buat Invoice</h2>
-    <label>Nomor Invoice</label><input id="noInvoice" readonly><br>
-    <label>Tanggal</label><input id="tglInvoice" readonly><br>
-    <label>Jatuh Tempo</label><input type="date" id="jatuhTempo"><br>
-    <label>Pilih Client</label><select id="pilihClient"></select><br>
-    <label>Pilih Produk</label><select id="pilihProduk"></select><br>
-    <label>Periode</label>
-    <select id="periode">
-      <option value="1">1 Bulan</option>
-      <option value="2">2 Bulan</option>
-      <option value="3">3 Bulan</option>
-      <option value="6">6 Bulan</option>
-    </select><br>
+    <!-- REKENING -->
+    <section id="rekeningTab">
+        <h2>Rekening & DANA</h2>
+        <form id="rekeningForm">
+            <label>Bank</label>
+            <input type="text" id="bank" required><br>
+            <label>No Rekening</label>
+            <input type="text" id="noRekening" required><br>
+            <label>No DANA</label>
+            <input type="text" id="noDana"><br>
+            <label>Upload QRIS</label>
+            <input type="file" id="qrisFile" accept="image/*"><br>
+            <button type="submit" class="btn">Simpan Rekening</button>
+        </form>
+        <table id="rekeningTable">
+            <thead>
+                <tr>
+                    <th>Bank</th>
+                    <th>No Rekening</th>
+                    <th>No DANA</th>
+                    <th>QRIS</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
 
-    <button class="btn" onclick="reviewInvoice()">REVIEW INVOICE</button>
-    <div id="previewBox" style="display:none;"></div>
+    <!-- INVOICE -->
+    <section id="invoiceTab">
+        <h2>Buat Invoice</h2>
+        <label>Nomor Invoice</label>
+        <input id="noInvoice" readonly><br>
+        <label>Tanggal</label>
+        <input id="tglInvoice" readonly><br>
+        <label>Jatuh Tempo</label>
+        <input type="date" id="jatuhTempo"><br>
+        <label>Pilih Client</label>
+        <select id="pilihClient"></select><br>
+        <label>Pilih Produk</label>
+        <select id="pilihProduk"></select><br>
+        <label>Periode</label>
+        <select id="periode">
+            <option value="1">1 Bulan</option>
+            <option value="2">2 Bulan</option>
+            <option value="3">3 Bulan</option>
+            <option value="6">6 Bulan</option>
+        </select><br>
 
-    <div style="margin-top:10px;">
-      <button id="btnWa" class="btn" style="display:none;background:green;" onclick="kirimWA()">Kirim ke WhatsApp</button>
-      <button id="btnPrint" class="btn" style="background:orange;display:none;" onclick="printThermal()">Cetak Thermal</button>
-      <button id="btnPair" class="btn" style="background:#6c5ce7;" onclick="pairPrinterManual()">Pair Printer Manual</button>
-    </div>
+        <button class="btn" onclick="reviewInvoice()">REVIEW INVOICE</button>
+        <div id="previewBox" style="display:none;"></div>
 
-    <div class="small" style="margin-top:8px;">
-      Catatan: Jika printer Bluetooth tidak terdeteksi, coba "Pair Printer Manual" lalu pilih printer. Bila printer memakai Bluetooth Classic/SPP (bukan BLE), browser <strong>tidak dapat</strong> mengaksesnya via Web Bluetooth — gunakan aplikasi vendor jika perlu.
-    </div>
-  </section>
+        <div style="margin-top:10px;">
+            <button id="btnWa" class="btn" style="display:none;background:green;" onclick="kirimWA()">Kirim ke WhatsApp</button>
+            <button id="btnPrint" class="btn" style="background:orange;display:none;" onclick="printThermal()">Cetak Thermal</button>
+            <button id="btnPair" class="btn" style="background:#6c5ce7;" onclick="pairPrinterManual()">Pair Printer Manual</button>
+        </div>
 
-  <!-- area untuk printing via window.print -->
-  <div id="printArea" style="display:none;"></div>
+        <div class="small" style="margin-top:8px;">
+            Catatan: Jika printer Bluetooth tidak terdeteksi, coba "Pair Printer Manual" lalu pilih printer. Bila printer memakai Bluetooth Classic/SPP (bukan BLE), browser <strong>tidak dapat</strong> mengaksesnya via Web Bluetooth — gunakan aplikasi vendor jika perlu.
+        </div>
+    </section>
 
-<script>
-// ===== NAVIGASI =====
-function showTab(id) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
-}
+    <!-- area untuk printing via window.print -->
+    <div id="printArea" style="display:none;"></div>
 
-// ===== HELPERS =====
-function escapeHtml(str) { 
-  if(!str) return ""; 
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); 
-}
+    <script>
+        // ===== NAVIGASI =====
+        function showTab(id) {
+            // Sembunyikan semua section
+            document.querySelectorAll("section").forEach(s => {
+                s.classList.remove("active");
+            });
+            
+            // Tampilkan section yang dipilih
+            document.getElementById(id).classList.add("active");
+            
+            // Update status aktif di nav button
+            document.querySelectorAll("nav button").forEach(b => {
+                b.classList.remove("active");
+            });
+            event.target.classList.add("active");
+        }
 
-function padTo(s, len) { 
-  s = s || ""; 
-  if(s.length > len) return s.substring(0, len); 
-  return s + " ".repeat(Math.max(0, len - s.length)); 
-}
+        // ===== HELPERS =====
+        function escapeHtml(str) {
+            if (!str) return "";
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
 
-// wrap text agar sesuai lebar thermal 80mm
-function wrapForWidth(text, widthChars = 40) {
-  const lines = [];
-  text.split('\n').forEach(line => {
-    let l = line;
-    while (l.length > widthChars) {
-      let part = l.substring(0, widthChars);
-      const lastSpace = part.lastIndexOf(' ');
-      if (lastSpace > 8) {
-        part = l.substring(0, lastSpace);
-      }
-      lines.push(part);
-      l = l.substring(part.length).trim();
-    }
-    lines.push(l);
-  });
-  return lines.join('\n');
-}
+        function padTo(s, len) {
+            s = s || "";
+            if (s.length > len) return s.substring(0, len);
+            return s + " ".repeat(Math.max(0, len - s.length));
+        }
 
-// ===== CLIENT =====
-function loadClients() {
-  const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  const tbody = document.querySelector("#clientTable tbody");
-  tbody.innerHTML = "";
+        // wrap text agar sesuai lebar thermal 80mm
+        function wrapForWidth(text, widthChars = 40) {
+            const lines = [];
+            text.split('\n').forEach(line => {
+                let l = line;
+                while (l.length > widthChars) {
+                    let part = l.substring(0, widthChars);
+                    const lastSpace = part.lastIndexOf(' ');
+                    if (lastSpace > 8) {
+                        part = l.substring(0, lastSpace);
+                    }
+                    lines.push(part);
+                    l = l.substring(part.length).trim();
+                }
+                lines.push(l);
+            });
+            return lines.join('\n');
+        }
 
-  clients.forEach((c, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td style="text-align:center"><input type="checkbox" class="select-client" data-index="${i}"></td>
-      <td>${escapeHtml(c.name)}</td>
-      <td>${escapeHtml(c.whatsapp)}</td>
-      <td>
-        <button onclick="editClient(${i})">Edit</button>
-        <button onclick="deleteClient(${i})">Hapus</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
+        // ===== CLIENT =====
+        function loadClients() {
+            const clients = JSON.parse(localStorage.getItem("clients")) || [];
+            const tbody = document.querySelector("#clientTable tbody");
+            tbody.innerHTML = "";
 
-  refreshClientOptions();
-}
+            clients.forEach((c, i) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td style="text-align:center">
+                        <input type="checkbox" class="select-client" data-index="${i}">
+                    </td>
+                    <td>${escapeHtml(c.name)}</td>
+                    <td>${escapeHtml(c.whatsapp)}</td>
+                    <td>
+                        <button onclick="editClient(${i})">Edit</button>
+                        <button onclick="deleteClient(${i})">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
 
-document.querySelector("#clientForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  const name = document.querySelector("#clientName").value.trim();
-  const whatsapp = document.querySelector("#clientWhatsapp").value.trim();
+            refreshClientOptions();
+        }
 
-  if(!name || !whatsapp){ 
-    alert("Nama & nomor WhatsApp wajib"); 
-    return; 
-  }
-  
-  if(!whatsapp.startsWith("62")) { 
-    alert("Nomor WhatsApp harus diawali dengan 62, bukan 0."); 
-    return; 
-  }
+        // Event listener untuk form client
+        document.getElementById("clientForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const clients = JSON.parse(localStorage.getItem("clients")) || [];
+            const name = document.getElementById("clientName").value.trim();
+            const whatsapp = document.getElementById("clientWhatsapp").value.trim();
 
-  clients.push({ name, whatsapp });
-  localStorage.setItem("clients", JSON.stringify(clients));
-  loadClients();
-  this.reset();
-});
+            if (!name || !whatsapp) {
+                alert("Nama & nomor WhatsApp wajib");
+                return;
+            }
 
-function deleteClient(index) {
-  const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  clients.splice(index, 1);
-  localStorage.setItem("clients", JSON.stringify(clients));
-  loadClients();
-}
+            if (!whatsapp.startsWith("62")) {
+                alert("Nomor WhatsApp harus diawali dengan 62, bukan 0.");
+                return;
+            }
 
-function editClient(index) {
-  const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  const c = clients[index];
-  document.querySelector("#clientName").value = c.name;
-  document.querySelector("#clientWhatsapp").value = c.whatsapp;
-  deleteClient(index);
-}
+            clients.push({
+                name,
+                whatsapp
+            });
+            localStorage.setItem("clients", JSON.stringify(clients));
+            loadClients();
+            this.reset();
+        });
 
-document.querySelector("#deleteSelectedBtn").addEventListener("click", function() {
-  let clients = JSON.parse(localStorage.getItem("clients")) || [];
-  const checkboxes = document.querySelectorAll(".select-client:checked");
-  const indexes = [...checkboxes].map(cb => parseInt(cb.dataset.index));
-  indexes.sort((a, b) => b - a).forEach(i => clients.splice(i, 1));
-  localStorage.setItem("clients", JSON.stringify(clients));
-  loadClients();
-});
+        function deleteClient(index) {
+            const clients = JSON.parse(localStorage.getItem("clients")) || [];
+            clients.splice(index, 1);
+            localStorage.setItem("clients", JSON.stringify(clients));
+            loadClients();
+        }
 
-// ===== PRODUK =====
-let produks = JSON.parse(localStorage.getItem("produks") || "[]");
+        function editClient(index) {
+            const clients = JSON.parse(localStorage.getItem("clients")) || [];
+            const c = clients[index];
+            document.getElementById("clientName").value = c.name;
+            document.getElementById("clientWhatsapp").value = c.whatsapp;
+            deleteClient(index);
+        }
 
-function renderProduks() {
-  const tbody = document.querySelector("#produkTable tbody");
-  tbody.innerHTML = "";
-  
-  produks.forEach((p, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${escapeHtml(p.nama)}</td>
-      <td>${escapeHtml(String(p.harga))}</td>
-      <td>${escapeHtml(p.satuan)}</td>
-      <td>${escapeHtml(p.deskripsi)}</td>
-      <td>
-        <button onclick="editProduk(${i})">Edit</button>
-        <button onclick="deleteProduk(${i})">Hapus</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-  
-  refreshProdukOptions();
-}
+        // Event listener untuk hapus terpilih
+        document.getElementById("deleteSelectedBtn").addEventListener("click", function() {
+            let clients = JSON.parse(localStorage.getItem("clients")) || [];
+            const checkboxes = document.querySelectorAll(".select-client:checked");
+            const indexes = [...checkboxes].map(cb => parseInt(cb.dataset.index));
+            indexes.sort((a, b) => b - a).forEach(i => clients.splice(i, 1));
+            localStorage.setItem("clients", JSON.stringify(clients));
+            loadClients();
+        });
 
-function addProduk() {
-  const nama = document.getElementById("produkNama").value;
-  const harga = document.getElementById("produkHarga").value;
-  const satuan = document.getElementById("produkSatuan").value;
-  const deskripsi = document.getElementById("produkDeskripsi").value;
-  
-  if(!nama || !harga) {
-    alert("Nama & harga wajib");
-    return;
-  }
-  
-  produks.push({
-    nama, 
-    harga: parseInt(harga), 
-    satuan, 
-    deskripsi
-  });
-  
-  localStorage.setItem("produks", JSON.stringify(produks));
-  renderProduks();
-  
-  // Reset form
-  document.getElementById("produkNama").value = "";
-  document.getElementById("produkHarga").value = "";
-  document.getElementById("produkSatuan").value = "";
-  document.getElementById("produkDeskripsi").value = "";
-}
+        // ===== PRODUK =====
+        let produks = JSON.parse(localStorage.getItem("produks")) || [];
 
-function editProduk(i) {
-  const p = produks[i];
-  document.getElementById("produkNama").value = p.nama;
-  document.getElementById("produkHarga").value = p.harga;
-  document.getElementById("produkSatuan").value = p.satuan;
-  document.getElementById("produkDeskripsi").value = p.deskripsi;
-  produks.splice(i, 1); 
-  renderProduks();
-}
+        function renderProduks() {
+            const tbody = document.querySelector("#produkTable tbody");
+            tbody.innerHTML = "";
 
-function deleteProduk(i) {
-  produks.splice(i, 1);
-  localStorage.setItem("produks", JSON.stringify(produks));
-  renderProduks();
-}
+            produks.forEach((p, i) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${escapeHtml(p.nama)}</td>
+                    <td>${escapeHtml(String(p.harga))}</td>
+                    <td>${escapeHtml(p.satuan)}</td>
+                    <td>${escapeHtml(p.deskripsi)}</td>
+                    <td>
+                        <button onclick="editProduk(${i})">Edit</button>
+                        <button onclick="deleteProduk(${i})">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
 
-// ===== REKENING =====
-let editRekeningIndex = null;
+            refreshProdukOptions();
+        }
 
-function loadRekening() {
-  const reks = JSON.parse(localStorage.getItem("rekening")) || [];
-  const tbody = document.querySelector("#rekeningTable tbody");
-  tbody.innerHTML = "";
-  
-  reks.forEach((r, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${escapeHtml(r.bank)}</td>
-      <td>${escapeHtml(r.noRekening)}</td>
-      <td>${escapeHtml(r.noDana || "")}</td>
-      <td>${r.qrisFile ? <img src="${r.qrisFile}" width="60"> : ""}</td>
-      <td>
-        <button onclick="editRekening(${i})">Edit</button>
-        <button onclick="deleteRekening(${i})">Hapus</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+        function addProduk() {
+            const nama = document.getElementById("produkNama").value;
+            const harga = document.getElementById("produkHarga").value;
+            const satuan = document.getElementById("produkSatuan").value;
+            const deskripsi = document.getElementById("produkDeskripsi").value;
 
-document.querySelector("#rekeningForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  let reks = JSON.parse(localStorage.getItem("rekening")) || [];
-  const bank = document.querySelector("#bank").value;
-  const noRekening = document.querySelector("#noRekening").value;
-  const noDana = document.querySelector("#noDana").value;
-  const fileInput = document.querySelector("#qrisFile");
-  
-  if (fileInput.files.length > 0) {
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      const qrisFile = ev.target.result;
-      saveRekening(reks, bank, noRekening, noDana, qrisFile);
-    };
-    reader.readAsDataURL(fileInput.files[0]);
-  } else {
-    saveRekening(reks, bank, noRekening, noDana, "");
-  }
-});
+            if (!nama || !harga) {
+                alert("Nama & harga wajib");
+                return;
+            }
 
-function saveRekening(reks, bank, noRekening, noDana, qrisFile) {
-  if (editRekeningIndex !== null) {
-    reks[editRekeningIndex] = { bank, noRekening, noDana, qrisFile };
-    editRekeningIndex = null;
-  } else {
-    reks.push({ bank, noRekening, noDana, qrisFile });
-  }
-  
-  localStorage.setItem("rekening", JSON.stringify(reks));
-  document.querySelector("#rekeningForm").reset();
-  loadRekening();
-}
+            produks.push({
+                nama,
+                harga: parseInt(harga),
+                satuan,
+                deskripsi
+            });
 
-function deleteRekening(index) {
-  const reks = JSON.parse(localStorage.getItem("rekening")) || [];
-  reks.splice(index, 1);
-  localStorage.setItem("rekening", JSON.stringify(reks));
-  loadRekening();
-}
+            localStorage.setItem("produks", JSON.stringify(produks));
+            renderProduks();
+            
+            // Reset form
+            document.getElementById("produkNama").value = "";
+            document.getElementById("produkHarga").value = "";
+            document.getElementById("produkSatuan").value = "";
+            document.getElementById("produkDeskripsi").value = "";
+        }
 
-function editRekening(index) {
-  const reks = JSON.parse(localStorage.getItem("rekening")) || [];
-  const r = reks[index];
-  document.querySelector("#bank").value = r.bank;
-  document.querySelector("#noRekening").value = r.noRekening;
-  document.querySelector("#noDana").value = r.noDana || "";
-  editRekeningIndex = index;
-}
+        function editProduk(i) {
+            const p = produks[i];
+            document.getElementById("produkNama").value = p.nama;
+            document.getElementById("produkHarga").value = p.harga;
+            document.getElementById("produkSatuan").value = p.satuan;
+            document.getElementById("produkDeskripsi").value = p.deskripsi;
+            produks.splice(i, 1);
+            renderProduks();
+        }
 
-// ===== INVOICE =====
-function refreshClientOptions() {
-  const sel = document.getElementById("pilihClient"); 
-  sel.innerHTML = "";
-  const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  
-  clients.forEach((c, i) => {
-    sel.innerHTML += <option value="${i}">${escapeHtml(c.name)}</option>;
-  });
-}
+        function deleteProduk(i) {
+            produks.splice(i, 1);
+            localStorage.setItem("produks", JSON.stringify(produks));
+            renderProduks();
+        }
 
-function refreshProdukOptions() {
-  const sel = document.getElementById("pilihProduk"); 
-  sel.innerHTML = "";
-  
-  produks.forEach((p, i) => {
-    sel.innerHTML += <option value="${i}">${escapeHtml(p.nama)}</option>;
-  });
-}
+        // ===== REKENING =====
+        let editRekeningIndex = null;
 
-function generateInvoiceNo() {
-  const today = new Date(); 
-  const year = today.getFullYear();
-  const num = localStorage.getItem("lastInvoice") || 0;
-  const newNum = parseInt(num) + 1; 
-  localStorage.setItem("lastInvoice", newNum);
-  return INV/${year}/${String(newNum).padStart(4, '0')};
-}
+        function loadRekening() {
+            const reks = JSON.parse(localStorage.getItem("rekening")) || [];
+            const tbody = document.querySelector("#rekeningTable tbody");
+            tbody.innerHTML = "";
 
-let invoiceText = "";
+            reks.forEach((r, i) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${escapeHtml(r.bank)}</td>
+                    <td>${escapeHtml(r.noRekening)}</td>
+                    <td>${escapeHtml(r.noDana || "")}</td>
+                    <td>${r.qrisFile ? <img src="${r.qrisFile}" width="60"> : ""}</td>
+                    <td>
+                        <button onclick="editRekening(${i})">Edit</button>
+                        <button onclick="deleteRekening(${i})">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
 
-function reviewInvoice() {
-  const no = document.getElementById("noInvoice").value;
-  const tgl = document.getElementById("tglInvoice").value;
-  const tempo = document.getElementById("jatuhTempo").value;
-  const clientIndex = parseInt(document.getElementById("pilihClient").value || "0");
-  const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  const clientName = clients[clientIndex] ? clients[clientIndex].name : "-";
-  const produkIndex = parseInt(document.getElementById("pilihProduk").value || "0");
-  const produk = produks[produkIndex] || {nama: '-', harga: 0};
-  const periode = parseInt(document.getElementById("periode").value);
-  const total = produk.harga * periode;
+        // Event listener untuk form rekening
+        document.getElementById("rekeningForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            let reks = JSON.parse(localStorage.getItem("rekening")) || [];
+            const bank = document.getElementById("bank").value;
+            const noRekening = document.getElementById("noRekening").value;
+            const noDana = document.getElementById("noDana").value;
+            const fileInput = document.getElementById("qrisFile");
 
-  const reks = JSON.parse(localStorage.getItem("rekening")) || [];
-  const rek = reks.length ? reks[0] : {bank: "-", noRekening: "-", noDana: "-"};
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const qrisFile = ev.target.result;
+                    saveRekening(reks, bank, noRekening, noDana, qrisFile);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveRekening(reks, bank, noRekening, noDana, "");
+            }
+        });
 
-  let raw = `Halo Assalamu'alaikum Bapak/Ibu ${clientName},
+        function saveRekening(reks, bank, noRekening, noDana, qrisFile) {
+            if (editRekeningIndex !== null) {
+                reks[editRekeningIndex] = {
+                    bank,
+                    noRekening,
+                    noDana,
+                    qrisFile
+                };
+                editRekeningIndex = null;
+            } else {
+                reks.push({
+                    bank,
+                    noRekening,
+                    noDana,
+                    qrisFile
+                });
+            }
+
+            localStorage.setItem("rekening", JSON.stringify(reks));
+            document.getElementById("rekeningForm").reset();
+            loadRekening();
+        }
+
+        function deleteRekening(index) {
+            const reks = JSON.parse(localStorage.getItem("rekening")) || [];
+            reks.splice(index, 1);
+            localStorage.setItem("rekening", JSON.stringify(reks));
+            loadRekening();
+        }
+
+        function editRekening(index) {
+            const reks = JSON.parse(localStorage.getItem("rekening")) || [];
+            const r = reks[index];
+            document.getElementById("bank").value = r.bank;
+            document.getElementById("noRekening").value = r.noRekening;
+            document.getElementById("noDana").value = r.noDana || "";
+            editRekeningIndex = index;
+        }
+
+        // ===== INVOICE =====
+        function refreshClientOptions() {
+            const sel = document.getElementById("pilihClient");
+            sel.innerHTML = "";
+            const clients = JSON.parse(localStorage.getItem("clients")) || [];
+
+            clients.forEach((c, i) => {
+                sel.innerHTML += <option value="${i}">${escapeHtml(c.name)}</option>;
+            });
+        }
+
+        function refreshProdukOptions() {
+            const sel = document.getElementById("pilihProduk");
+            sel.innerHTML = "";
+
+            produks.forEach((p, i) => {
+                sel.innerHTML += <option value="${i}">${escapeHtml(p.nama)}</option>;
+            });
+        }
+
+        function generateInvoiceNo() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const num = localStorage.getItem("lastInvoice") || 0;
+            const newNum = parseInt(num) + 1;
+            localStorage.setItem("lastInvoice", newNum);
+            return INV/${year}/${String(newNum).padStart(4, '0')};
+        }
+
+        let invoiceText = "";
+
+        function reviewInvoice() {
+            const no = document.getElementById("noInvoice").value;
+            const tgl = document.getElementById("tglInvoice").value;
+            const tempo = document.getElementById("jatuhTempo").value;
+            const clientIndex = parseInt(document.getElementById("pilihClient").value || "0");
+            const clients = JSON.parse(localStorage.getItem("clients")) || [];
+            const clientName = clients[clientIndex] ? clients[clientIndex].name : "-";
+            const produkIndex = parseInt(document.getElementById("pilihProduk").value || "0");
+            const produk = produks[produkIndex] || {
+                nama: '-',
+                harga: 0
+            };
+            const periode = parseInt(document.getElementById("periode").value);
+            const total = produk.harga * periode;
+
+            const reks = JSON.parse(localStorage.getItem("rekening")) || [];
+            const rek = reks.length ? reks[0] : {
+                bank: "-",
+                noRekening: "-",
+                noDana: "-"
+            };
+
+            let raw = `Halo Assalamu'alaikum Bapak/Ibu ${clientName},
 
 Berikut tagihan layanan dari WIFI KOIN AKHFI:
 
@@ -486,147 +709,122 @@ silakan menghubungi WIFI KOIN AKHFI di:
 No. WhatsApp: 085934241038
 Terima kasih atas kepercayaan Anda.`;
 
-  // wrap agar tidak meluber di 80mm
-  invoiceText = wrapForWidth(raw, 40);
-  document.getElementById("previewBox").textContent = invoiceText;
-  document.getElementById("previewBox").style.display = "block";
-  document.getElementById("btnWa").style.display = "inline-block";
-  document.getElementById("btnPrint").style.display = "inline-block";
+            // wrap agar tidak meluber di 80mm
+            invoiceText = wrapForWidth(raw, 40);
+            document.getElementById("previewBox").textContent = invoiceText;
+            document.getElementById("previewBox").style.display = "block";
+            document.getElementById("btnWa").style.display = "inline-block";
+            document.getElementById("btnPrint").style.display = "inline-block";
 
-  // prepare printArea (untuk window.print fallback)
-  document.getElementById("printArea").innerHTML = <pre>${escapeHtml(invoiceText)}</pre>;
-}
+            // prepare printArea (untuk window.print fallback)
+            document.getElementById("printArea").innerHTML = <pre>${escapeHtml(invoiceText)}</pre>;
+        }
 
-// Kirim ke WA
-function kirimWA() {
-  const clientSelect = document.getElementById("pilihClient");
-  const clientIndex = clientSelect.selectedIndex;
-  const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  const client = clients[clientIndex];
-  
-  if(!client || !client.whatsapp) {
-    alert("Nomor WhatsApp client belum diisi.");
-    return;
-  }
-  
-  const pesan = document.getElementById("previewBox").innerText;
-  const noWa = client.whatsapp.replace(/\D/g, "");
-  const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(pesan);
-  window.open(url, "_blank");
-}
+        // Kirim ke WA
+        function kirimWA() {
+            const clientSelect = document.getElementById("pilihClient");
+            const clientIndex = clientSelect.selectedIndex;
+            const clients = JSON.parse(localStorage.getItem("clients")) || [];
+            const client = clients[clientIndex];
 
-// ===== PRINT / THERMAL =====
-function printThermal() {
-  const textToPrint = document.getElementById("previewBox").textContent;
-  if (!textToPrint) { 
-    alert("Belum ada invoice untuk dicetak."); 
-    return; 
-  }
+            if (!client || !client.whatsapp) {
+                alert("Nomor WhatsApp client belum diisi.");
+                return;
+            }
 
-  // Fallback: buka print dialog (sudah di-format ke 80mm)
-  try {
-    // Coba buka tab baru untuk print
-    const printWindow = window.open("", "_blank", "width=300,height=500,scrollbars=yes");
-    if (!printWindow) {
-      // Jika popup diblokir, gunakan print dialog langsung
-      const printContent = `
-        <html><head>
-          <meta charset="utf-8">
-          <title>Print Invoice</title>
-          <style>
-            @page { size: 80mm auto; margin: 2mm; }
-            body { font-family: monospace; margin: 0; padding: 6px; width: 80mm; box-sizing: border-box; font-size:12px; }
-            pre { white-space: pre-wrap; word-wrap: break-word; }
-          </style>
-        </head><body>
-          <pre>${escapeHtml(textToPrint)}</pre>
-        </body></html>`;
-      
-      // Buat iframe untuk print
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-      const iframeDoc = iframe.contentWindow.document;
-      iframeDoc.open();
-      iframeDoc.write(printContent);
-      iframeDoc.close();
-      
-      setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        setTimeout(() => document.body.removeChild(iframe), 1000);
-      }, 300);
-      
-      return;
-    }
-    
-    const html = `
-      <html><head>
-        <meta charset="utf-8">
-        <title>Print Invoice</title>
-        <style>
-          @page { size: 80mm auto; margin: 2mm; }
-          body { font-family: monospace; margin: 0; padding: 6px; width: 80mm; box-sizing: border-box; font-size:12px; }
-          pre { white-space: pre-wrap; word-wrap: break-word; }
-        </style>
-      </head><body>
-        <pre>${escapeHtml(textToPrint)}</pre>
-        <script>
-          window.onload = function() {
-            window.print();
-            setTimeout(function() { window.close(); }, 500);
-          };
-        </script>
-      </body></html>`;
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-  } catch (err) {
-    alert("Gagal menjalankan print dialog: " + err.message);
-  }
-}
+            const pesan = document.getElementById("previewBox").innerText;
+            const noWa = client.whatsapp.replace(/\D/g, "");
+            const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(pesan);
+            window.open(url, "_blank");
+        }
 
-// Tombol Pair Manual
-async function pairPrinterManual() {
-  if (!navigator.bluetooth) { 
-    alert("Browser tidak mendukung Web Bluetooth. Gunakan aplikasi vendor untuk printer Bluetooth Classic."); 
-    return; 
-  }
-  
-  try {
-    const device = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: [0xFFE0, 0xFFE1, 0x18F0, 0xFF00]
-    });
-    alert("Device dipilih: " + (device.name || "tidak bernama") + ". Setelah pairing, coba Cetak Thermal lagi.");
-  } catch (e) {
-    if (e.name === "NotFoundError") {
-      alert("Tidak ada perangkat Bluetooth yang ditemukan. Pastikan printer sudah dalam mode pairing.");
-    } else {
-      alert("Pairing dibatalkan atau gagal: " + e.message);
-    }
-  }
-}
+        // ===== PRINT / THERMAL =====
+        function printThermal() {
+            const textToPrint = document.getElementById("previewBox").textContent;
+            if (!textToPrint) {
+                alert("Belum ada invoice untuk dicetak.");
+                return;
+            }
 
-// ===== INIT =====
-// Inisialisasi saat halaman dimuat
-document.addEventListener('DOMContentLoaded', function() {
-  // Set default jatuh tempo untuk besok
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  document.getElementById("jatuhTempo").valueAsDate = tomorrow;
-  
-  // Set nomor invoice
-  document.getElementById("noInvoice").value = generateInvoiceNo();
-  document.getElementById("tglInvoice").value = new Date().toLocaleDateString("id-ID");
-  
-  // Load data
-  loadClients(); 
-  renderProduks(); 
-  loadRekening(); 
-  refreshClientOptions(); 
-  refreshProdukOptions();
-});
-</script>
+            // Fallback: buka print dialog (sudah di-format ke 80mm)
+            try {
+                const printContent = `
+                    <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <title>Print Invoice</title>
+                        <style>
+                            @page { size: 80mm auto; margin: 2mm; }
+                            body { font-family: monospace; margin: 0; padding: 6px; width: 80mm; box-sizing: border-box; font-size:12px; }
+                            pre { white-space: pre-wrap; word-wrap: break-word; }
+                        </style>
+                    </head>
+                    <body>
+                        <pre>${escapeHtml(textToPrint)}</pre>
+                    </body>
+                    </html>`;
+
+                // Buat iframe untuk print
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                const iframeDoc = iframe.contentWindow.document;
+                iframeDoc.open();
+                iframeDoc.write(printContent);
+                iframeDoc.close();
+
+                setTimeout(() => {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                    setTimeout(() => document.body.removeChild(iframe), 1000);
+                }, 300);
+
+            } catch (err) {
+                alert("Gagal menjalankan print dialog: " + err.message);
+            }
+        }
+
+        // Tombol Pair Manual
+        async function pairPrinterManual() {
+            if (!navigator.bluetooth) {
+                alert("Browser tidak mendukung Web Bluetooth. Gunakan aplikasi vendor untuk printer Bluetooth Classic.");
+                return;
+            }
+
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: [0xFFE0, 0xFFE1, 0x18F0, 0xFF00]
+                });
+                alert("Device dipilih: " + (device.name || "tidak bernama") + ". Setelah pairing, coba Cetak Thermal lagi.");
+            } catch (e) {
+                if (e.name === "NotFoundError") {
+                    alert("Tidak ada perangkat Bluetooth yang ditemukan. Pastikan printer sudah dalam mode pairing.");
+                } else {
+                    alert("Pairing dibatalkan atau gagal: " + e.message);
+                }
+            }
+        }
+
+        // ===== INIT =====
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default jatuh tempo untuk besok
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById("jatuhTempo").valueAsDate = tomorrow;
+
+            // Set nomor invoice
+            document.getElementById("noInvoice").value = generateInvoiceNo();
+            document.getElementById("tglInvoice").value = new Date().toLocaleDateString("id-ID");
+
+            // Load data
+            loadClients();
+            renderProduks();
+            loadRekening();
+            refreshClientOptions();
+            refreshProdukOptions();
+        });
+    </script>
 </body>
 </html>
