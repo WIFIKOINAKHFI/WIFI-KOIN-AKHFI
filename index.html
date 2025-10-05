@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>WIFI KOIN AKHFI</title>
+  <style>
+    body {font-family: Arial, sans-serif; margin: 0; background: #f5f8ff;}
+    header {background: #0044cc; color: white; padding: 15px; text-align: center; display: flex; align-items: center; justify-content: center;}
+    header img {height: 40px; margin-right: 10px;}
+    nav {display: flex; background: #007bff;}
+    nav button {flex: 1; padding: 14px; border: none; background: #007bff; color: white; font-size: 16px; cursor: pointer;}
+    nav button:hover, nav button.active {background: #0056b3;}
+    section {display: none; padding: 20px;}
+    section.active {display: block;}
+    label {display: inline-block; width: 120px; font-weight: bold; margin-top: 10px;}
+    input, select {padding: 6px; margin: 5px 0; width: calc(100% - 140px); max-width: 400px;}
+    table {width: 100%; border-collapse: collapse; margin-top: 15px;}
+    table, th, td {border: 1px solid #ccc;}
+    th, td {padding: 8px; text-align: left;}
+    .btn {background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; margin-top: 10px; cursor: pointer;}
+    .btn:hover {background: #0056b3;}
+    .btn-danger {background: red;}
+    .btn-danger:hover {background: darkred;}
+    #previewBox {background: #fff; border: 1px solid #ccc; padding: 15px; margin-top: 20px; white-space: pre; font-family: monospace;}
+  </style>
+</head>
+<body>
+  <header>
+    <img src="gatotkaca.png" alt="Logo">
+    <h1>WIFI KOIN AKHFI</h1>
+  </header>
+
+  <nav>
+    <button onclick="showTab('clientTab')" class="active">Client</button>
+    <button onclick="showTab('produkTab')">Produk</button>
+    <button onclick="showTab('rekeningTab')">Rekening/DANA</button>
+    <button onclick="showTab('invoiceTab')">Buat Invoice</button>
+  </nav>
+
+  <!-- CLIENT -->
+  <section id="clientTab" class="active">
+    <h2>Manajemen Client</h2>
+    <form id="clientForm">
+      <label>Nama</label><input type="text" id="clientName" required><br>
+      <label>WhatsApp</label><input type="text" id="clientWhatsapp" required><br>
+      <label>Email</label><input type="email" id="clientEmail"><br>
+      <button type="submit" class="btn">Tambah Client</button>
+      <button type="button" id="deleteSelectedBtn" class="btn btn-danger">Hapus Terpilih</button>
+      <input type="file" id="importClients">
+    </form>
+    <table id="clientTable">
+      <thead>
+        <tr>
+          <th>Pilih</th>
+          <th>Nama</th>
+          <th>WhatsApp</th>
+          <th>Email</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- PRODUK -->
+  <section id="produkTab">
+    <h2>Manajemen Produk</h2>
+    <label>Nama Produk</label><input id="produkNama"><br>
+    <label>Harga</label><input id="produkHarga" type="number"><br>
+    <label>Satuan</label><input id="produkSatuan"><br>
+    <label>Deskripsi</label><input id="produkDeskripsi"><br>
+    <button class="btn" onclick="addProduk()">Tambah Produk</button>
+    <table id="produkTable">
+      <thead>
+        <tr><th>Nama</th><th>Harga</th><th>Satuan</th><th>Deskripsi</th><th>Aksi</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- REKENING -->
+  <section id="rekeningTab">
+    <h2>Rekening & DANA</h2>
+    <form id="rekeningForm">
+      <label>Bank</label><input type="text" id="bank" required><br>
+      <label>No Rekening</label><input type="text" id="noRekening" required><br>
+      <label>No DANA</label><input type="text" id="noDana"><br>
+      <label>Upload QRIS</label><input type="file" id="qrisFile"><br>
+      <button type="submit" class="btn">Simpan Rekening</button>
+    </form>
+    <table id="rekeningTable">
+      <thead>
+        <tr><th>Bank</th><th>No Rekening</th><th>No DANA</th><th>QRIS</th><th>Aksi</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- INVOICE -->
+  <section id="invoiceTab">
+    <h2>Buat Invoice</h2>
+    <label>Nomor Invoice</label><input id="noInvoice" readonly><br>
+    <label>Tanggal</label><input id="tglInvoice" readonly><br>
+    <label>Jatuh Tempo</label><input type="date" id="jatuhTempo"><br>
+    <label>Pilih Client</label><select id="pilihClient"></select><br>
+    <label>Pilih Produk</label><select id="pilihProduk"></select><br>
+    <label>Periode</label>
+    <select id="periode">
+      <option value="1">1 Bulan</option>
+      <option value="2">2 Bulan</option>
+      <option value="3">3 Bulan</option>
+      <option value="6">6 Bulan</option>
+    </select><br>
+    <button class="btn" onclick="reviewInvoice()">REVIEW INVOICE</button>
+    <div id="previewBox"></div>
+    <button id="btnWa" class="btn" style="display:none;background:green;" onclick="kirimWA()">Kirim ke WhatsApp</button>
+    <button id="btnPrint" class="btn" style="background:orange;display:none;" onclick="printThermal()">Cetak Thermal</button>
+  </section>
+
+<script>
+/* ===== NAVIGASI ===== */
+function showTab(id) {
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+}
+
+/* ===== CLIENT ===== */
+function loadClients() {
+  const clients = JSON.parse(localStorage.getItem("clients")) || [];
+  const tbody = document.querySelector("#clientTable tbody");
+  tbody.innerHTML = "";
+  clients.forEach((c, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="checkbox" class="select-client" data-index="${i}"></td>
+      <td>${c.name}</td>
+      <td>${c.whatsapp}</td>
+      <td>${c.email || ""}</td>
+      <td>
+        <button onclick="editClient(${i})">Edit</button>
+        <button onclick="deleteClient(${i})">Hapus</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  refreshClientOptions();
+}
+
+document.querySelector("#clientForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const clients = JSON.parse(localStorage.getItem("clients")) || [];
+  const name = document.querySelector("#clientName").value;
+  const whatsapp = document.querySelector("#clientWhatsapp").value;
+  const email = document.querySelector("#clientEmail").value;
+  clients.push({ name, whatsapp, email });
+  localStorage.setItem("clients", JSON.stringify(clients));
+  loadClients();
+  e.target.reset();
+});
+
+function deleteClient(index) {
+  const clients = JSON.parse(localStorage.getItem("clients")) || [];
+  clients.splice(index, 1);
+  localStorage.setItem("clients", JSON.stringify(clients));
+  loadClients();
+}
+
+function editClient(index) {
+  const clients = JSON.parse(localStorage.getItem("clients")) || [];
+  const c = clients[index];
+  document.querySelector("#clientName").value = c.name;
+  document.querySelector("#clientWhatsapp").value = c.whatsapp;
+  document.querySelector("#clientEmail").value = c.email;
+  deleteClient(index);
+}
+
+document.querySelector("#deleteSelectedBtn").addEventListener("click", () => {
+  let clients = JSON.parse(localStorage.getItem("clients")) || [];
+  const checkboxes = document.querySelectorAll(".select-client:checked");
+  const indexes = [...checkboxes].map(cb => parseInt(cb.dataset.index));
+  indexes.sort((a, b) => b - a).forEach(i => clients.splice(i, 1));
+  localStorage.setItem("clients", JSON.stringify(clients));
+  loadClients();
+});
+
+/* ===== PRODUK ===== */
+let produks = JSON.parse(localStorage.getItem("produks")||"[]");
+function renderProduks(){
+  const tbody=document.querySelector("#produkTable tbody");
+  tbody.innerHTML="";
+  produks.forEach((p,i)=>tbody.innerHTML+=`<tr>
+    <td>${p.nama}</td><td>${p.harga}</td><td>${p.satuan}</td><td>${p.deskripsi}</td>
+    <td><button onclick="editProduk(${i})">Edit</button>
+    <button onclick="deleteProduk(${i})">Hapus</button></td>
+  </tr>`);
+  refreshProdukOptions();
+}
+function addProduk(){
+  const nama=document.getElementById("produkNama").value;
+  const harga=document.getElementById("produkHarga").value;
+  const satuan=document.getElementById("produkSatuan").value;
+  const deskripsi=document.getElementById("produkDeskripsi").value;
+  if(!nama||!harga){alert("Nama & harga wajib");return;}
+  produks.push({nama,harga:parseInt(harga),satuan,deskripsi});
+  localStorage.setItem("produks",JSON.stringify(produks));
+  renderProduks();
+}
+function editProduk(i){
+  const p=produks[i];
+  document.getElementById("produkNama").value=p.nama;
+  document.getElementById("produkHarga").value=p.harga;
+  document.getElementById("produkSatuan").value=p.satuan;
+  document.getElementById("produkDeskripsi").value=p.deskripsi;
+  produks.splice(i,1); renderProduks();
+}
+function deleteProduk(i){
+  produks.splice(i,1);
+  localStorage.setItem("produks",JSON.stringify(produks));
+  renderProduks();
+}
+
+/* ===== REKENING ===== */
+let editRekeningIndex = null;
+function loadRekening() {
+  const reks = JSON.parse(localStorage.getItem("rekening")) || [];
+  const tbody = document.querySelector("#rekeningTable tbody");
+  tbody.innerHTML = "";
+  reks.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.bank}</td>
+      <td>${r.noRekening}</td>
+      <td>${r.noDana || ""}</td>
+      <td>${r.qrisFile ? `<img src="${r.qrisFile}" width="60">` : ""}</td>
+      <td>
+        <button onclick="editRekening(${i})">Edit</button>
+        <button onclick="deleteRekening(${i})">Hapus</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+document.querySelector("#rekeningForm").addEventListener("submit", e => {
+  e.preventDefault();
+  let reks = JSON.parse(localStorage.getItem("rekening")) || [];
+
+  const bank = document.querySelector("#bank").value;
+  const noRekening = document.querySelector("#noRekening").value;
+  const noDana = document.querySelector("#noDana").value;
+  const fileInput = document.querySelector("#qrisFile");
+  let qrisFile = "";
+
+  if (fileInput.files.length > 0) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      qrisFile = ev.target.result;
+      saveRekening(reks, bank, noRekening, noDana, qrisFile);
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    saveRekening(reks, bank, noRekening, noDana, qrisFile);
+  }
+});
+
+function saveRekening(reks, bank, noRekening, noDana, qrisFile) {
+  if (editRekeningIndex !== null) {
+    reks[editRekeningIndex] = { bank, noRekening, noDana, qrisFile };
+    editRekeningIndex = null;
+  } else {
+    reks.push({ bank, noRekening, noDana, qrisFile });
+  }
+  localStorage.setItem("rekening", JSON.stringify(reks));
+  document.querySelector("#rekeningForm").reset();
+  loadRekening();
+}
+
+function deleteRekening(index) {
+  const reks = JSON.parse(localStorage.getItem("rekening")) || [];
+  reks.splice(index, 1);
+  localStorage.setItem("rekening", JSON.stringify(reks));
+  loadRekening();
+}
+
+function editRekening(index) {
+  const reks = JSON.parse(localStorage.getItem("rekening")) || [];
+  const r = reks[index];
+  document.querySelector("#bank").value = r.bank;
+  document.querySelector("#noRekening").value = r.noRekening;
+  document.querySelector("#noDana").value = r.noDana;
+  editRekeningIndex = index;
+}
+
+/* ===== INVOICE ===== */
+function refreshClientOptions(){
+  const sel=document.getElementById("pilihClient"); sel.innerHTML="";
+  const clients = JSON.parse(localStorage.getItem("clients")) || [];
+  clients.forEach(c=>sel.innerHTML+=`<option>${c.name}</option>`);
+}
+function refreshProdukOptions(){
+  const sel=document.getElementById("pilihProduk"); sel.innerHTML="";
+  produks.forEach((p,i)=>sel.innerHTML+=`<option value="${i}">${p.nama}</option>`);
+}
+function generateInvoiceNo(){
+  const today=new Date(); const year=today.getFullYear();
+  const num=localStorage.getItem("lastInvoice")||0;
+  const newNum=parseInt(num)+1; localStorage.setItem("lastInvoice",newNum);
+  return `INV/${year}/${String(newNum).padStart(4,'0')}`;
+}
+document.getElementById("noInvoice").value=generateInvoiceNo();
+document.getElementById("tglInvoice").value=new Date().toLocaleDateString("id-ID");
+let invoiceText="";
+function reviewInvoice(){
+  const no=document.getElementById("noInvoice").value;
+  const tgl=document.getElementById("tglInvoice").value;
+  const tempo=document.getElementById("jatuhTempo").value;
+  const client=document.getElementById("pilihClient").value;
+  const produkIndex=parseInt(document.getElementById("pilihProduk").value);
+  const produk=produks[produkIndex];
+  const periode=parseInt(document.getElementById("periode").value);
+  const total=produk.harga*periode;
+
+  const reks = JSON.parse(localStorage.getItem("rekening")) || [];
+  const rek = reks.length? reks[0] : {bank:"-",noRekening:"-",noDana:"-"};
+
+  invoiceText=`Halo Assalamu'alaikum Bapak/Ibu ${client},
+
+Berikut tagihan layanan dari WIFI KOIN AKHFI:
+
+Pengirim Invoice: ASISTEN AI WIFI KOIN AKHFI
+Nomor   : ${no}
+Tanggal : ${tgl}
+Jatuh Tempo: ${tempo}
+
+=========================================
+| Produk                     | Periode | Total   |
+-----------------------------------------
+| ${produk.nama.padEnd(25)} | ${periode} Bulan | Rp ${total.toLocaleString()} |
+=========================================
+
+Total yang harus dibayar: Rp ${total.toLocaleString()}
+
+Anda bisa bayar Invoice dengan Transfer ke bank :
+REKENING  : ${rek.bank} ${rek.noRekening}
+TOPUP DANA: ${rek.noDana}
+
+Jika ada pertanyaan lebih lanjut,
+silakan menghubungi WIFI KOIN AKHFI di:
+
+No. WhatsApp: 085934241038
+Terima kasih atas kepercayaan Anda.`;
+
+  document.getElementById("previewBox").textContent=invoiceText;
+  document.getElementById("btnWa").style.display="block";
+  document.getElementById("btnPrint").style.display="inline-block";
+}
+
+function kirimWA(){
+  const clientSelect = document.getElementById("pilihClient");
+  const clientIndex = clientSelect.selectedIndex;
+  const clients = JSON.parse(localStorage.getItem("clients")) || [];
+  const client = clients[clientIndex];
+  if(!client || !client.whatsapp){
+    alert("Nomor WhatsApp client belum diisi.");
+    return;
+  }
+  const pesan = document.getElementById("previewBox").innerText;
+  const noWa = client.whatsapp.replace(/\D/g,"");
+  const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(pesan);
+  window.open(url,"_blank");
+}
+
+/* CETAK THERMAL */
+function printThermal() {
+  const content = document.getElementById("previewBox").innerText;
+  const w = window.open("", "Print", "width=300,height=600");
+  w.document.write("<pre style='font-family:monospace'>" + content + "</pre>");
+  w.document.close();
+  w.print();
+}
+
+/* ===== INIT ===== */
+loadClients(); renderProduks(); loadRekening();
+</script>
+</body>
+</html>
