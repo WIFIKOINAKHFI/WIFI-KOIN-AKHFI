@@ -163,29 +163,33 @@
   <div id="printArea" style="display:none;"></div>
 
 <script>
-/* ===== NAVIGASI ===== */
+// ===== NAVIGASI =====
 function showTab(id) {
-  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
   event.target.classList.add("active");
 }
 
-/* ===== HELPERS ===== */
-function escapeHtml(str){ if(!str) return ""; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function padTo(s,len){ s = s || ""; if(s.length>len) return s.substring(0,len); return s + " ".repeat(Math.max(0,len-s.length)); }
+// ===== HELPERS =====
+function escapeHtml(str) { 
+  if(!str) return ""; 
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); 
+}
 
-/* wrap text agar sesuai lebar thermal 80mm.
-   Asumsi: 80mm kira-kira 40-45 karakter monospace tergantung font-size.
-   Kita gunakan widthChars = 40 yang aman.
-*/
+function padTo(s, len) { 
+  s = s || ""; 
+  if(s.length > len) return s.substring(0, len); 
+  return s + " ".repeat(Math.max(0, len - s.length)); 
+}
+
+// wrap text agar sesuai lebar thermal 80mm
 function wrapForWidth(text, widthChars = 40) {
   const lines = [];
   text.split('\n').forEach(line => {
     let l = line;
     while (l.length > widthChars) {
       let part = l.substring(0, widthChars);
-      // coba potong di spasi terakhir agar rapi
       const lastSpace = part.lastIndexOf(' ');
       if (lastSpace > 8) {
         part = l.substring(0, lastSpace);
@@ -198,7 +202,7 @@ function wrapForWidth(text, widthChars = 40) {
   return lines.join('\n');
 }
 
-/* ===== CLIENT ===== */
+// ===== CLIENT =====
 function loadClients() {
   const clients = JSON.parse(localStorage.getItem("clients")) || [];
   const tbody = document.querySelector("#clientTable tbody");
@@ -221,19 +225,26 @@ function loadClients() {
   refreshClientOptions();
 }
 
-document.querySelector("#clientForm").addEventListener("submit", e => {
+document.querySelector("#clientForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const clients = JSON.parse(localStorage.getItem("clients")) || [];
   const name = document.querySelector("#clientName").value.trim();
   const whatsapp = document.querySelector("#clientWhatsapp").value.trim();
 
-  if(!name || !whatsapp){ alert("Nama & nomor WhatsApp wajib"); return; }
-  if(!whatsapp.startsWith("62")) { alert("Nomor WhatsApp harus diawali dengan 62, bukan 0."); return; }
+  if(!name || !whatsapp){ 
+    alert("Nama & nomor WhatsApp wajib"); 
+    return; 
+  }
+  
+  if(!whatsapp.startsWith("62")) { 
+    alert("Nomor WhatsApp harus diawali dengan 62, bukan 0."); 
+    return; 
+  }
 
   clients.push({ name, whatsapp });
   localStorage.setItem("clients", JSON.stringify(clients));
   loadClients();
-  e.target.reset();
+  this.reset();
 });
 
 function deleteClient(index) {
@@ -251,7 +262,7 @@ function editClient(index) {
   deleteClient(index);
 }
 
-document.querySelector("#deleteSelectedBtn").addEventListener("click", () => {
+document.querySelector("#deleteSelectedBtn").addEventListener("click", function() {
   let clients = JSON.parse(localStorage.getItem("clients")) || [];
   const checkboxes = document.querySelectorAll(".select-client:checked");
   const indexes = [...checkboxes].map(cb => parseInt(cb.dataset.index));
@@ -260,48 +271,83 @@ document.querySelector("#deleteSelectedBtn").addEventListener("click", () => {
   loadClients();
 });
 
-/* ===== PRODUK ===== */
-let produks = JSON.parse(localStorage.getItem("produks")||"[]");
-function renderProduks(){
-  const tbody=document.querySelector("#produkTable tbody");
-  tbody.innerHTML="";
-  produks.forEach((p,i)=>tbody.innerHTML+=`<tr>
-    <td>${escapeHtml(p.nama)}</td><td>${escapeHtml(String(p.harga))}</td><td>${escapeHtml(p.satuan)}</td><td>${escapeHtml(p.deskripsi)}</td>
-    <td><button onclick="editProduk(${i})">Edit</button>
-    <button onclick="deleteProduk(${i})">Hapus</button></td>
-  </tr>`);
+// ===== PRODUK =====
+let produks = JSON.parse(localStorage.getItem("produks") || "[]");
+
+function renderProduks() {
+  const tbody = document.querySelector("#produkTable tbody");
+  tbody.innerHTML = "";
+  
+  produks.forEach((p, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(p.nama)}</td>
+      <td>${escapeHtml(String(p.harga))}</td>
+      <td>${escapeHtml(p.satuan)}</td>
+      <td>${escapeHtml(p.deskripsi)}</td>
+      <td>
+        <button onclick="editProduk(${i})">Edit</button>
+        <button onclick="deleteProduk(${i})">Hapus</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  
   refreshProdukOptions();
 }
-function addProduk(){
-  const nama=document.getElementById("produkNama").value;
-  const harga=document.getElementById("produkHarga").value;
-  const satuan=document.getElementById("produkSatuan").value;
-  const deskripsi=document.getElementById("produkDeskripsi").value;
-  if(!nama||!harga){alert("Nama & harga wajib");return;}
-  produks.push({nama,harga:parseInt(harga),satuan,deskripsi});
-  localStorage.setItem("produks",JSON.stringify(produks));
+
+function addProduk() {
+  const nama = document.getElementById("produkNama").value;
+  const harga = document.getElementById("produkHarga").value;
+  const satuan = document.getElementById("produkSatuan").value;
+  const deskripsi = document.getElementById("produkDeskripsi").value;
+  
+  if(!nama || !harga) {
+    alert("Nama & harga wajib");
+    return;
+  }
+  
+  produks.push({
+    nama, 
+    harga: parseInt(harga), 
+    satuan, 
+    deskripsi
+  });
+  
+  localStorage.setItem("produks", JSON.stringify(produks));
   renderProduks();
+  
+  // Reset form
+  document.getElementById("produkNama").value = "";
+  document.getElementById("produkHarga").value = "";
+  document.getElementById("produkSatuan").value = "";
+  document.getElementById("produkDeskripsi").value = "";
 }
-function editProduk(i){
-  const p=produks[i];
-  document.getElementById("produkNama").value=p.nama;
-  document.getElementById("produkHarga").value=p.harga;
-  document.getElementById("produkSatuan").value=p.satuan;
-  document.getElementById("produkDeskripsi").value=p.deskripsi;
-  produks.splice(i,1); renderProduks();
-}
-function deleteProduk(i){
-  produks.splice(i,1);
-  localStorage.setItem("produks",JSON.stringify(produks));
+
+function editProduk(i) {
+  const p = produks[i];
+  document.getElementById("produkNama").value = p.nama;
+  document.getElementById("produkHarga").value = p.harga;
+  document.getElementById("produkSatuan").value = p.satuan;
+  document.getElementById("produkDeskripsi").value = p.deskripsi;
+  produks.splice(i, 1); 
   renderProduks();
 }
 
-/* ===== REKENING ===== */
+function deleteProduk(i) {
+  produks.splice(i, 1);
+  localStorage.setItem("produks", JSON.stringify(produks));
+  renderProduks();
+}
+
+// ===== REKENING =====
 let editRekeningIndex = null;
+
 function loadRekening() {
   const reks = JSON.parse(localStorage.getItem("rekening")) || [];
   const tbody = document.querySelector("#rekeningTable tbody");
   tbody.innerHTML = "";
+  
   reks.forEach((r, i) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -318,24 +364,23 @@ function loadRekening() {
   });
 }
 
-document.querySelector("#rekeningForm").addEventListener("submit", e => {
+document.querySelector("#rekeningForm").addEventListener("submit", function(e) {
   e.preventDefault();
   let reks = JSON.parse(localStorage.getItem("rekening")) || [];
   const bank = document.querySelector("#bank").value;
   const noRekening = document.querySelector("#noRekening").value;
   const noDana = document.querySelector("#noDana").value;
   const fileInput = document.querySelector("#qrisFile");
-  let qrisFile = "";
-
+  
   if (fileInput.files.length > 0) {
     const reader = new FileReader();
     reader.onload = function(ev) {
-      qrisFile = ev.target.result;
+      const qrisFile = ev.target.result;
       saveRekening(reks, bank, noRekening, noDana, qrisFile);
     };
     reader.readAsDataURL(fileInput.files[0]);
   } else {
-    saveRekening(reks, bank, noRekening, noDana, qrisFile);
+    saveRekening(reks, bank, noRekening, noDana, "");
   }
 });
 
@@ -346,6 +391,7 @@ function saveRekening(reks, bank, noRekening, noDana, qrisFile) {
   } else {
     reks.push({ bank, noRekening, noDana, qrisFile });
   }
+  
   localStorage.setItem("rekening", JSON.stringify(reks));
   document.querySelector("#rekeningForm").reset();
   loadRekening();
@@ -363,43 +409,55 @@ function editRekening(index) {
   const r = reks[index];
   document.querySelector("#bank").value = r.bank;
   document.querySelector("#noRekening").value = r.noRekening;
-  document.querySelector("#noDana").value = r.noDana;
+  document.querySelector("#noDana").value = r.noDana || "";
   editRekeningIndex = index;
 }
 
-/* ===== INVOICE ===== */
-function refreshClientOptions(){
-  const sel=document.getElementById("pilihClient"); sel.innerHTML="";
+// ===== INVOICE =====
+function refreshClientOptions() {
+  const sel = document.getElementById("pilihClient"); 
+  sel.innerHTML = "";
   const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  clients.forEach((c, i) => sel.innerHTML += <option value="${i}">${escapeHtml(c.name)}</option>);
+  
+  clients.forEach((c, i) => {
+    sel.innerHTML += <option value="${i}">${escapeHtml(c.name)}</option>;
+  });
 }
-function refreshProdukOptions(){
-  const sel=document.getElementById("pilihProduk"); sel.innerHTML="";
-  produks.forEach((p,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(p.nama)}</option>);
+
+function refreshProdukOptions() {
+  const sel = document.getElementById("pilihProduk"); 
+  sel.innerHTML = "";
+  
+  produks.forEach((p, i) => {
+    sel.innerHTML += <option value="${i}">${escapeHtml(p.nama)}</option>;
+  });
 }
-function generateInvoiceNo(){
-  const today=new Date(); const year=today.getFullYear();
-  const num=localStorage.getItem("lastInvoice")||0;
-  const newNum=parseInt(num)+1; localStorage.setItem("lastInvoice",newNum);
-  return INV/${year}/${String(newNum).padStart(4,'0')};
+
+function generateInvoiceNo() {
+  const today = new Date(); 
+  const year = today.getFullYear();
+  const num = localStorage.getItem("lastInvoice") || 0;
+  const newNum = parseInt(num) + 1; 
+  localStorage.setItem("lastInvoice", newNum);
+  return INV/${year}/${String(newNum).padStart(4, '0')};
 }
-document.getElementById("noInvoice").value=generateInvoiceNo();
-document.getElementById("tglInvoice").value=new Date().toLocaleDateString("id-ID");
-let invoiceText="";
-function reviewInvoice(){
-  const no=document.getElementById("noInvoice").value;
-  const tgl=document.getElementById("tglInvoice").value;
-  const tempo=document.getElementById("jatuhTempo").value;
+
+let invoiceText = "";
+
+function reviewInvoice() {
+  const no = document.getElementById("noInvoice").value;
+  const tgl = document.getElementById("tglInvoice").value;
+  const tempo = document.getElementById("jatuhTempo").value;
   const clientIndex = parseInt(document.getElementById("pilihClient").value || "0");
   const clients = JSON.parse(localStorage.getItem("clients")) || [];
   const clientName = clients[clientIndex] ? clients[clientIndex].name : "-";
-  const produkIndex=parseInt(document.getElementById("pilihProduk").value || "0");
-  const produk=produks[produkIndex] || {nama:'-',harga:0};
-  const periode=parseInt(document.getElementById("periode").value);
-  const total=produk.harga * periode;
+  const produkIndex = parseInt(document.getElementById("pilihProduk").value || "0");
+  const produk = produks[produkIndex] || {nama: '-', harga: 0};
+  const periode = parseInt(document.getElementById("periode").value);
+  const total = produk.harga * periode;
 
   const reks = JSON.parse(localStorage.getItem("rekening")) || [];
-  const rek = reks.length? reks[0] : {bank:"-",noRekening:"-",noDana:"-"};
+  const rek = reks.length ? reks[0] : {bank: "-", noRekening: "-", noDana: "-"};
 
   let raw = `Halo Assalamu'alaikum Bapak/Ibu ${clientName},
 
@@ -413,7 +471,7 @@ Jatuh Tempo: ${tempo}
 =========================================
 | Produk                     | Periode | Total   |
 -----------------------------------------
-| ${padTo(produk.nama,25)} | ${periode} Bulan | Rp ${total.toLocaleString()} |
+| ${padTo(produk.nama, 25)} | ${periode} Bulan | Rp ${total.toLocaleString()} |
 =========================================
 
 Total yang harus dibayar: Rp ${total.toLocaleString()}
@@ -439,119 +497,33 @@ Terima kasih atas kepercayaan Anda.`;
   document.getElementById("printArea").innerHTML = <pre>${escapeHtml(invoiceText)}</pre>;
 }
 
-/* Kirim ke WA */
-function kirimWA(){
+// Kirim ke WA
+function kirimWA() {
   const clientSelect = document.getElementById("pilihClient");
   const clientIndex = clientSelect.selectedIndex;
   const clients = JSON.parse(localStorage.getItem("clients")) || [];
   const client = clients[clientIndex];
-  if(!client || !client.whatsapp){
+  
+  if(!client || !client.whatsapp) {
     alert("Nomor WhatsApp client belum diisi.");
     return;
   }
+  
   const pesan = document.getElementById("previewBox").innerText;
-  const noWa = client.whatsapp.replace(/\D/g,"");
+  const noWa = client.whatsapp.replace(/\D/g, "");
   const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(pesan);
-  window.open(url,"_blank");
+  window.open(url, "_blank");
 }
 
-/* ===== PRINT / THERMAL =====
-   Pendekatan:
-   1) Coba Web Bluetooth (BLE/GATT) — jika printer BLE/GATT
-   2) Jika gagal, coba WebUSB detection (non-intrusive)
-   3) Fallback ke window.print() + @page 80mm
-   Terdapat tombol Pair Manual yang memanggil requestDevice() (popup)
-*/
-const PREFERRED_PRINTER_NAMES = ["InnerPrinter","BT-Printer","POS-80","POS80","Thermal","EPSON","XPrinter","Zjiang"]; // tambah nama umum
-
-async function printThermal() {
+// ===== PRINT / THERMAL =====
+function printThermal() {
   const textToPrint = document.getElementById("previewBox").textContent;
-  if (!textToPrint) { alert("Belum ada invoice untuk dicetak."); return; }
-
-  // 1) Coba Web Bluetooth
-  if (navigator.bluetooth) {
-    try {
-      // cek device yang pernah diizinkan
-      let devices = [];
-      if (navigator.bluetooth.getDevices) {
-        devices = await navigator.bluetooth.getDevices();
-      }
-      let printerDevice = devices.find(d => PREFERRED_PRINTER_NAMES.some(n=> new RegExp(n,"i").test(d.name || "")));
-
-      if (!printerDevice) {
-        // minta pairing dengan acceptAllDevices: true (akan munculkan popup)
-        try {
-          printerDevice = await navigator.bluetooth.requestDevice({
-            acceptAllDevices: true,
-            optionalServices: [0xFFE0, 0xFFE1, 0x18F0, 0xFF00] // coba beberapa service umum
-          });
-        } catch (reqErr) {
-          console.warn("requestDevice gagal:", reqErr);
-          throw reqErr;
-        }
-      }
-
-      if (!printerDevice) throw new Error("Printer Bluetooth tidak ditemukan/di-pair.");
-
-      const server = await printerDevice.gatt.connect();
-
-      // coba beberapa service yang mungkin tersedia
-      const candidateServices = [0xFFE0, 0xFFE1, 0x18F0, 0xFF00];
-      let service = null;
-      for (const s of candidateServices) {
-        try {
-          service = await server.getPrimaryService(s);
-          if (service) break;
-        } catch (e) { /* ignore */ }
-      }
-      if (!service) {
-        // ambil service pertama sebagai fallback
-        const services = await server.getPrimaryServices();
-        if (services && services.length) service = services[0];
-      }
-      if (!service) throw new Error("Tidak dapat menemukan service GATT pada printer.");
-
-      // cari characteristic yang writable
-      let chars = await service.getCharacteristics();
-      let char = chars.find(c => c.properties && (c.properties.write || c.properties.writeWithoutResponse));
-      if (!char && chars.length) char = chars[0];
-      if (!char) throw new Error("Tidak menemukan characteristic writable pada service printer.");
-
-      // convert text ke bytes (ESC/POS lightweight)
-      // NOTE: Untuk pemotongan kertas otomatis atau set align, perlu ESC/POS commands (tidak semua karakter printer terima)
-      const encoder = new TextEncoder();
-      const data = encoder.encode(textToPrint + "\n\n\n");
-
-      if (char.properties.writeWithoutResponse) {
-        await char.writeValueWithoutResponse(data);
-      } else {
-        await char.writeValue(data);
-      }
-
-      alert("Invoice dikirim ke printer Bluetooth: " + (printerDevice.name || "printer"));
-      try { await server.disconnect(); } catch(e){}
-
-      return; // selesai
-    } catch (btErr) {
-      console.warn("Web Bluetooth gagal/terbatas:", btErr);
-      // lanjut ke fallback
-    }
+  if (!textToPrint) { 
+    alert("Belum ada invoice untuk dicetak."); 
+    return; 
   }
 
-  // 2) (Optional) Coba WebUSB detect - kita hanya gunakan untuk informasi, tidak implementasi komunikasi lengkap
-  if (navigator.usb) {
-    try {
-      const usbDevices = await navigator.usb.getDevices();
-      const usbPrinter = usbDevices.find(d => (d.productName || "").match(/printer|epson|thermal|pos/i));
-      if (usbPrinter) {
-        console.warn("Ditemukan USB device yang tampak seperti printer. Gunakan dialog cetak browser (fallback).");
-      }
-    } catch (usbErr) {
-      console.warn("WebUSB error:", usbErr);
-    }
-  }
-
-  // 3) Fallback: buka print dialog (sudah di-format ke 80mm)
+  // Fallback: buka print dialog (sudah di-format ke 80mm)
   try {
     // Coba buka tab baru untuk print
     const printWindow = window.open("", "_blank", "width=300,height=500,scrollbars=yes");
@@ -614,12 +586,13 @@ async function printThermal() {
   }
 }
 
-/* Tombol Pair Manual — memanggil requestDevice agar user bisa memilih printer manual */
+// Tombol Pair Manual
 async function pairPrinterManual() {
   if (!navigator.bluetooth) { 
     alert("Browser tidak mendukung Web Bluetooth. Gunakan aplikasi vendor untuk printer Bluetooth Classic."); 
     return; 
   }
+  
   try {
     const device = await navigator.bluetooth.requestDevice({
       acceptAllDevices: true,
@@ -635,32 +608,25 @@ async function pairPrinterManual() {
   }
 }
 
-/* ===== INIT ===== */
-function refreshClientOptions(){ 
-  const sel=document.getElementById("pilihClient"); 
-  sel.innerHTML=""; 
-  const clients = JSON.parse(localStorage.getItem("clients")) || []; 
-  clients.forEach((c,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(c.name)}</option>); 
-}
-
-function refreshProdukOptions(){ 
-  const sel=document.getElementById("pilihProduk"); 
-  sel.innerHTML=""; 
-  produks.forEach((p,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(p.nama)}</option>); 
-}
-
-// Inisialisasi
-loadClients(); 
-renderProduks(); 
-loadRekening(); 
-refreshClientOptions(); 
-refreshProdukOptions();
-
-// Set default jatuh tempo untuk besok
-const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
-document.getElementById("jatuhTempo").valueAsDate = tomorrow;
-
+// ===== INIT =====
+// Inisialisasi saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+  // Set default jatuh tempo untuk besok
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById("jatuhTempo").valueAsDate = tomorrow;
+  
+  // Set nomor invoice
+  document.getElementById("noInvoice").value = generateInvoiceNo();
+  document.getElementById("tglInvoice").value = new Date().toLocaleDateString("id-ID");
+  
+  // Load data
+  loadClients(); 
+  renderProduks(); 
+  loadRekening(); 
+  refreshClientOptions(); 
+  refreshProdukOptions();
+});
 </script>
 </body>
 </html>
