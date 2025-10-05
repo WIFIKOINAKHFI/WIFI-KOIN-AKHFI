@@ -1,28 +1,53 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>WIFI KOIN AKHFI</title>
-  <style>
-    body {font-family: Arial, sans-serif; margin: 0; background: #f5f8ff;}
-    header {background: #0044cc; color: white; padding: 15px; text-align: center; display: flex; align-items: center; justify-content: center;}
-    header img {height: 40px; margin-right: 10px;}
-    nav {display: flex; background: #007bff;}
-    nav button {flex: 1; padding: 14px; border: none; background: #007bff; color: white; font-size: 16px; cursor: pointer;}
-    nav button:hover, nav button.active {background: #0056b3;}
-    section {display: none; padding: 20px;}
-    section.active {display: block;}
-    label {display: inline-block; width: 120px; font-weight: bold; margin-top: 10px;}
-    input, select {padding: 6px; margin: 5px 0; width: calc(100% - 140px); max-width: 400px;}
-    table {width: 100%; border-collapse: collapse; margin-top: 15px;}
-    table, th, td {border: 1px solid #ccc;}
-    th, td {padding: 8px; text-align: left;}
-    .btn {background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; margin-top: 10px; cursor: pointer;}
-    .btn:hover {background: #0056b3;}
-    .btn-danger {background: red;}
-    .btn-danger:hover {background: darkred;}
-    #previewBox {background: #fff; border: 1px solid #ccc; padding: 15px; margin-top: 20px; white-space: pre; font-family: monospace;}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WIFI KOIN AKHFI</title>
+<style>
+  /* ===== dasar layout (sama gaya seperti sebelumnya) ===== */
+  body {font-family: Arial, sans-serif; margin: 0; background: #f5f8ff; color:#222;}
+  header {background: #0044cc; color: white; padding: 15px; display:flex; align-items:center; justify-content:center;}
+  header img {height: 40px; margin-right: 10px;}
+  nav {display: flex; background: #007bff;}
+  nav button {flex: 1; padding: 14px; border: none; background: #007bff; color: white; font-size: 16px; cursor: pointer;}
+  nav button:hover, nav button.active {background: #0056b3;}
+  section {display: none; padding: 20px;}
+  section.active {display: block;}
+  label {display: inline-block; width: 120px; font-weight: bold; margin-top: 10px;}
+  input, select, textarea {padding: 6px; margin: 5px 0; width: calc(100% - 140px); max-width: 400px; box-sizing: border-box;}
+  textarea {width: calc(100% - 140px); max-width: 600px;}
+  table {width: 100%; border-collapse: collapse; margin-top: 15px;}
+  table, th, td {border: 1px solid #ccc;}
+  th, td {padding: 8px; text-align: left;}
+  .btn {background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; margin-top: 10px; cursor: pointer;}
+  .btn:hover {background: #0056b3;}
+  .btn-danger {background: red;}
+  .btn-danger:hover {background: darkred;}
+  #previewBox {background: #fff; border: 1px solid #ccc; padding: 15px; margin-top: 20px; white-space: pre; font-family: monospace; font-size:12px;}
+  .small { font-size: 13px; color: #666; }
+
+  /* Pastikan kolom checkbox terlihat di semua device */
+  #clientTable td:first-child, #clientTable th:first-child { width: 56px; text-align:center; }
+  #clientTable input[type="checkbox"] { display:inline-block; width:18px; height:18px; }
+
+  @media (max-width: 600px) {
+    input, select, textarea { width: 100%; max-width: 100%; }
+    label {display:block; width:auto;}
+    #clientTable td:first-child { width: 44px; }
+    #clientTable input[type="checkbox"] { transform: scale(1.3); margin: 6px; }
+  }
+
+  /* print rules: set page size 80mm */
+  @media print {
+    @page { size: 80mm auto; margin: 2mm; }
+    body { margin: 0; }
+    /* only show preview when printing */
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea { position: absolute; left: 0; top: 0; width: 80mm; font-family: monospace; }
+  }
+</style>
 </head>
 <body>
   <header>
@@ -42,24 +67,27 @@
     <h2>Manajemen Client</h2>
     <form id="clientForm">
       <label>Nama</label><input type="text" id="clientName" required><br>
-      <label>WhatsApp</label><input type="text" id="clientWhatsapp" required><br>
-      <label>Email</label><input type="email" id="clientEmail"><br>
+
+      <!-- email column dihapus sesuai permintaan -->
+      <label>WhatsApp</label><input type="text" id="clientWhatsapp" required placeholder="Contoh: 628123456789"><br>
+
       <button type="submit" class="btn">Tambah Client</button>
       <button type="button" id="deleteSelectedBtn" class="btn btn-danger">Hapus Terpilih</button>
-      <input type="file" id="importClients">
+      <input type="file" id="importClients" style="margin-left:10px;">
     </form>
+
     <table id="clientTable">
       <thead>
         <tr>
           <th>Pilih</th>
           <th>Nama</th>
           <th>WhatsApp</th>
-          <th>Email</th>
           <th>Aksi</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
+    <div class="small">*Pastikan nomor WA diawali dengan kode negara (62...).</div>
   </section>
 
   <!-- PRODUK -->
@@ -111,11 +139,23 @@
       <option value="3">3 Bulan</option>
       <option value="6">6 Bulan</option>
     </select><br>
+
     <button class="btn" onclick="reviewInvoice()">REVIEW INVOICE</button>
-    <div id="previewBox"></div>
-    <button id="btnWa" class="btn" style="display:none;background:green;" onclick="kirimWA()">Kirim ke WhatsApp</button>
-    <button id="btnPrint" class="btn" style="background:orange;display:none;" onclick="printThermal()">Cetak Thermal</button>
+    <div id="previewBox" style="display:none;"></div>
+
+    <div style="margin-top:10px;">
+      <button id="btnWa" class="btn" style="display:none;background:green;" onclick="kirimWA()">Kirim ke WhatsApp</button>
+      <button id="btnPrint" class="btn" style="background:orange;display:none;" onclick="printThermal()">Cetak Thermal</button>
+      <button id="btnPair" class="btn" style="background:#6c5ce7;" onclick="pairPrinterManual()">Pair Printer Manual</button>
+    </div>
+
+    <div class="small" style="margin-top:8px;">
+      Catatan: Jika printer Bluetooth tidak terdeteksi, coba "Pair Printer Manual" lalu pilih printer. Bila printer memakai Bluetooth Classic/SPP (bukan BLE), browser *tidak dapat* mengaksesnya via Web Bluetooth — gunakan aplikasi vendor jika perlu.
+    </div>
   </section>
+
+  <!-- area untuk printing via window.print -->
+  <div id="printArea" style="display:none;"></div>
 
 <script>
 /* ===== NAVIGASI ===== */
@@ -126,34 +166,66 @@ function showTab(id) {
   event.target.classList.add("active");
 }
 
+/* ===== HELPERS ===== */
+function escapeHtml(str){ if(!str) return ""; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function padTo(s,len){ s = s || ""; if(s.length>len) return s.substring(0,len); return s + " ".repeat(Math.max(0,len-s.length)); }
+
+/* wrap text agar sesuai lebar thermal 80mm.
+   Asumsi: 80mm kira-kira 40-45 karakter monospace tergantung font-size.
+   Kita gunakan widthChars = 40 yang aman.
+*/
+function wrapForWidth(text, widthChars = 40) {
+  const lines = [];
+  text.split('\n').forEach(line => {
+    let l = line;
+    while (l.length > widthChars) {
+      let part = l.substring(0, widthChars);
+      // coba potong di spasi terakhir agar rapi
+      const lastSpace = part.lastIndexOf(' ');
+      if (lastSpace > 8) {
+        part = l.substring(0, lastSpace);
+      }
+      lines.push(part);
+      l = l.substring(part.length).trim();
+    }
+    lines.push(l);
+  });
+  return lines.join('\n');
+}
+
 /* ===== CLIENT ===== */
 function loadClients() {
   const clients = JSON.parse(localStorage.getItem("clients")) || [];
   const tbody = document.querySelector("#clientTable tbody");
   tbody.innerHTML = "";
+
   clients.forEach((c, i) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><input type="checkbox" class="select-client" data-index="${i}"></td>
-      <td>${c.name}</td>
-      <td>${c.whatsapp}</td>
-      <td>${c.email || ""}</td>
+      <td style="text-align:center"><input type="checkbox" class="select-client" data-index="${i}"></td>
+      <td>${escapeHtml(c.name)}</td>
+      <td>${escapeHtml(c.whatsapp)}</td>
       <td>
         <button onclick="editClient(${i})">Edit</button>
         <button onclick="deleteClient(${i})">Hapus</button>
-      </td>`;
+      </td>
+    `;
     tbody.appendChild(tr);
   });
+
   refreshClientOptions();
 }
 
 document.querySelector("#clientForm").addEventListener("submit", e => {
   e.preventDefault();
   const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  const name = document.querySelector("#clientName").value;
-  const whatsapp = document.querySelector("#clientWhatsapp").value;
-  const email = document.querySelector("#clientEmail").value;
-  clients.push({ name, whatsapp, email });
+  const name = document.querySelector("#clientName").value.trim();
+  const whatsapp = document.querySelector("#clientWhatsapp").value.trim();
+
+  if(!name || !whatsapp){ alert("Nama & nomor WhatsApp wajib"); return; }
+  if(!whatsapp.startsWith("62")) { alert("Nomor WhatsApp harus diawali dengan 62, bukan 0."); return; }
+
+  clients.push({ name, whatsapp });
   localStorage.setItem("clients", JSON.stringify(clients));
   loadClients();
   e.target.reset();
@@ -171,7 +243,6 @@ function editClient(index) {
   const c = clients[index];
   document.querySelector("#clientName").value = c.name;
   document.querySelector("#clientWhatsapp").value = c.whatsapp;
-  document.querySelector("#clientEmail").value = c.email;
   deleteClient(index);
 }
 
@@ -190,7 +261,7 @@ function renderProduks(){
   const tbody=document.querySelector("#produkTable tbody");
   tbody.innerHTML="";
   produks.forEach((p,i)=>tbody.innerHTML+=`<tr>
-    <td>${p.nama}</td><td>${p.harga}</td><td>${p.satuan}</td><td>${p.deskripsi}</td>
+    <td>${escapeHtml(p.nama)}</td><td>${escapeHtml(String(p.harga))}</td><td>${escapeHtml(p.satuan)}</td><td>${escapeHtml(p.deskripsi)}</td>
     <td><button onclick="editProduk(${i})">Edit</button>
     <button onclick="deleteProduk(${i})">Hapus</button></td>
   </tr>`);
@@ -229,14 +300,15 @@ function loadRekening() {
   reks.forEach((r, i) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${r.bank}</td>
-      <td>${r.noRekening}</td>
-      <td>${r.noDana || ""}</td>
-      <td>${r.qrisFile ? `<img src="${r.qrisFile}" width="60">` : ""}</td>
+      <td>${escapeHtml(r.bank)}</td>
+      <td>${escapeHtml(r.noRekening)}</td>
+      <td>${escapeHtml(r.noDana || "")}</td>
+      <td>${r.qrisFile ? <img src="${r.qrisFile}" width="60"> : ""}</td>
       <td>
         <button onclick="editRekening(${i})">Edit</button>
         <button onclick="deleteRekening(${i})">Hapus</button>
-      </td>`;
+      </td>
+    `;
     tbody.appendChild(tr);
   });
 }
@@ -244,7 +316,6 @@ function loadRekening() {
 document.querySelector("#rekeningForm").addEventListener("submit", e => {
   e.preventDefault();
   let reks = JSON.parse(localStorage.getItem("rekening")) || [];
-
   const bank = document.querySelector("#bank").value;
   const noRekening = document.querySelector("#noRekening").value;
   const noDana = document.querySelector("#noDana").value;
@@ -295,17 +366,17 @@ function editRekening(index) {
 function refreshClientOptions(){
   const sel=document.getElementById("pilihClient"); sel.innerHTML="";
   const clients = JSON.parse(localStorage.getItem("clients")) || [];
-  clients.forEach(c=>sel.innerHTML+=`<option>${c.name}</option>`);
+  clients.forEach((c, i) => sel.innerHTML += <option value="${i}">${escapeHtml(c.name)}</option>);
 }
 function refreshProdukOptions(){
   const sel=document.getElementById("pilihProduk"); sel.innerHTML="";
-  produks.forEach((p,i)=>sel.innerHTML+=`<option value="${i}">${p.nama}</option>`);
+  produks.forEach((p,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(p.nama)}</option>);
 }
 function generateInvoiceNo(){
   const today=new Date(); const year=today.getFullYear();
   const num=localStorage.getItem("lastInvoice")||0;
   const newNum=parseInt(num)+1; localStorage.setItem("lastInvoice",newNum);
-  return `INV/${year}/${String(newNum).padStart(4,'0')}`;
+  return INV/${year}/${String(newNum).padStart(4,'0')};
 }
 document.getElementById("noInvoice").value=generateInvoiceNo();
 document.getElementById("tglInvoice").value=new Date().toLocaleDateString("id-ID");
@@ -314,20 +385,22 @@ function reviewInvoice(){
   const no=document.getElementById("noInvoice").value;
   const tgl=document.getElementById("tglInvoice").value;
   const tempo=document.getElementById("jatuhTempo").value;
-  const client=document.getElementById("pilihClient").value;
-  const produkIndex=parseInt(document.getElementById("pilihProduk").value);
-  const produk=produks[produkIndex];
+  const clientIndex = parseInt(document.getElementById("pilihClient").value || "0");
+  const clients = JSON.parse(localStorage.getItem("clients")) || [];
+  const clientName = clients[clientIndex] ? clients[clientIndex].name : "-";
+  const produkIndex=parseInt(document.getElementById("pilihProduk").value || "0");
+  const produk=produks[produkIndex] || {nama:'-',harga:0};
   const periode=parseInt(document.getElementById("periode").value);
-  const total=produk.harga*periode;
+  const total=produk.harga * periode;
 
   const reks = JSON.parse(localStorage.getItem("rekening")) || [];
   const rek = reks.length? reks[0] : {bank:"-",noRekening:"-",noDana:"-"};
 
-  invoiceText=`Halo Assalamu'alaikum Bapak/Ibu ${client},
+  let raw = `Halo Assalamu'alaikum Bapak/Ibu ${clientName},
 
 Berikut tagihan layanan dari WIFI KOIN AKHFI:
 
-Pengirim Invoice: ASISTEN AI WIFI KOIN AKHFI
+Pengirim Invoice: AKHFI MULTIBISNIS
 Nomor   : ${no}
 Tanggal : ${tgl}
 Jatuh Tempo: ${tempo}
@@ -335,7 +408,7 @@ Jatuh Tempo: ${tempo}
 =========================================
 | Produk                     | Periode | Total   |
 -----------------------------------------
-| ${produk.nama.padEnd(25)} | ${periode} Bulan | Rp ${total.toLocaleString()} |
+| ${padTo(produk.nama,25)} | ${periode} Bulan | Rp ${total.toLocaleString()} |
 =========================================
 
 Total yang harus dibayar: Rp ${total.toLocaleString()}
@@ -350,11 +423,18 @@ silakan menghubungi WIFI KOIN AKHFI di:
 No. WhatsApp: 085934241038
 Terima kasih atas kepercayaan Anda.`;
 
-  document.getElementById("previewBox").textContent=invoiceText;
-  document.getElementById("btnWa").style.display="block";
-  document.getElementById("btnPrint").style.display="inline-block";
+  // wrap agar tidak meluber di 80mm
+  invoiceText = wrapForWidth(raw, 40);
+  document.getElementById("previewBox").textContent = invoiceText;
+  document.getElementById("previewBox").style.display = "block";
+  document.getElementById("btnWa").style.display = "inline-block";
+  document.getElementById("btnPrint").style.display = "inline-block";
+
+  // prepare printArea (untuk window.print fallback)
+  document.getElementById("printArea").innerHTML = <pre>${escapeHtml(invoiceText)}</pre>;
 }
 
+/* Kirim ke WA */
 function kirimWA(){
   const clientSelect = document.getElementById("pilihClient");
   const clientIndex = clientSelect.selectedIndex;
@@ -370,17 +450,148 @@ function kirimWA(){
   window.open(url,"_blank");
 }
 
-/* CETAK THERMAL */
-function printThermal() {
-  const content = document.getElementById("previewBox").innerText;
-  const w = window.open("", "Print", "width=300,height=600");
-  w.document.write("<pre style='font-family:monospace'>" + content + "</pre>");
-  w.document.close();
-  w.print();
+/* ===== PRINT / THERMAL =====
+   Pendekatan:
+   1) Coba Web Bluetooth (BLE/GATT) — jika printer BLE/GATT
+   2) Jika gagal, coba WebUSB detection (non-intrusive)
+   3) Fallback ke window.print() + @page 80mm
+   Terdapat tombol Pair Manual yang memanggil requestDevice() (popup)
+*/
+const PREFERRED_PRINTER_NAMES = ["InnerPrinter","BT-Printer","POS-80","POS80","Thermal","EPSON","XPrinter","Zjiang"]; // tambah nama umum
+
+async function printThermal() {
+  const textToPrint = document.getElementById("previewBox").textContent;
+  if (!textToPrint) { alert("Belum ada invoice untuk dicetak."); return; }
+
+  // 1) Coba Web Bluetooth
+  if (navigator.bluetooth) {
+    try {
+      // cek device yang pernah diizinkan
+      let devices = [];
+      if (navigator.bluetooth.getDevices) {
+        devices = await navigator.bluetooth.getDevices();
+      }
+      let printerDevice = devices.find(d => PREFERRED_PRINTER_NAMES.some(n=> new RegExp(n,"i").test(d.name || "")));
+
+      if (!printerDevice) {
+        // minta pairing dengan acceptAllDevices: true (akan munculkan popup)
+        // AcceptAllDevices mungkin dibatasi pada beberapa browser jika tidak via HTTPS
+        try {
+          printerDevice = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: [0xFFE0, 0xFFE1, 0x18F0, 0xFF00] // coba beberapa service umum
+          });
+        } catch (reqErr) {
+          console.warn("requestDevice gagal:", reqErr);
+          throw reqErr;
+        }
+      }
+
+      if (!printerDevice) throw new Error("Printer Bluetooth tidak ditemukan/di-pair.");
+
+      const server = await printerDevice.gatt.connect();
+
+      // coba beberapa service yang mungkin tersedia
+      const candidateServices = [0xFFE0, 0xFFE1, 0x18F0, 0xFF00];
+      let service = null;
+      for (const s of candidateServices) {
+        try {
+          service = await server.getPrimaryService(s);
+          if (service) break;
+        } catch (e) { /* ignore */ }
+      }
+      if (!service) {
+        // ambil service pertama sebagai fallback
+        const services = await server.getPrimaryServices();
+        if (services && services.length) service = services[0];
+      }
+      if (!service) throw new Error("Tidak dapat menemukan service GATT pada printer.");
+
+      // cari characteristic yang writable
+      let chars = await service.getCharacteristics();
+      let char = chars.find(c => c.properties && (c.properties.write || c.properties.writeWithoutResponse));
+      if (!char && chars.length) char = chars[0];
+      if (!char) throw new Error("Tidak menemukan characteristic writable pada service printer.");
+
+      // convert text ke bytes (ESC/POS lightweight)
+      // NOTE: Untuk pemotongan kertas otomatis atau set align, perlu ESC/POS commands (tidak semua karakter printer terima)
+      const encoder = new TextEncoder();
+      const data = encoder.encode(textToPrint + "\n\n\n");
+
+      if (char.properties.writeWithoutResponse) {
+        await char.writeValueWithoutResponse(data);
+      } else {
+        await char.writeValue(data);
+      }
+
+      alert("Invoice dikirim ke printer Bluetooth: " + (printerDevice.name || "printer"));
+      try { await server.disconnect(); } catch(e){}
+
+      return; // selesai
+    } catch (btErr) {
+      console.warn("Web Bluetooth gagal/terbatas:", btErr);
+      // lanjut ke fallback
+    }
+  }
+
+  // 2) (Optional) Coba WebUSB detect - kita hanya gunakan untuk informasi, tidak implementasi komunikasi lengkap
+  if (navigator.usb) {
+    try {
+      const usbDevices = await navigator.usb.getDevices();
+      const usbPrinter = usbDevices.find(d => (d.productName || "").match(/printer|epson|thermal|pos/i));
+      if (usbPrinter) {
+        console.warn("Ditemukan USB device yang tampak seperti printer. Gunakan dialog cetak browser (fallback).");
+      }
+    } catch (usbErr) {
+      console.warn("WebUSB error:", usbErr);
+    }
+  }
+
+  // 3) Fallback: buka print dialog (sudah di-format ke 80mm)
+  try {
+    const w = window.open("", "_blank", "toolbar=0,location=0,menubar=0");
+    if (!w) { alert("Popup diblokir. Izinkan popup agar bisa mencetak."); return; }
+    const html = `
+      <html><head>
+        <meta charset="utf-8">
+        <title>Print Invoice</title>
+        <style>
+          @page { size: 80mm auto; margin: 2mm; }
+          body { font-family: monospace; margin: 0; padding: 6px; width: 80mm; box-sizing: border-box; font-size:12px; }
+          pre { white-space: pre-wrap; word-wrap: break-word; }
+        </style>
+      </head><body>
+        <pre>${escapeHtml(textToPrint)}</pre>
+      </body></html>`;
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    setTimeout(()=>{ w.focus(); w.print(); }, 300);
+  } catch (err) {
+    alert("Gagal menjalankan print dialog: " + err.message);
+  }
+}
+
+/* Tombol Pair Manual — memanggil requestDevice agar user bisa memilih printer manual */
+async function pairPrinterManual() {
+  if (!navigator.bluetooth) { alert("Browser tidak mendukung Web Bluetooth."); return; }
+  try {
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [0xFFE0, 0xFFE1, 0x18F0, 0xFF00]
+    });
+    alert("Device dipilih: " + (device.name || "tidak bernama") + ". Setelah pairing, coba Cetak Thermal lagi.");
+  } catch (e) {
+    alert("Pairing dibatalkan atau gagal: " + e.message);
+  }
 }
 
 /* ===== INIT ===== */
-loadClients(); renderProduks(); loadRekening();
+function refreshClientOptions(){ const sel=document.getElementById("pilihClient"); sel.innerHTML=""; const clients = JSON.parse(localStorage.getItem("clients")) || []; clients.forEach((c,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(c.name)}</option>); }
+function refreshProdukOptions(){ const sel=document.getElementById("pilihProduk"); sel.innerHTML=""; produks.forEach((p,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(p.nama)}</option>); }
+
+loadClients(); renderProduks(); loadRekening(); refreshClientOptions(); refreshProdukOptions();
+
 </script>
 </body>
 </html>
