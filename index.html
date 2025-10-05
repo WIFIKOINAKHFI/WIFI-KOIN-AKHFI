@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>WIFI KOIN AKHFI</title>
 <style>
-  /* ===== dasar layout (sama gaya seperti sebelumnya) ===== */
+  /* ===== dasar layout ===== */
   body {font-family: Arial, sans-serif; margin: 0; background: #f5f8ff; color:#222;}
   header {background: #0044cc; color: white; padding: 15px; display:flex; align-items:center; justify-content:center;}
   header img {height: 40px; margin-right: 10px;}
-  nav {display: flex; background: #007bff;}
-  nav button {flex: 1; padding: 14px; border: none; background: #007bff; color: white; font-size: 16px; cursor: pointer;}
+  nav {display: flex; background: #007bff; flex-wrap: wrap;}
+  nav button {flex: 1; padding: 14px; border: none; background: #007bff; color: white; font-size: 16px; cursor: pointer; min-width: 120px;}
   nav button:hover, nav button.active {background: #0056b3;}
   section {display: none; padding: 20px;}
   section.active {display: block;}
@@ -31,11 +31,17 @@
   #clientTable td:first-child, #clientTable th:first-child { width: 56px; text-align:center; }
   #clientTable input[type="checkbox"] { display:inline-block; width:18px; height:18px; }
 
+  /* Styling untuk area print */
+  .print-container { width: 80mm; margin: 0 auto; font-family: monospace; font-size: 12px; }
+  .print-line { margin: 2px 0; }
+  .print-divider { border-top: 1px dashed #000; margin: 5px 0; }
+
   @media (max-width: 600px) {
     input, select, textarea { width: 100%; max-width: 100%; }
     label {display:block; width:auto;}
     #clientTable td:first-child { width: 44px; }
     #clientTable input[type="checkbox"] { transform: scale(1.3); margin: 6px; }
+    nav button { min-width: 90px; font-size: 14px; padding: 10px; }
   }
 
   /* print rules: set page size 80mm */
@@ -45,7 +51,8 @@
     /* only show preview when printing */
     body * { visibility: hidden; }
     #printArea, #printArea * { visibility: visible; }
-    #printArea { position: absolute; left: 0; top: 0; width: 80mm; font-family: monospace; }
+    #printArea { position: absolute; left: 0; top: 0; width: 80mm; font-family: monospace; font-size: 12px; }
+    .no-print { display: none !important; }
   }
 </style>
 </head>
@@ -67,13 +74,11 @@
     <h2>Manajemen Client</h2>
     <form id="clientForm">
       <label>Nama</label><input type="text" id="clientName" required><br>
-
-      <!-- email column dihapus sesuai permintaan -->
       <label>WhatsApp</label><input type="text" id="clientWhatsapp" required placeholder="Contoh: 628123456789"><br>
 
       <button type="submit" class="btn">Tambah Client</button>
       <button type="button" id="deleteSelectedBtn" class="btn btn-danger">Hapus Terpilih</button>
-      <input type="file" id="importClients" style="margin-left:10px;">
+      <input type="file" id="importClients" style="margin-left:10px;" accept=".json">
     </form>
 
     <table id="clientTable">
@@ -113,7 +118,7 @@
       <label>Bank</label><input type="text" id="bank" required><br>
       <label>No Rekening</label><input type="text" id="noRekening" required><br>
       <label>No DANA</label><input type="text" id="noDana"><br>
-      <label>Upload QRIS</label><input type="file" id="qrisFile"><br>
+      <label>Upload QRIS</label><input type="file" id="qrisFile" accept="image/*"><br>
       <button type="submit" class="btn">Simpan Rekening</button>
     </form>
     <table id="rekeningTable">
@@ -150,7 +155,7 @@
     </div>
 
     <div class="small" style="margin-top:8px;">
-      Catatan: Jika printer Bluetooth tidak terdeteksi, coba "Pair Printer Manual" lalu pilih printer. Bila printer memakai Bluetooth Classic/SPP (bukan BLE), browser *tidak dapat* mengaksesnya via Web Bluetooth — gunakan aplikasi vendor jika perlu.
+      Catatan: Jika printer Bluetooth tidak terdeteksi, coba "Pair Printer Manual" lalu pilih printer. Bila printer memakai Bluetooth Classic/SPP (bukan BLE), browser <strong>tidak dapat</strong> mengaksesnya via Web Bluetooth — gunakan aplikasi vendor jika perlu.
     </div>
   </section>
 
@@ -475,7 +480,6 @@ async function printThermal() {
 
       if (!printerDevice) {
         // minta pairing dengan acceptAllDevices: true (akan munculkan popup)
-        // AcceptAllDevices mungkin dibatasi pada beberapa browser jika tidak via HTTPS
         try {
           printerDevice = await navigator.bluetooth.requestDevice({
             acceptAllDevices: true,
@@ -549,8 +553,41 @@ async function printThermal() {
 
   // 3) Fallback: buka print dialog (sudah di-format ke 80mm)
   try {
-    const w = window.open("", "_blank", "toolbar=0,location=0,menubar=0");
-    if (!w) { alert("Popup diblokir. Izinkan popup agar bisa mencetak."); return; }
+    // Coba buka tab baru untuk print
+    const printWindow = window.open("", "_blank", "width=300,height=500,scrollbars=yes");
+    if (!printWindow) {
+      // Jika popup diblokir, gunakan print dialog langsung
+      const printContent = `
+        <html><head>
+          <meta charset="utf-8">
+          <title>Print Invoice</title>
+          <style>
+            @page { size: 80mm auto; margin: 2mm; }
+            body { font-family: monospace; margin: 0; padding: 6px; width: 80mm; box-sizing: border-box; font-size:12px; }
+            pre { white-space: pre-wrap; word-wrap: break-word; }
+          </style>
+        </head><body>
+          <pre>${escapeHtml(textToPrint)}</pre>
+        </body></html>`;
+      
+      // Buat iframe untuk print
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      const iframeDoc = iframe.contentWindow.document;
+      iframeDoc.open();
+      iframeDoc.write(printContent);
+      iframeDoc.close();
+      
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(() => document.body.removeChild(iframe), 1000);
+      }, 300);
+      
+      return;
+    }
+    
     const html = `
       <html><head>
         <meta charset="utf-8">
@@ -562,11 +599,16 @@ async function printThermal() {
         </style>
       </head><body>
         <pre>${escapeHtml(textToPrint)}</pre>
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 500);
+          };
+        </script>
       </body></html>`;
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-    setTimeout(()=>{ w.focus(); w.print(); }, 300);
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
   } catch (err) {
     alert("Gagal menjalankan print dialog: " + err.message);
   }
@@ -574,7 +616,10 @@ async function printThermal() {
 
 /* Tombol Pair Manual — memanggil requestDevice agar user bisa memilih printer manual */
 async function pairPrinterManual() {
-  if (!navigator.bluetooth) { alert("Browser tidak mendukung Web Bluetooth."); return; }
+  if (!navigator.bluetooth) { 
+    alert("Browser tidak mendukung Web Bluetooth. Gunakan aplikasi vendor untuk printer Bluetooth Classic."); 
+    return; 
+  }
   try {
     const device = await navigator.bluetooth.requestDevice({
       acceptAllDevices: true,
@@ -582,15 +627,39 @@ async function pairPrinterManual() {
     });
     alert("Device dipilih: " + (device.name || "tidak bernama") + ". Setelah pairing, coba Cetak Thermal lagi.");
   } catch (e) {
-    alert("Pairing dibatalkan atau gagal: " + e.message);
+    if (e.name === "NotFoundError") {
+      alert("Tidak ada perangkat Bluetooth yang ditemukan. Pastikan printer sudah dalam mode pairing.");
+    } else {
+      alert("Pairing dibatalkan atau gagal: " + e.message);
+    }
   }
 }
 
 /* ===== INIT ===== */
-function refreshClientOptions(){ const sel=document.getElementById("pilihClient"); sel.innerHTML=""; const clients = JSON.parse(localStorage.getItem("clients")) || []; clients.forEach((c,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(c.name)}</option>); }
-function refreshProdukOptions(){ const sel=document.getElementById("pilihProduk"); sel.innerHTML=""; produks.forEach((p,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(p.nama)}</option>); }
+function refreshClientOptions(){ 
+  const sel=document.getElementById("pilihClient"); 
+  sel.innerHTML=""; 
+  const clients = JSON.parse(localStorage.getItem("clients")) || []; 
+  clients.forEach((c,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(c.name)}</option>); 
+}
 
-loadClients(); renderProduks(); loadRekening(); refreshClientOptions(); refreshProdukOptions();
+function refreshProdukOptions(){ 
+  const sel=document.getElementById("pilihProduk"); 
+  sel.innerHTML=""; 
+  produks.forEach((p,i)=>sel.innerHTML+=<option value="${i}">${escapeHtml(p.nama)}</option>); 
+}
+
+// Inisialisasi
+loadClients(); 
+renderProduks(); 
+loadRekening(); 
+refreshClientOptions(); 
+refreshProdukOptions();
+
+// Set default jatuh tempo untuk besok
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+document.getElementById("jatuhTempo").valueAsDate = tomorrow;
 
 </script>
 </body>
