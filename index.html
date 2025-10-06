@@ -339,7 +339,7 @@
       }
     }
 
-    /* Style khusus untuk print */
+    /* ===== STYLE KHUSUS UNTUK PRINT A4 ===== */
     @media print {
       body * {
         visibility: hidden;
@@ -349,18 +349,56 @@
       }
       #printSection {
         position: absolute;
-        left: 0;
-        top: 0;
-        width: 80mm;
+        left: 10mm; /* Posisi di pinggir kiri kertas A4 */
+        top: 10mm;
+        width: 80mm; /* Tetap lebar 80mm untuk struk thermal */
         font-family: 'Courier New', monospace;
         font-size: 12px;
         line-height: 1.2;
         padding: 5px;
+        border: 1px dashed #ccc; /* Border putus-putus untuk panduan */
+        background: white;
+        box-shadow: none;
       }
       @page {
+        size: A4;
         margin: 0;
-        size: 80mm;
       }
+    }
+
+    /* Style untuk preview print di layar */
+    .print-preview {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .print-preview-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .print-preview-invoice {
+      width: 80mm;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.2;
+      padding: 10px;
+      border: 1px solid #000;
+      background: white;
+      margin: 0 auto;
     }
   </style>
 </head>
@@ -477,7 +515,7 @@
         <label for="qrisFile">Upload QRIS</label>
         <input type="file" id="qrisFile">
       </div>
-      <button type="submit" class="btn" id="rekeningSubmitBtn">Simpan Rekening</button>
+      <button type="button" class="btn" id="rekeningSubmitBtn" onclick="simpanRekening()">Simpan Rekening</button>
       <button type="button" id="cancelEditRekeningBtn" class="btn btn-danger" style="display:none;">Batal Edit</button>
     </form>
     
@@ -537,12 +575,30 @@
     
     <div class="invoice-actions">
       <button id="btnWa" class="btn btn-success" style="display:none;" onclick="kirimWA()">Kirim ke WhatsApp</button>
-      <button id="btnPrint" class="btn btn-warning" style="display:none;" onclick="printInvoice()">Cetak Invoice</button>
+      <button id="btnPrint" class="btn btn-warning" style="display:none;" onclick="showPrintPreview()">Cetak Invoice</button>
     </div>
   </section>
 
   <!-- Hidden section untuk print -->
   <div id="printSection" style="display: none;"></div>
+
+  <!-- Modal preview print -->
+  <div id="printPreview" class="print-preview">
+    <div class="print-preview-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3>Preview Cetak Invoice</h3>
+        <button onclick="closePrintPreview()" style="background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+      </div>
+      <div class="print-preview-invoice" id="printPreviewContent"></div>
+      <div style="margin-top: 20px; text-align: center;">
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+          Invoice akan dicetak di kertas A4 dengan format 80mm di sisi kiri
+        </p>
+        <button class="btn btn-success" onclick="printInvoice()">Cetak Sekarang</button>
+        <button class="btn btn-danger" onclick="closePrintPreview()" style="margin-left: 10px;">Batal</button>
+      </div>
+    </div>
+  </div>
 
 <script>
 /* ===== NAVIGASI ===== */
@@ -814,63 +870,49 @@ function loadRekening() {
   });
 }
 
-// PERBAIKAN BESAR: Event listener yang benar untuk form rekening
-document.getElementById("rekeningForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  console.log("Form rekening disubmit"); // Debug
-  
+// SISTEM SEDERHANA: Gunakan onclick langsung
+function simpanRekening() {
   const bank = document.getElementById("bank").value;
   const noRekening = document.getElementById("noRekening").value;
   const noDana = document.getElementById("noDana").value;
-  const fileInput = document.getElementById("qrisFile");
   const editIndex = parseInt(document.getElementById("rekeningEditIndex").value);
-  
-  console.log("Data:", { bank, noRekening, noDana, editIndex }); // Debug
-  
+
   if (!bank || !noRekening) {
     alert("Bank dan No Rekening wajib diisi");
     return;
   }
-  
-  // Jika ada file yang diupload
+
+  const fileInput = document.getElementById("qrisFile");
+  let qrisFile = "";
+
   if (fileInput.files.length > 0) {
     const reader = new FileReader();
     reader.onload = function(ev) {
-      const qrisFile = ev.target.result;
-      saveRekeningData(bank, noRekening, noDana, qrisFile, editIndex);
+      qrisFile = ev.target.result;
+      simpanDataRekening(bank, noRekening, noDana, qrisFile, editIndex);
     };
     reader.readAsDataURL(fileInput.files[0]);
   } else {
-    // Jika tidak ada file baru, pertahankan file lama saat edit
-    let qrisFile = "";
     if (editIndex > -1 && rekenings[editIndex] && rekenings[editIndex].qrisFile) {
       qrisFile = rekenings[editIndex].qrisFile;
     }
-    saveRekeningData(bank, noRekening, noDana, qrisFile, editIndex);
+    simpanDataRekening(bank, noRekening, noDana, qrisFile, editIndex);
   }
-});
+}
 
-function saveRekeningData(bank, noRekening, noDana, qrisFile, editIndex) {
-  console.log("Menyimpan data rekening:", { bank, noRekening, noDana, editIndex }); // Debug
-  
+function simpanDataRekening(bank, noRekening, noDana, qrisFile, editIndex) {
   if (editIndex > -1) {
-    // Edit rekening yang ada
     rekenings[editIndex] = { bank, noRekening, noDana, qrisFile };
     document.getElementById("rekeningEditIndex").value = "-1";
     document.getElementById("rekeningSubmitBtn").textContent = "Simpan Rekening";
     document.getElementById("cancelEditRekeningBtn").style.display = "none";
   } else {
-    // Tambah rekening baru
     rekenings.push({ bank, noRekening, noDana, qrisFile });
   }
   
   localStorage.setItem("rekening", JSON.stringify(rekenings));
-  console.log("Data tersimpan di localStorage:", rekenings); // Debug
-  
-  // Reset form dan reload data
   document.getElementById("rekeningForm").reset();
   loadRekening();
-  
   alert("Data rekening berhasil disimpan!");
 }
 
@@ -1012,44 +1054,42 @@ function kirimWA() {
   window.open(url, "_blank");
 }
 
-/* ===== PERBAIKAN CETAK INVOICE UNTUK HP ===== */
+/* ===== SISTEM CETAK YANG DIPERBAIKI ===== */
+function showPrintPreview() {
+  const content = document.getElementById("previewBox").innerText;
+  document.getElementById("printPreviewContent").textContent = content;
+  document.getElementById("printPreview").style.display = "flex";
+}
+
+function closePrintPreview() {
+  document.getElementById("printPreview").style.display = "none";
+}
+
 function printInvoice() {
   const content = document.getElementById("previewBox").innerText;
   
-  // Simpan konten ke section print
-  document.getElementById("printSection").innerHTML = `<pre>${content}</pre>`;
+  // Simpan konten ke section print dengan format A4
+  document.getElementById("printSection").innerHTML = `
+    <div style="width: 80mm; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.2;">
+      <pre>${content}</pre>
+    </div>
+  `;
   
   // Tampilkan section print
   document.getElementById("printSection").style.display = "block";
   
-  // Untuk HP, gunakan metode yang lebih kompatibel
-  if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-    // Untuk mobile device
+  // Tutup preview
+  closePrintPreview();
+  
+  // Tunggu sebentar lalu print
+  setTimeout(() => {
+    window.print();
+    
+    // Sembunyikan kembali setelah print
     setTimeout(() => {
-      // Coba beberapa metode untuk memastikan print dialog muncul
-      if (window.print) {
-        window.print();
-      } else {
-        // Fallback untuk browser mobile yang tidak support window.print()
-        alert("Fitur cetak tidak tersedia di browser ini. Silakan gunakan fitur share atau screenshot.");
-      }
-      
-      // Sembunyikan kembali setelah print
-      setTimeout(() => {
-        document.getElementById("printSection").style.display = "none";
-      }, 1000);
-    }, 100);
-  } else {
-    // Untuk desktop
-    setTimeout(() => {
-      window.print();
-      
-      // Sembunyikan kembali setelah print
-      setTimeout(() => {
-        document.getElementById("printSection").style.display = "none";
-      }, 500);
-    }, 100);
-  }
+      document.getElementById("printSection").style.display = "none";
+    }, 500);
+  }, 100);
 }
 
 /* ===== INIT ===== */
@@ -1059,9 +1099,6 @@ document.addEventListener('DOMContentLoaded', function() {
   loadRekening();
   refreshClientOptions();
   refreshProdukOptions();
-  
-  // Debug: Cek data rekening yang tersimpan
-  console.log("Data rekening di localStorage:", JSON.parse(localStorage.getItem("rekening") || "[]"));
 });
 </script>
 </body>
