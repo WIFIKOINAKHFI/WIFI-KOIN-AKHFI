@@ -1,1105 +1,269 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WIFI KOIN AKHFI</title>
-  <style>
-    /* ===== VARIABEL CSS ===== */
-    :root {
-      --primary: #0044cc;
-      --secondary: #007bff;
-      --dark: #0056b3;
-      --danger: #dc3545;
-      --danger-dark: #c82333;
-      --success: #28a745;
-      --warning: #ffc107;
-      --light: #f8f9fa;
-      --dark-text: #212529;
-      --border: #dee2e6;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIFI KOIN AGHF</title>
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+        }
+        
+        .card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+        
+        .print-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .btn-print {
+            background: #28a745;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn-pdf {
+            background: #dc3545;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn-print:hover {
+            background: #218838;
+        }
+        
+        .btn-pdf:hover {
+            background: #c82333;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #333;
+            color: white;
+            border-radius: 10px;
+        }
 
-    /* ===== RESET & BASE STYLES ===== */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f8ff;
-      color: var(--dark-text);
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    /* ===== HEADER ===== */
-    header {
-      background: var(--primary);
-      color: white;
-      padding: 8px 10px;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    
-    header img {
-      height: 50px;
-      border-radius: 5px;
-    }
-    
-    header h1 {
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-
-    /* ===== NAVIGASI ===== */
-    nav {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      background: var(--secondary);
-      gap: 1px;
-    }
-    
-    nav button {
-      padding: 10px 5px;
-      border: none;
-      background: var(--secondary);
-      color: white;
-      font-size: 12px;
-      cursor: pointer;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    nav button:hover, nav button.active {
-      background: var(--dark);
-    }
-
-    /* ===== SECTION ===== */
-    section {
-      display: none;
-      padding: 12px;
-    }
-    
-    section.active {
-      display: block;
-    }
-
-    h2 {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-      color: var(--primary);
-      text-align: center;
-    }
-
-    /* ===== FORM STYLES ===== */
-    .form-group {
-      margin-bottom: 10px;
-    }
-    
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 4px;
-      font-size: 13px;
-    }
-    
-    input, select {
-      padding: 8px;
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-size: 14px;
-    }
-    
-    .form-note {
-      font-size: 0.7rem;
-      color: #666;
-      margin-top: 2px;
-    }
-
-    /* ===== BUTTON STYLES ===== */
-    .btn {
-      background: var(--secondary);
-      color: white;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      margin: 5px 0;
-      cursor: pointer;
-      font-size: 13px;
-      transition: background 0.3s;
-      width: 100%;
-    }
-    
-    .btn:hover {
-      background: var(--dark);
-    }
-    
-    .btn-danger {
-      background: var(--danger);
-    }
-    
-    .btn-danger:hover {
-      background: var(--danger-dark);
-    }
-    
-    .btn-success {
-      background: var(--success);
-    }
-    
-    .btn-warning {
-      background: var(--warning);
-      color: var(--dark-text);
-    }
-
-    .btn-sm {
-      padding: 5px 8px;
-      font-size: 12px;
-      margin: 2px;
-    }
-
-    /* ===== TABLE STYLES ===== */
-    .table-container {
-      overflow-x: auto;
-      margin-top: 12px;
-      -webkit-overflow-scrolling: touch;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 500px;
-      font-size: 12px;
-    }
-    
-    table, th, td {
-      border: 1px solid var(--border);
-    }
-    
-    th, td {
-      padding: 6px;
-      text-align: left;
-    }
-    
-    th {
-      background-color: var(--light);
-      font-weight: bold;
-      font-size: 11px;
-    }
-    
-    /* Checkbox column */
-    .checkbox-cell {
-      width: 30px;
-      text-align: center;
-    }
-    
-    .checkbox-cell input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-    }
-
-    /* ===== INVOICE PREVIEW ===== */
-    #previewBox {
-      background: #fff;
-      border: 1px solid var(--border);
-      padding: 10px;
-      margin-top: 12px;
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
-      line-height: 1.2;
-      max-width: 280px;
-      margin-left: auto;
-      margin-right: auto;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-x: auto;
-    }
-    
-    .invoice-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-top: 12px;
-    }
-
-    /* ===== RESPONSIVE STYLES ===== */
-    @media (min-width: 768px) {
-      /* Untuk tablet dan desktop */
-      body {
-        font-size: 15px;
-      }
-      
-      header {
-        padding: 12px 15px;
-      }
-      
-      header img {
-        height: 60px;
-      }
-      
-      header h1 {
-        font-size: 1.4rem;
-      }
-      
-      nav {
-        display: flex;
-      }
-      
-      nav button {
-        padding: 12px 8px;
-        font-size: 14px;
-        flex: 1;
-      }
-      
-      section {
-        padding: 15px;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-      
-      h2 {
-        font-size: 1.4rem;
-      }
-      
-      .form-group {
-        display: flex;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-      
-      label {
-        width: 150px;
-        margin-bottom: 0;
-        font-size: 14px;
-      }
-      
-      input, select {
-        width: calc(100% - 160px);
-        max-width: 400px;
-      }
-      
-      .form-note {
-        margin-left: 150px;
-      }
-      
-      .btn {
-        width: auto;
-        margin: 8px 5px 0 0;
-        padding: 10px 15px;
-        font-size: 14px;
-      }
-      
-      .invoice-actions {
-        flex-direction: row;
-        justify-content: center;
-      }
-      
-      th, td {
-        padding: 8px;
-        font-size: 13px;
-      }
-      
-      th {
-        font-size: 12px;
-      }
-      
-      #previewBox {
-        font-size: 11px;
-        padding: 12px;
-        max-width: 300px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      body {
-        font-size: 16px;
-      }
-      
-      header h1 {
-        font-size: 1.5rem;
-      }
-      
-      nav button {
-        padding: 14px 10px;
-        font-size: 15px;
-      }
-      
-      section {
-        padding: 20px;
-      }
-    }
-
-    /* ===== STYLE KHUSUS UNTUK PRINT A4 ===== */
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      #printSection, #printSection * {
-        visibility: visible;
-      }
-      #printSection {
-        position: absolute;
-        left: 10mm; /* Posisi di pinggir kiri kertas A4 */
-        top: 10mm;
-        width: 80mm; /* Tetap lebar 80mm untuk struk thermal */
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        line-height: 1.2;
-        padding: 5px;
-        border: 1px dashed #ccc; /* Border putus-putus untuk panduan */
-        background: white;
-        box-shadow: none;
-      }
-      @page {
-        size: A4;
-        margin: 0;
-      }
-    }
-
-    /* Style untuk preview print di layar */
-    .print-preview {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .print-preview-content {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    
-    .print-preview-invoice {
-      width: 80mm;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      line-height: 1.2;
-      padding: 10px;
-      border: 1px solid #000;
-      background: white;
-      margin: 0 auto;
-    }
-  </style>
+        /* PRINT STYLES - INI YANG PENTING */
+        @media print {
+            @page {
+                margin: 1cm;
+                size: A4;
+            }
+            
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                font-size: 12pt;
+                line-height: 1.4;
+            }
+            
+            .container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                background: white !important;
+            }
+            
+            header {
+                background: #667eea !important;
+                -webkit-print-color-adjust: exact;
+                color: white !important;
+                margin-bottom: 20px;
+            }
+            
+            .btn-print, .btn-pdf, .print-section,
+            footer, nav, .no-print {
+                display: none !important;
+            }
+            
+            .content {
+                display: block !important;
+            }
+            
+            .card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 15px;
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+            }
+            
+            h1, h2, h3 {
+                color: black !important;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <img src="gatotkaca.png" alt="Logo WIFI KOIN AKHFI" onerror="this.style.display='none'">
-    <h1>WIFI KOIN AKHFI</h1>
-  </header>
+    <div class="container">
+        <header>
+            <h1>WIFI KOIN AGHF</h1>
+            <p>Solusi Internet Terbaik untuk Anda</p>
+        </header>
 
-  <nav>
-    <button onclick="showTab('clientTab')" class="active">Client</button>
-    <button onclick="showTab('produkTab')">Produk</button>
-    <button onclick="showTab('rekeningTab')">Pembayaran/DANA</button>
-    <button onclick="showTab('invoiceTab')">Buat Invoice</button>
-  </nav>
+        <nav class="no-print">
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="#about" style="margin: 0 10px; text-decoration: none; color: #333;">Tentang</a>
+                <a href="#services" style="margin: 0 10px; text-decoration: none; color: #333;">Layanan</a>
+                <a href="#contact" style="margin: 0 10px; text-decoration: none; color: #333;">Kontak</a>
+            </div>
+        </nav>
 
-  <!-- CLIENT -->
-  <section id="clientTab" class="active">
-    <h2>Manajemen Client</h2>
-    <form id="clientForm">
-      <input type="hidden" id="clientEditIndex" value="-1">
-      <div class="form-group">
-        <label for="clientName">Nama</label>
-        <input type="text" id="clientName" required>
-      </div>
-      <div class="form-group">
-        <label for="clientWhatsapp">WhatsApp</label>
-        <input type="text" id="clientWhatsapp" required>
-        <div class="form-note">Format: 628xxxxxxxxxx (contoh: 6281234567890)</div>
-      </div>
-      <div class="form-group">
-        <label for="clientStartDate">Tanggal Mulai</label>
-        <input type="date" id="clientStartDate">
-      </div>
-      <button type="submit" class="btn" id="clientSubmitBtn">Tambah Client</button>
-      <button type="button" id="cancelEditBtn" class="btn btn-danger" style="display:none;">Batal Edit</button>
-      <button type="button" id="deleteSelectedBtn" class="btn btn-danger">Hapus Terpilih</button>
-      
-      <div class="form-group" style="margin-top: 15px;">
-        <label for="importClients">Import dari VCF</label>
-        <input type="file" id="importClients" accept=".vcf">
-        <div class="form-note">Format file: .vcf (vCard)</div>
-      </div>
-    </form>
-    
-    <div class="table-container">
-      <table id="clientTable">
-        <thead>
-          <tr>
-            <th class="checkbox-cell">Pilih</th>
-            <th>Nama</th>
-            <th>WhatsApp</th>
-            <th>Tanggal Mulai</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+        <div class="content">
+            <div class="card">
+                <h3>📡 Tentang Kami</h3>
+                <p>WIFI KOIN AGHF menyediakan layanan internet berkualitas dengan harga terjangkau untuk kebutuhan rumah dan bisnis Anda.</p>
+            </div>
+            
+            <div class="card">
+                <h3>⚡ Layanan Unggulan</h3>
+                <ul>
+                    <li>Internet High Speed</li>
+                    <li>WiFi Area Coverage</li>
+                    <li>Dedicated Bandwidth</li>
+                    <li>24/7 Support</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>💰 Paket Harga</h3>
+                <ul>
+                    <li>Paket Basic: Rp 150.000/bulan</li>
+                    <li>Paket Standard: Rp 250.000/bulan</li>
+                    <li>Paket Premium: Rp 350.000/bulan</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>📞 Kontak Kami</h3>
+                <p>Telepon: 0812-3456-7890</p>
+                <p>Email: info@wifikoin-aghf.com</p>
+                <p>Alamat: Jl. Contoh No. 123, Jakarta</p>
+            </div>
+        </div>
+
+        <div class="print-section no-print">
+            <h3>🖨️ Print / Save sebagai PDF</h3>
+            <p>Klik tombol di bawah untuk print atau save sebagai PDF</p>
+            <button class="btn-print" onclick="window.print()">Print Halaman</button>
+            <button class="btn-pdf" onclick="saveAsPDF()">Save sebagai PDF</button>
+        </div>
+
+        <footer class="no-print">
+            <p>&copy; 2024 WIFI KOIN AGHF. All rights reserved.</p>
+        </footer>
     </div>
-  </section>
 
-  <!-- PRODUK -->
-  <section id="produkTab">
-    <h2>Manajemen Produk</h2>
-    <input type="hidden" id="produkEditIndex" value="-1">
-    <div class="form-group">
-      <label for="produkNama">Nama Produk</label>
-      <input id="produkNama">
-    </div>
-    <div class="form-group">
-      <label for="produkHarga">Harga</label>
-      <input id="produkHarga" type="number">
-    </div>
-    <div class="form-group">
-      <label for="produkDeskripsi">Deskripsi</label>
-      <input id="produkDeskripsi">
-    </div>
-    <button class="btn" id="produkSubmitBtn" onclick="addProduk()">Tambah Produk</button>
-    <button type="button" id="cancelEditProdukBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditProduk()">Batal Edit</button>
-    
-    <div class="table-container">
-      <table id="produkTable">
-        <thead>
-          <tr>
-            <th>Nama</th>
-            <th>Harga</th>
-            <th>Deskripsi</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- REKENING -->
-  <section id="rekeningTab">
-    <h2>Rekening & DANA</h2>
-    <form id="rekeningForm">
-      <input type="hidden" id="rekeningEditIndex" value="-1">
-      <div class="form-group">
-        <label for="bank">Bank</label>
-        <input type="text" id="bank" required>
-      </div>
-      <div class="form-group">
-        <label for="noRekening">No Rekening</label>
-        <input type="text" id="noRekening" required>
-      </div>
-      <div class="form-group">
-        <label for="noDana">No DANA</label>
-        <input type="text" id="noDana">
-      </div>
-      <div class="form-group">
-        <label for="qrisFile">Upload QRIS</label>
-        <input type="file" id="qrisFile">
-      </div>
-      <button type="button" class="btn" id="rekeningSubmitBtn" onclick="simpanRekening()">Simpan Rekening</button>
-      <button type="button" id="cancelEditRekeningBtn" class="btn btn-danger" style="display:none;">Batal Edit</button>
-    </form>
-    
-    <div class="table-container">
-      <table id="rekeningTable">
-        <thead>
-          <tr>
-            <th>Bank</th>
-            <th>No Rekening</th>
-            <th>No DANA</th>
-            <th>QRIS</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- INVOICE -->
-  <section id="invoiceTab">
-    <h2>Buat Invoice</h2>
-    <div class="form-group">
-      <label for="noInvoice">Nomor Invoice</label>
-      <input id="noInvoice" readonly>
-    </div>
-    <div class="form-group">
-      <label for="tglInvoice">Tanggal</label>
-      <input id="tglInvoice" readonly>
-    </div>
-    <div class="form-group">
-      <label for="jatuhTempo">Jatuh Tempo</label>
-      <input type="date" id="jatuhTempo">
-    </div>
-    <div class="form-group">
-      <label for="pilihClient">Pilih Client</label>
-      <select id="pilihClient"></select>
-    </div>
-    <div class="form-group">
-      <label for="pilihProduk">Pilih Produk</label>
-      <select id="pilihProduk"></select>
-    </div>
-    <div class="form-group">
-      <label for="periode">Periode</label>
-      <select id="periode">
-        <option value="1">1 Bulan</option>
-        <option value="2">2 Bulan</option>
-        <option value="3">3 Bulan</option>
-        <option value="6">6 Bulan</option>
-        <option value="12">12 Bulan</option>
-      </select>
-    </div>
-    
-    <button class="btn" onclick="reviewInvoice()">REVIEW INVOICE</button>
-    
-    <div id="previewBox"></div>
-    
-    <div class="invoice-actions">
-      <button id="btnWa" class="btn btn-success" style="display:none;" onclick="kirimWA()">Kirim ke WhatsApp</button>
-      <button id="btnPrint" class="btn btn-warning" style="display:none;" onclick="showPrintPreview()">Cetak Invoice</button>
-    </div>
-  </section>
-
-  <!-- Hidden section untuk print -->
-  <div id="printSection" style="display: none;"></div>
-
-  <!-- Modal preview print -->
-  <div id="printPreview" class="print-preview">
-    <div class="print-preview-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3>Preview Cetak Invoice</h3>
-        <button onclick="closePrintPreview()" style="background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
-      </div>
-      <div class="print-preview-invoice" id="printPreviewContent"></div>
-      <div style="margin-top: 20px; text-align: center;">
-        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
-          Invoice akan dicetak di kertas A4 dengan format 80mm di sisi kiri
-        </p>
-        <button class="btn btn-success" onclick="printInvoice()">Cetak Sekarang</button>
-        <button class="btn btn-danger" onclick="closePrintPreview()" style="margin-left: 10px;">Batal</button>
-      </div>
-    </div>
-  </div>
-
-<script>
-/* ===== NAVIGASI ===== */
-function showTab(id) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
-}
-
-/* ===== CLIENT ===== */
-let clients = JSON.parse(localStorage.getItem("clients")) || [];
-
-function loadClients() {
-  const tbody = document.querySelector("#clientTable tbody");
-  tbody.innerHTML = "";
-  
-  clients.forEach((c, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="checkbox-cell"><input type="checkbox" class="select-client" data-index="${i}"></td>
-      <td>${c.name}</td>
-      <td>${c.whatsapp}</td>
-      <td>${c.startDate || ""}</td>
-      <td>
-        <button class="btn btn-sm" onclick="editClient(${i})">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteClient(${i})">Hapus</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-  
-  refreshClientOptions();
-}
-
-document.querySelector("#clientForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const name = document.querySelector("#clientName").value;
-  const whatsapp = document.querySelector("#clientWhatsapp").value;
-  const startDate = document.querySelector("#clientStartDate").value;
-  const editIndex = parseInt(document.querySelector("#clientEditIndex").value);
-  
-  // Validasi format WhatsApp
-  if (!whatsapp.startsWith("628")) {
-    alert("Format WhatsApp harus dimulai dengan 628 (contoh: 6281234567890)");
-    return;
-  }
-  
-  if (editIndex > -1) {
-    // Edit client yang ada
-    clients[editIndex] = { name, whatsapp, startDate };
-    document.querySelector("#clientEditIndex").value = "-1";
-    document.querySelector("#clientSubmitBtn").textContent = "Tambah Client";
-    document.querySelector("#cancelEditBtn").style.display = "none";
-  } else {
-    // Tambah client baru
-    clients.push({ name, whatsapp, startDate });
-  }
-  
-  localStorage.setItem("clients", JSON.stringify(clients));
-  loadClients();
-  this.reset();
-});
-
-function deleteClient(index) {
-  if (confirm("Apakah Anda yakin ingin menghapus client ini?")) {
-    clients.splice(index, 1);
-    localStorage.setItem("clients", JSON.stringify(clients));
-    loadClients();
-  }
-}
-
-function editClient(index) {
-  const c = clients[index];
-  document.querySelector("#clientName").value = c.name;
-  document.querySelector("#clientWhatsapp").value = c.whatsapp;
-  document.querySelector("#clientStartDate").value = c.startDate || "";
-  document.querySelector("#clientEditIndex").value = index;
-  document.querySelector("#clientSubmitBtn").textContent = "Update Client";
-  document.querySelector("#cancelEditBtn").style.display = "inline-block";
-}
-
-document.querySelector("#cancelEditBtn").addEventListener("click", function() {
-  document.querySelector("#clientForm").reset();
-  document.querySelector("#clientEditIndex").value = "-1";
-  document.querySelector("#clientSubmitBtn").textContent = "Tambah Client";
-  this.style.display = "none";
-});
-
-document.querySelector("#deleteSelectedBtn").addEventListener("click", function() {
-  const checkboxes = document.querySelectorAll(".select-client:checked");
-  
-  if (checkboxes.length === 0) {
-    alert("Pilih client yang akan dihapus terlebih dahulu");
-    return;
-  }
-  
-  if (confirm(`Apakah Anda yakin ingin menghapus ${checkboxes.length} client?`)) {
-    const indexes = [...checkboxes].map(cb => parseInt(cb.dataset.index));
-    indexes.sort((a, b) => b - a).forEach(i => clients.splice(i, 1));
-    localStorage.setItem("clients", JSON.stringify(clients));
-    loadClients();
-  }
-});
-
-// Import dari file VCF
-document.querySelector("#importClients").addEventListener("change", function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const vcfContent = event.target.result;
-    const newClients = parseVCF(vcfContent);
-    
-    if (newClients.length === 0) {
-      alert("Tidak ada kontak yang ditemukan dalam file VCF");
-      return;
-    }
-    
-    const existingClients = JSON.parse(localStorage.getItem("clients")) || [];
-    const filteredClients = newClients.filter(newClient => 
-      !existingClients.some(existing => existing.whatsapp === newClient.whatsapp)
-    );
-    
-    if (filteredClients.length === 0) {
-      alert("Semua kontak dalam file sudah ada di database");
-      return;
-    }
-    
-    clients = existingClients.concat(filteredClients);
-    localStorage.setItem("clients", JSON.stringify(clients));
-    loadClients();
-    alert(`Berhasil menambahkan ${filteredClients.length} client baru`);
-  };
-  
-  reader.readAsText(file);
-});
-
-function parseVCF(vcfContent) {
-  const clients = [];
-  const lines = vcfContent.split('\n');
-  let currentClient = {};
-  
-  for (let line of lines) {
-    if (line.startsWith('BEGIN:VCARD')) {
-      currentClient = {};
-    } else if (line.startsWith('FN:')) {
-      currentClient.name = line.substring(3).trim();
-    } else if (line.startsWith('TEL;')) {
-      let phone = line.split(':')[1].trim();
-      // Normalisasi nomor telepon
-      phone = phone.replace(/\D/g, '');
-      if (phone.startsWith('0')) {
-        phone = '62' + phone.substring(1);
-      } else if (phone.startsWith('+62')) {
-        phone = '62' + phone.substring(3);
-      }
-      currentClient.whatsapp = phone;
-    } else if (line.startsWith('END:VCARD')) {
-      if (currentClient.name && currentClient.whatsapp) {
-        clients.push(currentClient);
-      }
-      currentClient = {};
-    }
-  }
-  
-  return clients;
-}
-
-/* ===== PRODUK ===== */
-let produks = JSON.parse(localStorage.getItem("produks") || "[]");
-
-function renderProduks() {
-  const tbody = document.querySelector("#produkTable tbody");
-  tbody.innerHTML = "";
-  
-  produks.forEach((p, i) => {
-    tbody.innerHTML += `<tr>
-      <td>${p.nama}</td>
-      <td>Rp ${p.harga.toLocaleString()}</td>
-      <td>${p.deskripsi}</td>
-      <td>
-        <button class="btn btn-sm" onclick="editProduk(${i})">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteProduk(${i})">Hapus</button>
-      </td>
-    </tr>`;
-  });
-  
-  refreshProdukOptions();
-}
-
-function addProduk() {
-  const nama = document.getElementById("produkNama").value;
-  const harga = document.getElementById("produkHarga").value;
-  const deskripsi = document.getElementById("produkDeskripsi").value;
-  const editIndex = parseInt(document.getElementById("produkEditIndex").value);
-  
-  if (!nama || !harga) {
-    alert("Nama & harga wajib diisi");
-    return;
-  }
-  
-  if (editIndex > -1) {
-    // Edit produk yang ada
-    produks[editIndex] = { nama, harga: parseInt(harga), deskripsi };
-    document.getElementById("produkEditIndex").value = "-1";
-    document.getElementById("produkSubmitBtn").textContent = "Tambah Produk";
-    document.getElementById("cancelEditProdukBtn").style.display = "none";
-  } else {
-    // Tambah produk baru
-    produks.push({ nama, harga: parseInt(harga), deskripsi });
-  }
-  
-  localStorage.setItem("produks", JSON.stringify(produks));
-  renderProduks();
-  
-  // Reset form
-  document.getElementById("produkNama").value = "";
-  document.getElementById("produkHarga").value = "";
-  document.getElementById("produkDeskripsi").value = "";
-}
-
-function editProduk(i) {
-  const p = produks[i];
-  document.getElementById("produkNama").value = p.nama;
-  document.getElementById("produkHarga").value = p.harga;
-  document.getElementById("produkDeskripsi").value = p.deskripsi;
-  document.getElementById("produkEditIndex").value = i;
-  document.getElementById("produkSubmitBtn").textContent = "Update Produk";
-  document.getElementById("cancelEditProdukBtn").style.display = "inline-block";
-}
-
-function cancelEditProduk() {
-  document.getElementById("produkNama").value = "";
-  document.getElementById("produkHarga").value = "";
-  document.getElementById("produkDeskripsi").value = "";
-  document.getElementById("produkEditIndex").value = "-1";
-  document.getElementById("produkSubmitBtn").textContent = "Tambah Produk";
-  document.getElementById("cancelEditProdukBtn").style.display = "none";
-}
-
-function deleteProduk(i) {
-  if (confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
-    produks.splice(i, 1);
-    localStorage.setItem("produks", JSON.stringify(produks));
-    renderProduks();
-  }
-}
-
-/* ===== REKENING ===== */
-let rekenings = JSON.parse(localStorage.getItem("rekening")) || [];
-
-function loadRekening() {
-  const tbody = document.querySelector("#rekeningTable tbody");
-  tbody.innerHTML = "";
-  
-  rekenings.forEach((r, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.bank}</td>
-      <td>${r.noRekening}</td>
-      <td>${r.noDana || ""}</td>
-      <td>${r.qrisFile ? `<img src="${r.qrisFile}" width="40">` : ""}</td>
-      <td>
-        <button class="btn btn-sm" onclick="editRekening(${i})">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteRekening(${i})">Hapus</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-// SISTEM SEDERHANA: Gunakan onclick langsung
-function simpanRekening() {
-  const bank = document.getElementById("bank").value;
-  const noRekening = document.getElementById("noRekening").value;
-  const noDana = document.getElementById("noDana").value;
-  const editIndex = parseInt(document.getElementById("rekeningEditIndex").value);
-
-  if (!bank || !noRekening) {
-    alert("Bank dan No Rekening wajib diisi");
-    return;
-  }
-
-  const fileInput = document.getElementById("qrisFile");
-  let qrisFile = "";
-
-  if (fileInput.files.length > 0) {
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      qrisFile = ev.target.result;
-      simpanDataRekening(bank, noRekening, noDana, qrisFile, editIndex);
-    };
-    reader.readAsDataURL(fileInput.files[0]);
-  } else {
-    if (editIndex > -1 && rekenings[editIndex] && rekenings[editIndex].qrisFile) {
-      qrisFile = rekenings[editIndex].qrisFile;
-    }
-    simpanDataRekening(bank, noRekening, noDana, qrisFile, editIndex);
-  }
-}
-
-function simpanDataRekening(bank, noRekening, noDana, qrisFile, editIndex) {
-  if (editIndex > -1) {
-    rekenings[editIndex] = { bank, noRekening, noDana, qrisFile };
-    document.getElementById("rekeningEditIndex").value = "-1";
-    document.getElementById("rekeningSubmitBtn").textContent = "Simpan Rekening";
-    document.getElementById("cancelEditRekeningBtn").style.display = "none";
-  } else {
-    rekenings.push({ bank, noRekening, noDana, qrisFile });
-  }
-  
-  localStorage.setItem("rekening", JSON.stringify(rekenings));
-  document.getElementById("rekeningForm").reset();
-  loadRekening();
-  alert("Data rekening berhasil disimpan!");
-}
-
-function deleteRekening(index) {
-  if (confirm("Apakah Anda yakin ingin menghapus rekening ini?")) {
-    rekenings.splice(index, 1);
-    localStorage.setItem("rekening", JSON.stringify(rekenings));
-    loadRekening();
-  }
-}
-
-function editRekening(index) {
-  const r = rekenings[index];
-  document.getElementById("bank").value = r.bank;
-  document.getElementById("noRekening").value = r.noRekening;
-  document.getElementById("noDana").value = r.noDana || "";
-  document.getElementById("rekeningEditIndex").value = index;
-  document.getElementById("rekeningSubmitBtn").textContent = "Update Rekening";
-  document.getElementById("cancelEditRekeningBtn").style.display = "inline-block";
-}
-
-document.getElementById("cancelEditRekeningBtn").addEventListener("click", function() {
-  document.getElementById("rekeningForm").reset();
-  document.getElementById("rekeningEditIndex").value = "-1";
-  document.getElementById("rekeningSubmitBtn").textContent = "Simpan Rekening";
-  this.style.display = "none";
-});
-
-/* ===== INVOICE ===== */
-function refreshClientOptions() {
-  const sel = document.getElementById("pilihClient");
-  sel.innerHTML = "";
-  
-  clients.forEach((c, i) => {
-    sel.innerHTML += `<option value="${i}">${c.name}</option>`;
-  });
-}
-
-function refreshProdukOptions() {
-  const sel = document.getElementById("pilihProduk");
-  sel.innerHTML = "";
-  
-  produks.forEach((p, i) => {
-    sel.innerHTML += `<option value="${i}">${p.nama} - Rp ${p.harga.toLocaleString()}</option>`;
-  });
-}
-
-function generateInvoiceNo() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  
-  let num = localStorage.getItem("lastInvoice") || 0;
-  num = parseInt(num) + 1;
-  localStorage.setItem("lastInvoice", num);
-  
-  return `INV/${year}${month}/${String(num).padStart(4, '0')}`;
-}
-
-// Set nilai default untuk invoice
-document.getElementById("noInvoice").value = generateInvoiceNo();
-document.getElementById("tglInvoice").value = new Date().toISOString().split('T')[0];
-
-// Set jatuh tempo default (7 hari dari sekarang)
-const nextWeek = new Date();
-nextWeek.setDate(nextWeek.getDate() + 7);
-document.getElementById("jatuhTempo").value = nextWeek.toISOString().split('T')[0];
-
-let invoiceText = "";
-
-function reviewInvoice() {
-  const no = document.getElementById("noInvoice").value;
-  const tgl = new Date(document.getElementById("tglInvoice").value).toLocaleDateString("id-ID");
-  const tempo = new Date(document.getElementById("jatuhTempo").value).toLocaleDateString("id-ID");
-  
-  const clientIndex = parseInt(document.getElementById("pilihClient").value);
-  const client = clients[clientIndex];
-  
-  if (!client) {
-    alert("Pilih client terlebih dahulu");
-    return;
-  }
-  
-  const produkIndex = parseInt(document.getElementById("pilihProduk").value);
-  const produk = produks[produkIndex];
-  
-  if (!produk) {
-    alert("Pilih produk terlebih dahulu");
-    return;
-  }
-  
-  const periode = parseInt(document.getElementById("periode").value);
-  const total = produk.harga * periode;
-  
-  const rek = rekenings.length ? rekenings[0] : { bank: "-", noRekening: "-", noDana: "-" };
-
-  // Format struk thermal 80mm yang lebih ringkas
-  invoiceText = `WIFI KOIN AKHFI
-================
-INV: ${no}
-TGL: ${tgl}
-JTH: ${tempo}
-----------------
-CLIENT: ${client.name}
-WA: ${client.whatsapp}
-----------------
-LAYANAN: ${produk.nama}
-PERIODE: ${periode} Bln
-HARGA: Rp${produk.harga.toLocaleString()}/bln
-----------------
-TOTAL: Rp${total.toLocaleString()}
-================
-BAYAR KE:
-${rek.bank}: ${rek.noRekening}
-DANA: ${rek.noDana || '-'}
-================
-HUBUNGI:
-WA: 085934241038
-TERIMA KASIH
-================`;
-
-  document.getElementById("previewBox").textContent = invoiceText;
-  document.getElementById("btnWa").style.display = "inline-block";
-  document.getElementById("btnPrint").style.display = "inline-block";
-}
-
-function kirimWA() {
-  const clientIndex = parseInt(document.getElementById("pilihClient").value);
-  const client = clients[clientIndex];
-  
-  if (!client || !client.whatsapp) {
-    alert("Nomor WhatsApp client belum diisi.");
-    return;
-  }
-  
-  const pesan = document.getElementById("previewBox").innerText;
-  const noWa = client.whatsapp.replace(/\D/g, "");
-  const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(pesan);
-  window.open(url, "_blank");
-}
-
-/* ===== SISTEM CETAK YANG DIPERBAIKI ===== */
-function showPrintPreview() {
-  const content = document.getElementById("previewBox").innerText;
-  document.getElementById("printPreviewContent").textContent = content;
-  document.getElementById("printPreview").style.display = "flex";
-}
-
-function closePrintPreview() {
-  document.getElementById("printPreview").style.display = "none";
-}
-
-function printInvoice() {
-  const content = document.getElementById("previewBox").innerText;
-  
-  // Simpan konten ke section print dengan format A4
-  document.getElementById("printSection").innerHTML = `
-    <div style="width: 80mm; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.2;">
-      <pre>${content}</pre>
-    </div>
-  `;
-  
-  // Tampilkan section print
-  document.getElementById("printSection").style.display = "block";
-  
-  // Tutup preview
-  closePrintPreview();
-  
-  // Tunggu sebentar lalu print
-  setTimeout(() => {
-    window.print();
-    
-    // Sembunyikan kembali setelah print
-    setTimeout(() => {
-      document.getElementById("printSection").style.display = "none";
-    }, 500);
-  }, 100);
-}
-
-/* ===== INIT ===== */
-document.addEventListener('DOMContentLoaded', function() {
-  loadClients();
-  renderProduks();
-  loadRekening();
-  refreshClientOptions();
-  refreshProdukOptions();
-});
-</script>
+    <script>
+        // Fungsi untuk save sebagai PDF
+        function saveAsPDF() {
+            window.print();
+        }
+        
+        // Auto print settings
+        window.onbeforeprint = function() {
+            console.log("Memulai print...");
+        };
+        
+        window.onafterprint = function() {
+            console.log("Print selesai");
+        };
+        
+        // Force print styling
+        const style = document.createElement('style');
+        style.textContent = `
+            @media print {
+                body * {
+                    visibility: hidden;
+                }
+                .container, .container * {
+                    visibility: visible;
+                }
+                .container {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
