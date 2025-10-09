@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- TAMBAH META TAG INI -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+  connect-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+  script-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+  style-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+">
   <title>WIFI KOIN AKHFI</title>
   <style>
+  
     /* ===== VARIABEL CSS ===== */
     :root {
       --primary: #0044cc;
@@ -61,7 +69,7 @@
     /* ===== NAVIGASI ===== */
     nav {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       background: var(--secondary);
       gap: 1px;
     }
@@ -232,9 +240,65 @@
       margin-top: 12px;
     }
 
+    /* ===== VOUCHER SECTION STYLES ===== */
+    .voucher-tabs {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .voucher-tab {
+      padding: 8px 15px;
+      cursor: pointer;
+      border: none;
+      background: var(--light);
+      border-bottom: 2px solid transparent;
+    }
+    
+    .voucher-tab.active {
+      background: white;
+      border-bottom: 2px solid var(--primary);
+      font-weight: bold;
+    }
+    
+    .voucher-subsection {
+      display: none;
+    }
+    
+    .voucher-subsection.active {
+      display: block;
+    }
+    
+    .voucher-preview {
+      background: #f8f9fa;
+      border: 1px solid var(--border);
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    /* ===== LOADING STYLES ===== */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     /* ===== RESPONSIVE STYLES ===== */
     @media (min-width: 768px) {
-      /* Untuk tablet dan desktop */
       body {
         font-size: 15px;
       }
@@ -318,101 +382,75 @@
         padding: 12px;
         max-width: 300px;
       }
-    }
-
-    @media (min-width: 1024px) {
-      body {
-        font-size: 16px;
+      
+      .voucher-tabs {
+        margin-bottom: 20px;
       }
       
-      header h1 {
-        font-size: 1.5rem;
-      }
-      
-      nav button {
-        padding: 14px 10px;
-        font-size: 15px;
-      }
-      
-      section {
-        padding: 20px;
+      .voucher-tab {
+        padding: 10px 20px;
+        font-size: 14px;
       }
     }
 
-    /* ===== STYLE KHUSUS UNTUK PRINT A4 ===== */
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      #printSection, #printSection * {
-        visibility: visible;
-      }
-      #printSection {
-        position: absolute;
-        left: 10mm; /* Posisi di pinggir kiri kertas A4 */
-        top: 10mm;
-        width: 80mm; /* Tetap lebar 80mm untuk struk thermal */
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        line-height: 1.2;
-        padding: 5px;
-        border: 1px dashed #ccc; /* Border putus-putus untuk panduan */
-        background: white;
-        box-shadow: none;
-      }
-      @page {
-        size: A4;
-        margin: 0;
-      }
-    }
-
-    /* Style untuk preview print di layar */
-    .print-preview {
-      display: none;
+    /* Notification styles */
+    .notification {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      border-radius: 4px;
+      color: white;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
     
-    .print-preview-content {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
+    .notification.show {
+      opacity: 1;
     }
     
-    .print-preview-invoice {
-      width: 80mm;
-      font-family: 'Courier New', monospace;
+    .notification.success {
+      background: var(--success);
+    }
+    
+    .notification.error {
+      background: var(--danger);
+    }
+
+    .status-connected {
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    .status-disconnected {
+      color: var(--danger);
+      font-weight: bold;
+    }
+
+    .profile-info {
+      background: #e9ecef;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 5px;
       font-size: 12px;
-      line-height: 1.2;
-      padding: 10px;
-      border: 1px solid #000;
-      background: white;
-      margin: 0 auto;
     }
   </style>
 </head>
 <body>
+  <div id="notification" class="notification"></div>
+
   <header>
     <img src="gatotkaca.png" alt="Logo WIFI KOIN AKHFI" onerror="this.style.display='none'">
     <h1>WIFI KOIN AKHFI</h1>
   </header>
 
   <nav>
-    <button onclick="showTab('clientTab')" class="active">Client</button>
-    <button onclick="showTab('produkTab')">Produk</button>
-    <button onclick="showTab('rekeningTab')">Pembayaran/DANA</button>
-    <button onclick="showTab('invoiceTab')">Buat Invoice</button>
+    <button onclick="showSection('clientTab')" class="active">Client</button>
+    <button onclick="showSection('produkTab')">Produk</button>
+    <button onclick="showSection('rekeningTab')">Pembayaran/DANA</button>
+    <button onclick="showSection('invoiceTab')">Buat Invoice</button>
+    <button onclick="showSection('voucherTab')">Kirim Voucher</button>
   </nav>
 
   <!-- CLIENT -->
@@ -433,15 +471,9 @@
         <label for="clientStartDate">Tanggal Mulai</label>
         <input type="date" id="clientStartDate">
       </div>
-      <button type="submit" class="btn" id="clientSubmitBtn">Tambah Client</button>
-      <button type="button" id="cancelEditBtn" class="btn btn-danger" style="display:none;">Batal Edit</button>
-      <button type="button" id="deleteSelectedBtn" class="btn btn-danger">Hapus Terpilih</button>
-      
-      <div class="form-group" style="margin-top: 15px;">
-        <label for="importClients">Import dari VCF</label>
-        <input type="file" id="importClients" accept=".vcf">
-        <div class="form-note">Format file: .vcf (vCard)</div>
-      </div>
+      <button type="button" class="btn" onclick="handleClientSubmit()">Tambah Client</button>
+      <button type="button" id="cancelEditBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditClient()">Batal Edit</button>
+      <button type="button" class="btn btn-danger" onclick="deleteSelectedClients()">Hapus Terpilih</button>
     </form>
     
     <div class="table-container">
@@ -476,7 +508,7 @@
       <label for="produkDeskripsi">Deskripsi</label>
       <input id="produkDeskripsi">
     </div>
-    <button class="btn" id="produkSubmitBtn" onclick="addProduk()">Tambah Produk</button>
+    <button class="btn" onclick="addProduk()">Tambah Produk</button>
     <button type="button" id="cancelEditProdukBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditProduk()">Batal Edit</button>
     
     <div class="table-container">
@@ -511,12 +543,8 @@
         <label for="noDana">No DANA</label>
         <input type="text" id="noDana">
       </div>
-      <div class="form-group">
-        <label for="qrisFile">Upload QRIS</label>
-        <input type="file" id="qrisFile">
-      </div>
-      <button type="button" class="btn" id="rekeningSubmitBtn" onclick="simpanRekening()">Simpan Rekening</button>
-      <button type="button" id="cancelEditRekeningBtn" class="btn btn-danger" style="display:none;">Batal Edit</button>
+      <button type="button" class="btn" onclick="simpanRekening()">Simpan Rekening</button>
+      <button type="button" id="cancelEditRekeningBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditRekening()">Batal Edit</button>
     </form>
     
     <div class="table-container">
@@ -526,7 +554,6 @@
             <th>Bank</th>
             <th>No Rekening</th>
             <th>No DANA</th>
-            <th>QRIS</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -575,45 +602,275 @@
     
     <div class="invoice-actions">
       <button id="btnWa" class="btn btn-success" style="display:none;" onclick="kirimWA()">Kirim ke WhatsApp</button>
-      <button id="btnPrint" class="btn btn-warning" style="display:none;" onclick="showPrintPreview()">Cetak Invoice</button>
+      <button class="btn" onclick="kembaliKeMenu()">Kembali ke Menu Utama</button>
     </div>
   </section>
 
-  <!-- Hidden section untuk print -->
-  <div id="printSection" style="display: none;"></div>
-
-  <!-- Modal preview print -->
-  <div id="printPreview" class="print-preview">
-    <div class="print-preview-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3>Preview Cetak Invoice</h3>
-        <button onclick="closePrintPreview()" style="background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+  <!-- VOUCHER -->
+  <section id="voucherTab">
+    <h2>Kirim Voucher</h2>
+    
+    <div class="voucher-tabs">
+      <button class="voucher-tab active" onclick="showVoucherSubsection('voucherSetting')">Setting</button>
+      <button class="voucher-tab" onclick="showVoucherSubsection('voucherKirim')">Kirim</button>
+    </div>
+    
+    <!-- Subsection Setting -->
+    <div id="voucherSetting" class="voucher-subsection active">
+      <h3>Setting Mikrotik</h3>
+      
+      <div class="form-group">
+        <label for="mikrotikHost">Host/IP Mikrotik</label>
+        <input type="text" id="mikrotikHost" placeholder="192.168.1.1" value="192.168.202.2">
       </div>
-      <div class="print-preview-invoice" id="printPreviewContent"></div>
-      <div style="margin-top: 20px; text-align: center;">
-        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
-          Invoice akan dicetak di kertas A4 dengan format 80mm di sisi kiri
-        </p>
-        <button class="btn btn-success" onclick="printInvoice()">Cetak Sekarang</button>
-        <button class="btn btn-danger" onclick="closePrintPreview()" style="margin-left: 10px;">Batal</button>
+      <div class="form-group">
+        <label for="mikrotikUser">Username</label>
+        <input type="text" id="mikrotikUser" placeholder="admin" value="admin">
+      </div>
+      <div class="form-group">
+        <label for="mikrotikPassword">Password</label>
+        <input type="password" id="mikrotikPassword" placeholder="Password Mikrotik">
+      </div>
+      
+      <button class="btn btn-success" onclick="saveMikrotikSettings()">Simpan Setting</button>
+      <button class="btn btn-warning" onclick="testMikrotikConnection()">Test Koneksi</button>
+      <div class="form-note">Setting disimpan di browser Anda</div>
+    </div>
+    
+    <!-- Subsection Kirim -->
+    <div id="voucherKirim" class="voucher-subsection">
+      <h3>Kirim Voucher ke Client</h3>
+      
+      <div class="form-group">
+        <label for="voucherClient">Pilih Client</label>
+        <select id="voucherClient">
+          <option value="">Pilih Client...</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="mikrotikProfile">Profile Hotspot</label>
+        <select id="mikrotikProfile">
+          <option value="PAKET-30D-1-USER">PAKET-30D-1-USER (30 Hari, 1 User)</option>
+          <option value="PAKET-30D-2-USER-35RB">PAKET-30D-2-USER-35RB (30 Hari, 2 User)</option>
+          <option value="PAKET-30D-3-USER-35RB">PAKET-30D-3-USER-35RB (30 Hari, 3 User)</option>
+          <option value="PAKET-24-JAM">PAKET-24-JAM (24 Jam, 1 User)</option>
+          <option value="PAKET-12-JAM">PAKET-12-JAM (12 Jam, 1 User)</option>
+          <option value="PAKET-10-JAM">PAKET-10-JAM (10 Jam, 1 User)</option>
+          <option value="PAKET-20-JAM">PAKET-20-JAM (20 Jam, 1 User)</option>
+        </select>
+      </div>
+      
+      <div id="profileInfo" class="profile-info">
+        <strong>Info Profile:</strong>
+        <div id="profileDetails">Pilih profile untuk melihat detail</div>
+      </div>
+      
+      <div class="form-group">
+        <label for="voucherPrice">Harga Voucher</label>
+        <input type="number" id="voucherPrice" placeholder="100000" value="100000">
+      </div>
+      
+      <div class="form-group">
+        <label for="voucherComment">Keterangan (opsional)</label>
+        <input type="text" id="voucherComment" placeholder="Keterangan voucher">
+      </div>
+      
+      <button class="btn btn-success" onclick="generateVoucher()" id="generateVoucherBtn">
+        Buat & Preview Voucher
+      </button>
+      
+      <div id="voucherPreview" class="voucher-preview" style="display: none;"></div>
+      
+      <div class="invoice-actions" id="voucherActions" style="display: none;">
+        <button class="btn btn-success" onclick="createAndSendVoucher()" id="createVoucherBtn">
+          Simpan & Kirim ke WhatsApp
+        </button>
+        <button class="btn" onclick="kembaliKeMenu()">Kembali ke Menu Utama</button>
       </div>
     </div>
-  </div>
+  </section>
 
 <script>
-/* ===== NAVIGASI ===== */
-function showTab(id) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
+// ===== GLOBAL VARIABLES =====
+let mikrotikSettings = JSON.parse(localStorage.getItem("mikrotikSettings")) || {};
+let clients = JSON.parse(localStorage.getItem("clients")) || [];
+let produks = JSON.parse(localStorage.getItem("produks")) || [];
+let rekenings = JSON.parse(localStorage.getItem("rekening")) || [];
+let vouchers = JSON.parse(localStorage.getItem("vouchers")) || [];
+let invoiceText = "";
+let voucherCode = "";
+let currentVoucherData = null;
+
+// URL CLOUDFLARE WORKER - GUNAKAN PROXY ENDPOINT
+const CLOUDFLARE_WORKER_URL = 'https://wifi-koin-akhfi.muhammadrahmanarrasyid15.workers.dev';
+
+// Profile mapping
+const profileMappings = {
+  'PAKET-30D-1-USER': { duration: 43200, sharedUsers: 1, type: '30 Hari', limit: '1 User' },
+  'PAKET-30D-2-USER-35RB': { duration: 43200, sharedUsers: 2, type: '30 Hari', limit: '2 User' },
+  'PAKET-30D-3-USER-35RB': { duration: 43200, sharedUsers: 3, type: '30 Hari', limit: '3 User' },
+  'PAKET-24-JAM': { duration: 1440, sharedUsers: 1, type: '24 Jam', limit: '1 User' },
+  'PAKET-12-JAM': { duration: 720, sharedUsers: 1, type: '12 Jam', limit: '1 User' },
+  'PAKET-10-JAM': { duration: 600, sharedUsers: 1, type: '10 Jam', limit: '1 User' },
+  'PAKET-20-JAM': { duration: 1200, sharedUsers: 1, type: '20 Jam', limit: '1 User' }
+};
+
+// ===== MIKROTIK API FUNCTIONS =====
+async function testMikrotikConnection() {
+  const host = document.getElementById('mikrotikHost').value;
+  const user = document.getElementById('mikrotikUser').value;
+  const password = document.getElementById('mikrotikPassword').value;
+  
+  if (!host || !user || !password) {
+    showNotification('Host, user, dan password harus diisi!', 'error');
+    return false;
+  }
+  
+  showNotification('🔄 Menguji koneksi ke Mikrotik...', 'success');
+  
+  try {
+    // Gunakan proxy endpoint untuk menghindari CSP
+    const response = await fetch(`${CLOUDFLARE_WORKER_URL}/proxy`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'testConnection',
+        data: { host, user, password }
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification(`✅ Koneksi berhasil! Mikrotik ${result.data.platform} v${result.data.version}`, 'success');
+      return true;
+    } else {
+      showNotification(`❌ Gagal: ${result.error}`, 'error');
+      return false;
+    }
+  } catch (error) {
+    showNotification(`❌ Error: ${error.message}`, 'error');
+    return false;
+  }
 }
 
-/* ===== CLIENT ===== */
-let clients = JSON.parse(localStorage.getItem("clients")) || [];
+async function createMikrotikVoucher(voucherData) {
+  const host = document.getElementById('mikrotikHost').value;
+  const user = document.getElementById('mikrotikUser').value;
+  const password = document.getElementById('mikrotikPassword').value;
+  
+  showNotification('🔄 Membuat voucher di Mikrotik...', 'success');
+  
+  try {
+    // Gunakan proxy endpoint untuk menghindari CSP
+    const response = await fetch(`${CLOUDFLARE_WORKER_URL}/proxy`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'createVoucher',
+        data: {
+          host,
+          user,
+          password,
+          ...voucherData
+        }
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification('✅ Voucher berhasil dibuat di Mikrotik!', 'success');
+      return true;
+    } else {
+      showNotification(`❌ Gagal buat voucher: ${result.error}`, 'error');
+      return false;
+    }
+  } catch (error) {
+    showNotification(`❌ Error: ${error.message}`, 'error');
+    return false;
+  }
+}
 
+// ===== UTILITY FUNCTIONS =====
+function showNotification(message, type = 'success') {
+  const notification = document.getElementById('notification');
+  notification.textContent = message;
+  notification.className = `notification ${type} show`;
+  
+  setTimeout(() => {
+    notification.classList.remove('show');
+  }, 3000);
+}
+
+function saveData(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+    return true;
+  } catch (e) {
+    console.warn('LocalStorage error:', e);
+    return false;
+  }
+}
+
+function loadData(key) {
+  try {
+    const data = localStorage.getItem(key);
+    if (!data) return [];
+    
+    const parsed = JSON.parse(data);
+    
+    if (Array.isArray(parsed)) {
+      return parsed;
+    } else {
+      console.warn(`Data ${key} bukan array, mengembalikan array kosong`);
+      return [];
+    }
+  } catch (e) {
+    console.warn(`Gagal memuat data ${key}:`, e);
+    return [];
+  }
+}
+
+// ===== NAVIGATION =====
+function showSection(sectionId) {
+  const sections = document.querySelectorAll('section');
+  sections.forEach(section => {
+    section.classList.remove('active');
+  });
+  
+  const targetSection = document.getElementById(sectionId);
+  if (targetSection) {
+    targetSection.classList.add('active');
+  }
+  
+  const buttons = document.querySelectorAll('nav button');
+  buttons.forEach(button => {
+    button.classList.remove('active');
+  });
+  
+  const buttonIndex = Array.from(buttons).findIndex(btn => 
+    btn.getAttribute('onclick')?.includes(sectionId)
+  );
+  if (buttonIndex !== -1) {
+    buttons[buttonIndex].classList.add('active');
+  }
+}
+
+function kembaliKeMenu() {
+  showSection('clientTab');
+}
+
+// ===== CLIENT MANAGEMENT =====
 function loadClients() {
   const tbody = document.querySelector("#clientTable tbody");
+  if (!tbody) return;
+  
   tbody.innerHTML = "";
   
   clients.forEach((c, i) => {
@@ -631,63 +888,65 @@ function loadClients() {
   });
   
   refreshClientOptions();
+  refreshVoucherClientOptions();
 }
 
-document.querySelector("#clientForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const name = document.querySelector("#clientName").value;
-  const whatsapp = document.querySelector("#clientWhatsapp").value;
-  const startDate = document.querySelector("#clientStartDate").value;
-  const editIndex = parseInt(document.querySelector("#clientEditIndex").value);
+function handleClientSubmit() {
+  const name = document.getElementById("clientName").value;
+  const whatsapp = document.getElementById("clientWhatsapp").value;
+  const startDate = document.getElementById("clientStartDate").value;
+  const editIndex = parseInt(document.getElementById("clientEditIndex").value);
   
-  // Validasi format WhatsApp
   if (!whatsapp.startsWith("628")) {
     alert("Format WhatsApp harus dimulai dengan 628 (contoh: 6281234567890)");
     return;
   }
   
   if (editIndex > -1) {
-    // Edit client yang ada
     clients[editIndex] = { name, whatsapp, startDate };
-    document.querySelector("#clientEditIndex").value = "-1";
-    document.querySelector("#clientSubmitBtn").textContent = "Tambah Client";
-    document.querySelector("#cancelEditBtn").style.display = "none";
+    document.getElementById("clientEditIndex").value = "-1";
+    document.getElementById("cancelEditBtn").style.display = "none";
   } else {
-    // Tambah client baru
     clients.push({ name, whatsapp, startDate });
   }
   
-  localStorage.setItem("clients", JSON.stringify(clients));
+  saveData("clients", clients);
   loadClients();
-  this.reset();
-});
+  
+  document.getElementById("clientName").value = "";
+  document.getElementById("clientWhatsapp").value = "";
+  document.getElementById("clientStartDate").value = "";
+  
+  showNotification("Data client berhasil disimpan!");
+}
 
 function deleteClient(index) {
   if (confirm("Apakah Anda yakin ingin menghapus client ini?")) {
     clients.splice(index, 1);
-    localStorage.setItem("clients", JSON.stringify(clients));
+    saveData("clients", clients);
     loadClients();
+    showNotification("Client berhasil dihapus");
   }
 }
 
 function editClient(index) {
   const c = clients[index];
-  document.querySelector("#clientName").value = c.name;
-  document.querySelector("#clientWhatsapp").value = c.whatsapp;
-  document.querySelector("#clientStartDate").value = c.startDate || "";
-  document.querySelector("#clientEditIndex").value = index;
-  document.querySelector("#clientSubmitBtn").textContent = "Update Client";
-  document.querySelector("#cancelEditBtn").style.display = "inline-block";
+  document.getElementById("clientName").value = c.name;
+  document.getElementById("clientWhatsapp").value = c.whatsapp;
+  document.getElementById("clientStartDate").value = c.startDate || "";
+  document.getElementById("clientEditIndex").value = index;
+  document.getElementById("cancelEditBtn").style.display = "inline-block";
 }
 
-document.querySelector("#cancelEditBtn").addEventListener("click", function() {
-  document.querySelector("#clientForm").reset();
-  document.querySelector("#clientEditIndex").value = "-1";
-  document.querySelector("#clientSubmitBtn").textContent = "Tambah Client";
-  this.style.display = "none";
-});
+function cancelEditClient() {
+  document.getElementById("clientName").value = "";
+  document.getElementById("clientWhatsapp").value = "";
+  document.getElementById("clientStartDate").value = "";
+  document.getElementById("clientEditIndex").value = "-1";
+  document.getElementById("cancelEditBtn").style.display = "none";
+}
 
-document.querySelector("#deleteSelectedBtn").addEventListener("click", function() {
+function deleteSelectedClients() {
   const checkboxes = document.querySelectorAll(".select-client:checked");
   
   if (checkboxes.length === 0) {
@@ -698,81 +957,17 @@ document.querySelector("#deleteSelectedBtn").addEventListener("click", function(
   if (confirm(`Apakah Anda yakin ingin menghapus ${checkboxes.length} client?`)) {
     const indexes = [...checkboxes].map(cb => parseInt(cb.dataset.index));
     indexes.sort((a, b) => b - a).forEach(i => clients.splice(i, 1));
-    localStorage.setItem("clients", JSON.stringify(clients));
+    saveData("clients", clients);
     loadClients();
+    showNotification(`${checkboxes.length} client berhasil dihapus`);
   }
-});
-
-// Import dari file VCF
-document.querySelector("#importClients").addEventListener("change", function(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const vcfContent = event.target.result;
-    const newClients = parseVCF(vcfContent);
-    
-    if (newClients.length === 0) {
-      alert("Tidak ada kontak yang ditemukan dalam file VCF");
-      return;
-    }
-    
-    const existingClients = JSON.parse(localStorage.getItem("clients")) || [];
-    const filteredClients = newClients.filter(newClient => 
-      !existingClients.some(existing => existing.whatsapp === newClient.whatsapp)
-    );
-    
-    if (filteredClients.length === 0) {
-      alert("Semua kontak dalam file sudah ada di database");
-      return;
-    }
-    
-    clients = existingClients.concat(filteredClients);
-    localStorage.setItem("clients", JSON.stringify(clients));
-    loadClients();
-    alert(`Berhasil menambahkan ${filteredClients.length} client baru`);
-  };
-  
-  reader.readAsText(file);
-});
-
-function parseVCF(vcfContent) {
-  const clients = [];
-  const lines = vcfContent.split('\n');
-  let currentClient = {};
-  
-  for (let line of lines) {
-    if (line.startsWith('BEGIN:VCARD')) {
-      currentClient = {};
-    } else if (line.startsWith('FN:')) {
-      currentClient.name = line.substring(3).trim();
-    } else if (line.startsWith('TEL;')) {
-      let phone = line.split(':')[1].trim();
-      // Normalisasi nomor telepon
-      phone = phone.replace(/\D/g, '');
-      if (phone.startsWith('0')) {
-        phone = '62' + phone.substring(1);
-      } else if (phone.startsWith('+62')) {
-        phone = '62' + phone.substring(3);
-      }
-      currentClient.whatsapp = phone;
-    } else if (line.startsWith('END:VCARD')) {
-      if (currentClient.name && currentClient.whatsapp) {
-        clients.push(currentClient);
-      }
-      currentClient = {};
-    }
-  }
-  
-  return clients;
 }
 
-/* ===== PRODUK ===== */
-let produks = JSON.parse(localStorage.getItem("produks") || "[]");
-
+// ===== PRODUCT MANAGEMENT =====
 function renderProduks() {
   const tbody = document.querySelector("#produkTable tbody");
+  if (!tbody) return;
+  
   tbody.innerHTML = "";
   
   produks.forEach((p, i) => {
@@ -802,23 +997,21 @@ function addProduk() {
   }
   
   if (editIndex > -1) {
-    // Edit produk yang ada
     produks[editIndex] = { nama, harga: parseInt(harga), deskripsi };
     document.getElementById("produkEditIndex").value = "-1";
-    document.getElementById("produkSubmitBtn").textContent = "Tambah Produk";
     document.getElementById("cancelEditProdukBtn").style.display = "none";
   } else {
-    // Tambah produk baru
     produks.push({ nama, harga: parseInt(harga), deskripsi });
   }
   
-  localStorage.setItem("produks", JSON.stringify(produks));
+  saveData("produks", produks);
   renderProduks();
   
-  // Reset form
   document.getElementById("produkNama").value = "";
   document.getElementById("produkHarga").value = "";
   document.getElementById("produkDeskripsi").value = "";
+  
+  showNotification("Produk berhasil disimpan!");
 }
 
 function editProduk(i) {
@@ -827,7 +1020,6 @@ function editProduk(i) {
   document.getElementById("produkHarga").value = p.harga;
   document.getElementById("produkDeskripsi").value = p.deskripsi;
   document.getElementById("produkEditIndex").value = i;
-  document.getElementById("produkSubmitBtn").textContent = "Update Produk";
   document.getElementById("cancelEditProdukBtn").style.display = "inline-block";
 }
 
@@ -836,24 +1028,29 @@ function cancelEditProduk() {
   document.getElementById("produkHarga").value = "";
   document.getElementById("produkDeskripsi").value = "";
   document.getElementById("produkEditIndex").value = "-1";
-  document.getElementById("produkSubmitBtn").textContent = "Tambah Produk";
   document.getElementById("cancelEditProdukBtn").style.display = "none";
 }
 
 function deleteProduk(i) {
   if (confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
     produks.splice(i, 1);
-    localStorage.setItem("produks", JSON.stringify(produks));
+    saveData("produks", produks);
     renderProduks();
+    showNotification("Produk berhasil dihapus");
   }
 }
 
-/* ===== REKENING ===== */
-let rekenings = JSON.parse(localStorage.getItem("rekening")) || [];
-
+// ===== REKENING MANAGEMENT =====
 function loadRekening() {
   const tbody = document.querySelector("#rekeningTable tbody");
+  if (!tbody) return;
+  
   tbody.innerHTML = "";
+  
+  if (!Array.isArray(rekenings)) {
+    rekenings = [];
+    saveData("rekening", rekenings);
+  }
   
   rekenings.forEach((r, i) => {
     const tr = document.createElement("tr");
@@ -861,7 +1058,6 @@ function loadRekening() {
       <td>${r.bank}</td>
       <td>${r.noRekening}</td>
       <td>${r.noDana || ""}</td>
-      <td>${r.qrisFile ? `<img src="${r.qrisFile}" width="40">` : ""}</td>
       <td>
         <button class="btn btn-sm" onclick="editRekening(${i})">Edit</button>
         <button class="btn btn-sm btn-danger" onclick="deleteRekening(${i})">Hapus</button>
@@ -870,7 +1066,6 @@ function loadRekening() {
   });
 }
 
-// SISTEM SEDERHANA: Gunakan onclick langsung
 function simpanRekening() {
   const bank = document.getElementById("bank").value;
   const noRekening = document.getElementById("noRekening").value;
@@ -882,68 +1077,63 @@ function simpanRekening() {
     return;
   }
 
-  const fileInput = document.getElementById("qrisFile");
-  let qrisFile = "";
-
-  if (fileInput.files.length > 0) {
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      qrisFile = ev.target.result;
-      simpanDataRekening(bank, noRekening, noDana, qrisFile, editIndex);
-    };
-    reader.readAsDataURL(fileInput.files[0]);
-  } else {
-    if (editIndex > -1 && rekenings[editIndex] && rekenings[editIndex].qrisFile) {
-      qrisFile = rekenings[editIndex].qrisFile;
-    }
-    simpanDataRekening(bank, noRekening, noDana, qrisFile, editIndex);
+  if (!Array.isArray(rekenings)) {
+    rekenings = [];
   }
-}
 
-function simpanDataRekening(bank, noRekening, noDana, qrisFile, editIndex) {
   if (editIndex > -1) {
-    rekenings[editIndex] = { bank, noRekening, noDana, qrisFile };
+    rekenings[editIndex] = { bank, noRekening, noDana };
     document.getElementById("rekeningEditIndex").value = "-1";
-    document.getElementById("rekeningSubmitBtn").textContent = "Simpan Rekening";
     document.getElementById("cancelEditRekeningBtn").style.display = "none";
   } else {
-    rekenings.push({ bank, noRekening, noDana, qrisFile });
+    rekenings.push({ bank, noRekening, noDana });
   }
   
-  localStorage.setItem("rekening", JSON.stringify(rekenings));
+  saveData("rekening", rekenings);
   document.getElementById("rekeningForm").reset();
   loadRekening();
-  alert("Data rekening berhasil disimpan!");
+  
+  showNotification("Data rekening berhasil disimpan!");
 }
 
 function deleteRekening(index) {
   if (confirm("Apakah Anda yakin ingin menghapus rekening ini?")) {
+    if (!Array.isArray(rekenings)) {
+      rekenings = [];
+    }
+    
     rekenings.splice(index, 1);
-    localStorage.setItem("rekening", JSON.stringify(rekenings));
+    saveData("rekening", rekenings);
     loadRekening();
+    showNotification("Rekening berhasil dihapus");
   }
 }
 
 function editRekening(index) {
+  if (!Array.isArray(rekenings)) {
+    rekenings = [];
+    return;
+  }
+  
   const r = rekenings[index];
   document.getElementById("bank").value = r.bank;
   document.getElementById("noRekening").value = r.noRekening;
   document.getElementById("noDana").value = r.noDana || "";
   document.getElementById("rekeningEditIndex").value = index;
-  document.getElementById("rekeningSubmitBtn").textContent = "Update Rekening";
   document.getElementById("cancelEditRekeningBtn").style.display = "inline-block";
 }
 
-document.getElementById("cancelEditRekeningBtn").addEventListener("click", function() {
+function cancelEditRekening() {
   document.getElementById("rekeningForm").reset();
   document.getElementById("rekeningEditIndex").value = "-1";
-  document.getElementById("rekeningSubmitBtn").textContent = "Simpan Rekening";
-  this.style.display = "none";
-});
+  document.getElementById("cancelEditRekeningBtn").style.display = "none";
+}
 
-/* ===== INVOICE ===== */
+// ===== INVOICE SYSTEM =====
 function refreshClientOptions() {
   const sel = document.getElementById("pilihClient");
+  if (!sel) return;
+  
   sel.innerHTML = "";
   
   clients.forEach((c, i) => {
@@ -953,6 +1143,8 @@ function refreshClientOptions() {
 
 function refreshProdukOptions() {
   const sel = document.getElementById("pilihProduk");
+  if (!sel) return;
+  
   sel.innerHTML = "";
   
   produks.forEach((p, i) => {
@@ -971,17 +1163,6 @@ function generateInvoiceNo() {
   
   return `INV/${year}${month}/${String(num).padStart(4, '0')}`;
 }
-
-// Set nilai default untuk invoice
-document.getElementById("noInvoice").value = generateInvoiceNo();
-document.getElementById("tglInvoice").value = new Date().toISOString().split('T')[0];
-
-// Set jatuh tempo default (7 hari dari sekarang)
-const nextWeek = new Date();
-nextWeek.setDate(nextWeek.getDate() + 7);
-document.getElementById("jatuhTempo").value = nextWeek.toISOString().split('T')[0];
-
-let invoiceText = "";
 
 function reviewInvoice() {
   const no = document.getElementById("noInvoice").value;
@@ -1009,7 +1190,6 @@ function reviewInvoice() {
   
   const rek = rekenings.length ? rekenings[0] : { bank: "-", noRekening: "-", noDana: "-" };
 
-  // Format struk thermal 80mm yang lebih ringkas
   invoiceText = `WIFI KOIN AKHFI
 ================
 INV: ${no}
@@ -1036,7 +1216,6 @@ TERIMA KASIH
 
   document.getElementById("previewBox").textContent = invoiceText;
   document.getElementById("btnWa").style.display = "inline-block";
-  document.getElementById("btnPrint").style.display = "inline-block";
 }
 
 function kirimWA() {
@@ -1052,53 +1231,243 @@ function kirimWA() {
   const noWa = client.whatsapp.replace(/\D/g, "");
   const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(pesan);
   window.open(url, "_blank");
-}
-
-/* ===== SISTEM CETAK YANG DIPERBAIKI ===== */
-function showPrintPreview() {
-  const content = document.getElementById("previewBox").innerText;
-  document.getElementById("printPreviewContent").textContent = content;
-  document.getElementById("printPreview").style.display = "flex";
-}
-
-function closePrintPreview() {
-  document.getElementById("printPreview").style.display = "none";
-}
-
-function printInvoice() {
-  const content = document.getElementById("previewBox").innerText;
   
-  // Simpan konten ke section print dengan format A4
-  document.getElementById("printSection").innerHTML = `
-    <div style="width: 80mm; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.2;">
-      <pre>${content}</pre>
-    </div>
-  `;
-  
-  // Tampilkan section print
-  document.getElementById("printSection").style.display = "block";
-  
-  // Tutup preview
-  closePrintPreview();
-  
-  // Tunggu sebentar lalu print
   setTimeout(() => {
-    window.print();
-    
-    // Sembunyikan kembali setelah print
-    setTimeout(() => {
-      document.getElementById("printSection").style.display = "none";
-    }, 500);
-  }, 100);
+    showSection('clientTab');
+  }, 2000);
 }
 
-/* ===== INIT ===== */
+// ===== VOUCHER SYSTEM =====
+function showVoucherSubsection(subsectionId) {
+  const subsections = document.querySelectorAll('.voucher-subsection');
+  subsections.forEach(subsection => {
+    subsection.classList.remove('active');
+  });
+  
+  document.getElementById(subsectionId).classList.add('active');
+  
+  const tabs = document.querySelectorAll('.voucher-tab');
+  tabs.forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  const activeTab = Array.from(tabs).find(tab => 
+    tab.getAttribute('onclick')?.includes(subsectionId)
+  );
+  if (activeTab) {
+    activeTab.classList.add('active');
+  }
+}
+
+function refreshVoucherClientOptions() {
+  const sel = document.getElementById("voucherClient");
+  if (!sel) return;
+  
+  sel.innerHTML = '<option value="">Pilih Client...</option>';
+  
+  clients.forEach((c, i) => {
+    sel.innerHTML += `<option value="${i}">${c.name} - ${c.whatsapp}</option>`;
+  });
+}
+
+function saveMikrotikSettings() {
+  const host = document.getElementById('mikrotikHost').value;
+  const user = document.getElementById('mikrotikUser').value;
+  const password = document.getElementById('mikrotikPassword').value;
+  
+  mikrotikSettings = {
+    host,
+    user,
+    password
+  };
+  
+  localStorage.setItem("mikrotikSettings", JSON.stringify(mikrotikSettings));
+  showNotification("Setting Mikrotik berhasil disimpan!");
+}
+
+function updateProfileInfo() {
+  const profileSelect = document.getElementById('mikrotikProfile');
+  const profileDetails = document.getElementById('profileDetails');
+  
+  const selectedProfile = profileSelect.value;
+  
+  if (selectedProfile && profileMappings[selectedProfile]) {
+    const profile = profileMappings[selectedProfile];
+    profileDetails.innerHTML = `
+      Jenis: ${profile.type}<br>
+      Durasi: ${profile.duration} menit<br>
+      Limit Penggunaan: ${profile.limit}<br>
+      Shared Users: ${profile.sharedUsers}
+    `;
+  } else {
+    profileDetails.innerHTML = 'Pilih profile untuk melihat detail';
+  }
+}
+
+async function generateVoucher() {
+  const clientIndex = parseInt(document.getElementById("voucherClient").value);
+  const client = clients[clientIndex];
+  const profile = document.getElementById('mikrotikProfile').value;
+  
+  if (!client) {
+    alert("Pilih client terlebih dahulu");
+    return;
+  }
+  
+  if (!profile) {
+    alert("Pilih profile hotspot terlebih dahulu");
+    return;
+  }
+  
+  // Test koneksi dulu
+  const isConnected = await testMikrotikConnection();
+  if (!isConnected) {
+    return;
+  }
+  
+  const voucherPrice = document.getElementById("voucherPrice").value;
+  const voucherComment = document.getElementById("voucherComment").value;
+  
+  // Generate kode voucher
+  voucherCode = client.name.replace(/\s+/g, '').toLowerCase();
+  if (voucherCode.length < 4) {
+    voucherCode += Math.floor(1000 + Math.random() * 9000);
+  }
+  
+  const profileInfo = profileMappings[profile];
+  
+  let durationText = "";
+  let durationValue = "";
+  
+  if (profileInfo.duration < 60) {
+    durationText = `${profileInfo.duration} menit`;
+    durationValue = `${profileInfo.duration}m`;
+  } else if (profileInfo.duration < 1440) {
+    const hours = Math.floor(profileInfo.duration / 60);
+    durationText = `${hours} jam`;
+    durationValue = `${hours}h`;
+  } else {
+    const days = Math.floor(profileInfo.duration / 1440);
+    durationText = `${days} hari`;
+    durationValue = `${days}d`;
+  }
+  
+  const voucherPreview = document.getElementById("voucherPreview");
+  const priceText = voucherPrice > 0 ? `Harga: Rp ${parseInt(voucherPrice).toLocaleString()}` : "GRATIS";
+  
+  voucherPreview.innerHTML = `VOUCHER WIFI KOIN AKHFI
+========================
+Username: ${voucherCode}
+Password: ${voucherCode}
+Profile: ${profile}
+Durasi: ${durationText}
+${priceText}
+Limit: ${profileInfo.limit}
+${voucherComment ? `Keterangan: ${voucherComment}` : ''}
+========================
+Cara pakai:
+1. Hubungkan ke WiFi Koin Akhfi
+2. Buka browser
+3. Masukkan Kode Voucher
+4. Nikmati internet
+========================
+Terima kasih!`;
+  
+  voucherPreview.style.display = 'block';
+  document.getElementById("voucherActions").style.display = 'flex';
+  
+  // Simpan data voucher untuk digunakan nanti
+  currentVoucherData = {
+    voucherCode,
+    profile,
+    duration: durationValue,
+    price: voucherPrice,
+    comment: voucherComment
+  };
+}
+
+async function createAndSendVoucher() {
+  if (!currentVoucherData) {
+    alert("Generate voucher terlebih dahulu!");
+    return;
+  }
+  
+  const clientIndex = parseInt(document.getElementById("voucherClient").value);
+  const client = clients[clientIndex];
+  
+  // Buat voucher di Mikrotik
+  const voucherCreated = await createMikrotikVoucher(currentVoucherData);
+  
+  if (!voucherCreated) {
+    return;
+  }
+  
+  // Simpan ke localStorage
+  const newVoucher = {
+    code: currentVoucherData.voucherCode,
+    client: client.name,
+    whatsapp: client.whatsapp,
+    date: new Date().toISOString(),
+    profile: currentVoucherData.profile,
+    price: currentVoucherData.price || 0,
+    comment: currentVoucherData.comment || ''
+  };
+  
+  vouchers.push(newVoucher);
+  saveData("vouchers", vouchers);
+  
+  // Kirim ke WhatsApp
+  const voucherMessage = document.getElementById("voucherPreview").innerText;
+  const noWa = client.whatsapp.replace(/\D/g, "");
+  const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(voucherMessage);
+  window.open(url, "_blank");
+  
+  showNotification("✅ Voucher berhasil dibuat dan dikirim ke WhatsApp!");
+  
+  setTimeout(() => {
+    showSection('clientTab');
+  }, 3000);
+}
+
+// ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('Aplikasi dimuat');
+  
+  // Load data
+  clients = loadData("clients");
+  produks = loadData("produks");
+  rekenings = loadData("rekening");
+  vouchers = loadData("vouchers");
+  
+  // Initialize components
   loadClients();
   renderProduks();
   loadRekening();
   refreshClientOptions();
   refreshProdukOptions();
+  
+  // Set invoice defaults
+  document.getElementById("noInvoice").value = generateInvoiceNo();
+  document.getElementById("tglInvoice").value = new Date().toISOString().split('T')[0];
+  
+  const nextWeek = new Date();
+  nextWeek.setDate(nextWeek.getDate() + 7);
+  document.getElementById("jatuhTempo").value = nextWeek.toISOString().split('T')[0];
+  
+  // Load Mikrotik settings
+  if (mikrotikSettings.host) {
+    document.getElementById('mikrotikHost').value = mikrotikSettings.host;
+    document.getElementById('mikrotikUser').value = mikrotikSettings.user;
+    document.getElementById('mikrotikPassword').value = mikrotikSettings.password;
+  }
+  
+  // Event listener untuk profile
+  document.getElementById('mikrotikProfile').addEventListener('change', updateProfileInfo);
+  
+  // Initialize profile info
+  updateProfileInfo();
+  
+  console.log('Aplikasi siap digunakan');
 });
 </script>
 </body>
