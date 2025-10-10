@@ -3,16 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- TAMBAH META TAG INI -->
-<meta http-equiv="Content-Security-Policy" content="
-  default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
-  connect-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
-  script-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
-  style-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
-">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+    connect-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+    script-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+    style-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+  ">
   <title>WIFI KOIN AKHFI</title>
   <style>
-  
     /* ===== VARIABEL CSS ===== */
     :root {
       --primary: #0044cc;
@@ -702,7 +700,7 @@ let invoiceText = "";
 let voucherCode = "";
 let currentVoucherData = null;
 
-// URL CLOUDFLARE WORKER - GUNAKAN PROXY ENDPOINT
+// URL CLOUDFLARE WORKER - SESUAIKAN DENGAN URL ANDA
 const CLOUDFLARE_WORKER_URL = 'https://wifi-koin-akhfi.muhammadrahmanarrasyid15.workers.dev';
 
 // Profile mapping
@@ -730,16 +728,12 @@ async function testMikrotikConnection() {
   showNotification('🔄 Menguji koneksi ke Mikrotik...', 'success');
   
   try {
-    // Gunakan proxy endpoint untuk menghindari CSP
-    const response = await fetch(`${CLOUDFLARE_WORKER_URL}/proxy`, {
+    const response = await fetch(`${CLOUDFLARE_WORKER_URL}/test`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        action: 'testConnection',
-        data: { host, user, password }
-      })
+      body: JSON.stringify({ host, user, password })
     });
     
     const result = await response.json();
@@ -765,20 +759,19 @@ async function createMikrotikVoucher(voucherData) {
   showNotification('🔄 Membuat voucher di Mikrotik...', 'success');
   
   try {
-    // Gunakan proxy endpoint untuk menghindari CSP
-    const response = await fetch(`${CLOUDFLARE_WORKER_URL}/proxy`, {
+    const response = await fetch(`${CLOUDFLARE_WORKER_URL}/create-voucher`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        action: 'createVoucher',
-        data: {
-          host,
-          user,
-          password,
-          ...voucherData
-        }
+        host,
+        user,
+        password,
+        voucherCode: voucherData.voucherCode,
+        profile: voucherData.profile,
+        comment: voucherData.comment,
+        limitUptime: voucherData.duration
       })
     });
     
