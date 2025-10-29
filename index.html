@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="
     default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
-    connect-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+    connect-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://api.telegram.org;
     script-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
     style-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+    img-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
   ">
   <title>WIFI KOIN AKHFI</title>
   <style>
@@ -117,12 +118,18 @@
       font-size: 13px;
     }
     
-    input, select {
+    input, select, textarea {
       padding: 8px;
       width: 100%;
       border: 1px solid var(--border);
       border-radius: 4px;
       font-size: 14px;
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: Arial, sans-serif;
     }
     
     .form-note {
@@ -345,7 +352,7 @@
         font-size: 14px;
       }
       
-      input, select {
+      input, select, textarea {
         width: calc(100% - 160px);
         max-width: 400px;
       }
@@ -466,11 +473,18 @@
         <div class="form-note">Format: 628xxxxxxxxxx (contoh: 6281234567890)</div>
       </div>
       <div class="form-group">
+        <label for="clientAddress">Alamat Lengkap</label>
+        <textarea id="clientAddress" rows="3" placeholder="Alamat lengkap pelanggan untuk penagihan"></textarea>
+        <div class="form-note">Alamat ini akan dikirim ke Telegram untuk panduan penagihan</div>
+      </div>
+      <div class="form-group">
         <label for="clientStartDate">Tanggal Mulai</label>
         <input type="date" id="clientStartDate">
       </div>
       <button type="button" class="btn" onclick="handleClientSubmit()">Tambah Client</button>
       <button type="button" id="cancelEditBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditClient()">Batal Edit</button>
+      <button type="button" class="btn btn-warning" onclick="sendManualBilling()">Kirim Data ke Telegram</button>
+      <button type="button" class="btn btn-warning" onclick="sendAllClientDataToTelegram()">Kirim Semua Data</button>
       <button type="button" class="btn btn-danger" onclick="deleteSelectedClients()">Hapus Terpilih</button>
     </form>
     
@@ -482,6 +496,7 @@
             <th>Nama</th>
             <th>WhatsApp</th>
             <th>Tanggal Mulai</th>
+            <th>Alamat</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -700,6 +715,10 @@ let invoiceText = "";
 let voucherCode = "";
 let currentVoucherData = null;
 
+// ===== TELEGRAM BOT SETTINGS =====
+const TELEGRAM_BOT_TOKEN = '6661877543:AAFFJ4rmmkHJNYj5hFHWuhhSKrTgJUYwtbo';
+const TELEGRAM_CHAT_ID = '617429698';
+
 // URL CLOUDFLARE WORKER - SESUAIKAN DENGAN URL ANDA
 const CLOUDFLARE_WORKER_URL = 'https://wifi-koin-akhfi.muhammadrahmanarrasyid15.workers.dev';
 
@@ -714,6 +733,208 @@ const profileMappings = {
   'PAKET-20-JAM': { duration: 1200, sharedUsers: 1, type: '20 Jam', limit: '1 User' }
 };
 
+// ===== TELEGRAM FUNCTIONS =====
+async function sendToTelegram(message) {
+  try {
+    console.log('🔄 Mengirim pesan ke Telegram...');
+    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: 'HTML'
+      })
+    });
+    
+    const result = await response.json();
+    console.log('Response Telegram:', result);
+    
+    if (result.ok) {
+      console.log('✅ Pesan berhasil dikirim ke Telegram');
+      return true;
+    } else {
+      console.error('❌ Gagal mengirim ke Telegram:', result);
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Error sending to Telegram:', error);
+    return false;
+  }
+}
+
+function checkAndSendBillingReminders() {
+  const today = new Date();
+  const todayString = today.toISOString().split('T')[0];
+  
+  console.log('🔍 Mengecek tagihan untuk tanggal:', todayString);
+  
+  clients.forEach(client => {
+    if (client.startDate) {
+      const startDate = new Date(client.startDate);
+      const billingDate = new Date(startDate);
+      
+      // Set billing date to 1 month after start date
+      billingDate.setMonth(billingDate.getMonth() + 1);
+      const billingDateString = billingDate.toISOString().split('T')[0];
+      
+      // Check if today is the billing date
+      if (todayString === billingDateString) {
+        console.log(`📅 Kirim tagihan untuk ${client.name}`);
+        sendClientDataToTelegram(client);
+      }
+    }
+  });
+}
+
+async function sendClientDataToTelegram(client) {
+  // Generate invoice number
+  const invoiceNo = generateInvoiceNo();
+  const today = new Date().toLocaleDateString("id-ID");
+  
+  // Find the product (assuming first product for simplicity)
+  const product = produks.length > 0 ? produks[0] : { nama: "Layanan WiFi", harga: 100000 };
+  
+  // Get payment info
+  const paymentInfo = rekenings.length > 0 ? rekenings[0] : { bank: "-", noRekening: "-", noDana: "-" };
+  
+  const telegramMessage = `
+<b>📋 DATA TAGIHAN PELANGGAN - WIFI KOIN AKHFI</b>
+
+<b>INFORMASI TAGIHAN:</b>
+├ No Invoice: <code>${invoiceNo}</code>
+├ Tanggal: ${today}
+└ Status: MENUNGGU PENAGIHAN
+
+<b>DATA PELANGGAN:</b>
+├ Nama: <b>${client.name}</b>
+├ WhatsApp: <code>${client.whatsapp}</code>
+├ Alamat: ${client.address || 'Alamat belum diisi'}
+├ Mulai Berlangganan: ${new Date(client.startDate).toLocaleDateString("id-ID")}
+└ Durasi: 1 Bulan
+
+<b>DETAIL LAYANAN:</b>
+├ Paket: ${product.nama}
+├ Biaya Bulanan: Rp ${product.harga.toLocaleString()}
+└ Total Tagihan: <b>Rp ${product.harga.toLocaleString()}</b>
+
+<b>INFORMASI PENAGIHAN:</b>
+├ Lokasi: ${client.address || 'Alamat belum diisi'}
+├ Kontak: ${client.whatsapp}
+└ Petugas: <i>Menunggu penugasan</i>
+
+<b>METODE PEMBAYARAN:</b>
+├ ${paymentInfo.bank}: <code>${paymentInfo.noRekening}</code>
+└ DANA: <code>${paymentInfo.noDana || '-'}</code>
+
+<b>CATATAN:</b>
+• Silakan hubungi pelanggan via WhatsApp sebelum berkunjung
+• Bawa invoice fisik dan bukti pembayaran
+• Konfirmasi setelah penagihan selesai
+
+#tagihan #${client.name.replace(/\s+/g, '')} #${today.replace(/\//g, '')}
+  `;
+  
+  const sent = await sendToTelegram(telegramMessage);
+  
+  if (sent) {
+    console.log(`✅ Data client ${client.name} berhasil dikirim ke Telegram`);
+    showNotification(`✅ Data ${client.name} berhasil dikirim ke Telegram`, 'success');
+    
+    // Simpan riwayat pengiriman
+    saveBillingHistory(client, invoiceNo);
+  } else {
+    console.error(`❌ Gagal mengirim data client ${client.name} ke Telegram`);
+    showNotification(`❌ Gagal mengirim data ${client.name} ke Telegram`, 'error');
+  }
+}
+
+// Function untuk mengirim data client manual
+async function sendManualClientDataToTelegram(clientIndex) {
+  if (clientIndex < 0 || clientIndex >= clients.length) {
+    showNotification('❌ Pilih client yang valid', 'error');
+    return;
+  }
+  
+  const client = clients[clientIndex];
+  console.log(`📤 Mengirim data manual untuk: ${client.name}`);
+  await sendClientDataToTelegram(client);
+}
+
+// Function untuk mengirim semua data client
+async function sendAllClientDataToTelegram() {
+  if (clients.length === 0) {
+    showNotification('⚠️ Tidak ada client yang terdaftar', 'warning');
+    return;
+  }
+  
+  let successCount = 0;
+  let failCount = 0;
+  
+  showNotification('🔄 Mengirim semua data client ke Telegram...', 'success');
+  
+  for (const client of clients) {
+    if (client.startDate) {
+      const sent = await sendClientDataToTelegram(client);
+      if (sent) {
+        successCount++;
+      } else {
+        failCount++;
+      }
+      
+      // Delay antara pengiriman untuk menghindari rate limit
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+  }
+  
+  showNotification(
+    `📊 Pengiriman selesai: ${successCount} berhasil, ${failCount} gagal`, 
+    successCount > 0 ? 'success' : 'error'
+  );
+}
+
+// Simpan riwayat penagihan
+function saveBillingHistory(client, invoiceNo) {
+  const billingHistory = JSON.parse(localStorage.getItem("billingHistory")) || [];
+  const today = new Date().toISOString();
+  
+  billingHistory.push({
+    clientName: client.name,
+    clientWhatsapp: client.whatsapp,
+    invoiceNo: invoiceNo,
+    sentDate: today,
+    amount: produks.length > 0 ? produks[0].harga : 0,
+    status: 'pending'
+  });
+  
+  localStorage.setItem("billingHistory", JSON.stringify(billingHistory));
+}
+
+// Fungsi untuk mengirim data client manual dari tombol
+function sendManualBilling() {
+  const checkboxes = document.querySelectorAll(".select-client:checked");
+  
+  if (checkboxes.length === 0) {
+    alert("❌ Pilih client yang akan dikirim datanya terlebih dahulu");
+    return;
+  }
+  
+  if (checkboxes.length > 1) {
+    if (confirm(`📤 Kirim data ${checkboxes.length} client ke Telegram?`)) {
+      const indexes = [...checkboxes].map(cb => parseInt(cb.dataset.index));
+      indexes.forEach(index => {
+        setTimeout(() => sendManualClientDataToTelegram(index), indexes.indexOf(index) * 2000);
+      });
+    }
+    return;
+  }
+  
+  const index = parseInt(checkboxes[0].dataset.index);
+  sendManualClientDataToTelegram(index);
+}
+
 // ===== MIKROTIK API FUNCTIONS =====
 async function testMikrotikConnection() {
   const host = document.getElementById('mikrotikHost').value;
@@ -721,7 +942,7 @@ async function testMikrotikConnection() {
   const password = document.getElementById('mikrotikPassword').value;
   
   if (!host || !user || !password) {
-    showNotification('Host, user, dan password harus diisi!', 'error');
+    showNotification('❌ Host, user, dan password harus diisi!', 'error');
     return false;
   }
   
@@ -873,9 +1094,11 @@ function loadClients() {
       <td>${c.name}</td>
       <td>${c.whatsapp}</td>
       <td>${c.startDate || ""}</td>
+      <td>${c.address ? (c.address.length > 30 ? c.address.substring(0, 30) + '...' : c.address) : "-"}</td>
       <td>
         <button class="btn btn-sm" onclick="editClient(${i})">Edit</button>
         <button class="btn btn-sm btn-danger" onclick="deleteClient(${i})">Hapus</button>
+        <button class="btn btn-sm btn-warning" onclick="sendManualClientDataToTelegram(${i})">Kirim ke Telegram</button>
       </td>`;
     tbody.appendChild(tr);
   });
@@ -888,19 +1111,20 @@ function handleClientSubmit() {
   const name = document.getElementById("clientName").value;
   const whatsapp = document.getElementById("clientWhatsapp").value;
   const startDate = document.getElementById("clientStartDate").value;
+  const address = document.getElementById("clientAddress") ? document.getElementById("clientAddress").value : "";
   const editIndex = parseInt(document.getElementById("clientEditIndex").value);
   
   if (!whatsapp.startsWith("628")) {
-    alert("Format WhatsApp harus dimulai dengan 628 (contoh: 6281234567890)");
+    alert("❌ Format WhatsApp harus dimulai dengan 628 (contoh: 6281234567890)");
     return;
   }
   
   if (editIndex > -1) {
-    clients[editIndex] = { name, whatsapp, startDate };
+    clients[editIndex] = { name, whatsapp, startDate, address };
     document.getElementById("clientEditIndex").value = "-1";
     document.getElementById("cancelEditBtn").style.display = "none";
   } else {
-    clients.push({ name, whatsapp, startDate });
+    clients.push({ name, whatsapp, startDate, address });
   }
   
   saveData("clients", clients);
@@ -909,16 +1133,19 @@ function handleClientSubmit() {
   document.getElementById("clientName").value = "";
   document.getElementById("clientWhatsapp").value = "";
   document.getElementById("clientStartDate").value = "";
+  if (document.getElementById("clientAddress")) {
+    document.getElementById("clientAddress").value = "";
+  }
   
-  showNotification("Data client berhasil disimpan!");
+  showNotification("✅ Data client berhasil disimpan!");
 }
 
 function deleteClient(index) {
-  if (confirm("Apakah Anda yakin ingin menghapus client ini?")) {
+  if (confirm("❌ Apakah Anda yakin ingin menghapus client ini?")) {
     clients.splice(index, 1);
     saveData("clients", clients);
     loadClients();
-    showNotification("Client berhasil dihapus");
+    showNotification("✅ Client berhasil dihapus");
   }
 }
 
@@ -927,6 +1154,9 @@ function editClient(index) {
   document.getElementById("clientName").value = c.name;
   document.getElementById("clientWhatsapp").value = c.whatsapp;
   document.getElementById("clientStartDate").value = c.startDate || "";
+  if (document.getElementById("clientAddress")) {
+    document.getElementById("clientAddress").value = c.address || "";
+  }
   document.getElementById("clientEditIndex").value = index;
   document.getElementById("cancelEditBtn").style.display = "inline-block";
 }
@@ -935,6 +1165,9 @@ function cancelEditClient() {
   document.getElementById("clientName").value = "";
   document.getElementById("clientWhatsapp").value = "";
   document.getElementById("clientStartDate").value = "";
+  if (document.getElementById("clientAddress")) {
+    document.getElementById("clientAddress").value = "";
+  }
   document.getElementById("clientEditIndex").value = "-1";
   document.getElementById("cancelEditBtn").style.display = "none";
 }
@@ -943,16 +1176,16 @@ function deleteSelectedClients() {
   const checkboxes = document.querySelectorAll(".select-client:checked");
   
   if (checkboxes.length === 0) {
-    alert("Pilih client yang akan dihapus terlebih dahulu");
+    alert("❌ Pilih client yang akan dihapus terlebih dahulu");
     return;
   }
   
-  if (confirm(`Apakah Anda yakin ingin menghapus ${checkboxes.length} client?`)) {
+  if (confirm(`❌ Apakah Anda yakin ingin menghapus ${checkboxes.length} client?`)) {
     const indexes = [...checkboxes].map(cb => parseInt(cb.dataset.index));
     indexes.sort((a, b) => b - a).forEach(i => clients.splice(i, 1));
     saveData("clients", clients);
     loadClients();
-    showNotification(`${checkboxes.length} client berhasil dihapus`);
+    showNotification(`✅ ${checkboxes.length} client berhasil dihapus`);
   }
 }
 
@@ -985,7 +1218,7 @@ function addProduk() {
   const editIndex = parseInt(document.getElementById("produkEditIndex").value);
   
   if (!nama || !harga) {
-    alert("Nama & harga wajib diisi");
+    alert("❌ Nama & harga wajib diisi");
     return;
   }
   
@@ -1004,7 +1237,7 @@ function addProduk() {
   document.getElementById("produkHarga").value = "";
   document.getElementById("produkDeskripsi").value = "";
   
-  showNotification("Produk berhasil disimpan!");
+  showNotification("✅ Produk berhasil disimpan!");
 }
 
 function editProduk(i) {
@@ -1025,11 +1258,11 @@ function cancelEditProduk() {
 }
 
 function deleteProduk(i) {
-  if (confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
+  if (confirm("❌ Apakah Anda yakin ingin menghapus produk ini?")) {
     produks.splice(i, 1);
     saveData("produks", produks);
     renderProduks();
-    showNotification("Produk berhasil dihapus");
+    showNotification("✅ Produk berhasil dihapus");
   }
 }
 
@@ -1066,7 +1299,7 @@ function simpanRekening() {
   const editIndex = parseInt(document.getElementById("rekeningEditIndex").value);
 
   if (!bank || !noRekening) {
-    alert("Bank dan No Rekening wajib diisi");
+    alert("❌ Bank dan No Rekening wajib diisi");
     return;
   }
 
@@ -1086,11 +1319,11 @@ function simpanRekening() {
   document.getElementById("rekeningForm").reset();
   loadRekening();
   
-  showNotification("Data rekening berhasil disimpan!");
+  showNotification("✅ Data rekening berhasil disimpan!");
 }
 
 function deleteRekening(index) {
-  if (confirm("Apakah Anda yakin ingin menghapus rekening ini?")) {
+  if (confirm("❌ Apakah Anda yakin ingin menghapus rekening ini?")) {
     if (!Array.isArray(rekenings)) {
       rekenings = [];
     }
@@ -1098,7 +1331,7 @@ function deleteRekening(index) {
     rekenings.splice(index, 1);
     saveData("rekening", rekenings);
     loadRekening();
-    showNotification("Rekening berhasil dihapus");
+    showNotification("✅ Rekening berhasil dihapus");
   }
 }
 
@@ -1166,7 +1399,7 @@ function reviewInvoice() {
   const client = clients[clientIndex];
   
   if (!client) {
-    alert("Pilih client terlebih dahulu");
+    alert("❌ Pilih client terlebih dahulu");
     return;
   }
   
@@ -1174,7 +1407,7 @@ function reviewInvoice() {
   const produk = produks[produkIndex];
   
   if (!produk) {
-    alert("Pilih produk terlebih dahulu");
+    alert("❌ Pilih produk terlebih dahulu");
     return;
   }
   
@@ -1216,7 +1449,7 @@ function kirimWA() {
   const client = clients[clientIndex];
   
   if (!client || !client.whatsapp) {
-    alert("Nomor WhatsApp client belum diisi.");
+    alert("❌ Nomor WhatsApp client belum diisi.");
     return;
   }
   
@@ -1275,7 +1508,7 @@ function saveMikrotikSettings() {
   };
   
   localStorage.setItem("mikrotikSettings", JSON.stringify(mikrotikSettings));
-  showNotification("Setting Mikrotik berhasil disimpan!");
+  showNotification("✅ Setting Mikrotik berhasil disimpan!");
 }
 
 function updateProfileInfo() {
@@ -1303,12 +1536,12 @@ async function generateVoucher() {
   const profile = document.getElementById('mikrotikProfile').value;
   
   if (!client) {
-    alert("Pilih client terlebih dahulu");
+    alert("❌ Pilih client terlebih dahulu");
     return;
   }
   
   if (!profile) {
-    alert("Pilih profile hotspot terlebih dahulu");
+    alert("❌ Pilih profile hotspot terlebih dahulu");
     return;
   }
   
@@ -1381,7 +1614,7 @@ Terima kasih!`;
 
 async function createAndSendVoucher() {
   if (!currentVoucherData) {
-    alert("Generate voucher terlebih dahulu!");
+    alert("❌ Generate voucher terlebih dahulu!");
     return;
   }
   
@@ -1424,7 +1657,7 @@ async function createAndSendVoucher() {
 
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('Aplikasi dimuat');
+  console.log('🚀 Aplikasi dimuat');
   
   // Load data
   clients = loadData("clients");
@@ -1460,7 +1693,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize profile info
   updateProfileInfo();
   
-  console.log('Aplikasi siap digunakan');
+  // Jalankan pengecekan tagihan otomatis
+  setInterval(checkAndSendBillingReminders, 24 * 60 * 60 * 1000); // Cek setiap 24 jam
+  checkAndSendBillingReminders(); // Jalankan sekali saat aplikasi dimulai
+  
+  console.log('✅ Aplikasi siap digunakan');
 });
 </script>
 </body>
