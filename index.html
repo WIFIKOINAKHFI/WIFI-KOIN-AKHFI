@@ -166,16 +166,6 @@
             margin: 15px 0;
         }
         
-        .nav-tabs .nav-link.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .nav-tabs .nav-link {
-            color: var(--primary);
-        }
-        
         .portal-item {
             border-left: 4px solid #7209b7;
         }
@@ -188,6 +178,13 @@
         .portal-partner {
             font-weight: bold;
             color: #f72585;
+        }
+        
+        .section-title {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: var(--primary);
         }
         
         @media (max-width: 768px) {
@@ -211,334 +208,244 @@
             </div>
         </div>
 
-        <!-- Tab Navigasi -->
-        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="client-tab" data-bs-toggle="tab" data-bs-target="#client" type="button" role="tab" aria-controls="client" aria-selected="true">
-                    <i class="fas fa-users"></i> Klien & Penagihan
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="portal-tab" data-bs-toggle="tab" data-bs-target="#portal" type="button" role="tab" aria-controls="portal" aria-selected="false">
-                    <i class="fas fa-cube"></i> Portal
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="backup-tab" data-bs-toggle="tab" data-bs-target="#backup" type="button" role="tab" aria-controls="backup" aria-selected="false">
-                    <i class="fas fa-download"></i> Backup & Restore
-                </button>
-            </li>
-        </ul>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="myTabContent">
-            <!-- Tab Klien -->
-            <div class="tab-pane fade show active" id="client" role="tabpanel" aria-labelledby="client-tab">
-                <div class="row">
-                    <!-- Panel Klien -->
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>Daftar Klien</span>
-                                <div>
-                                    <span class="badge bg-light text-dark" id="client-count">0 klien</span>
-                                    <button class="btn btn-sm btn-light ms-2" id="add-client-btn" data-bs-toggle="modal" data-bs-target="#addClientModal">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="list-group list-group-flush" id="client-list">
-                                    <!-- Daftar klien akan diisi oleh JavaScript -->
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="card mt-4">
-                            <div class="card-header">
-                                Aksi Penagihan
-                            </div>
-                            <div class="card-body">
-                                <div class="action-buttons" id="action-buttons">
-                                    <button class="btn btn-paid btn-action" id="btn-paid">
-                                        <i class="fas fa-money-bill-wave"></i> Sudah Bayar
-                                    </button>
-                                    <button class="btn btn-invoiced btn-action" id="btn-invoiced">
-                                        <i class="fas fa-receipt"></i> Sudah Ditagih
-                                    </button>
-                                    <button class="btn btn-pending btn-action" id="btn-pending">
-                                        <i class="fas fa-clock"></i> Belum Ditagih
-                                    </button>
-                                    <button class="btn btn-cancelled btn-action" id="btn-cancelled">
-                                        <i class="fas fa-ban"></i> Dibatalkan
-                                    </button>
-                                </div>
-                                <div class="mt-3 text-center">
-                                    <small class="text-muted">Pilih klien terlebih dahulu sebelum mengubah status</small>
-                                </div>
-                            </div>
+        <div class="row">
+            <!-- Panel Klien -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Daftar Klien</span>
+                        <div>
+                            <span class="badge bg-light text-dark" id="client-count">0 klien</span>
+                            <button class="btn btn-sm btn-light ms-2" id="add-client-btn" data-bs-toggle="modal" data-bs-target="#addClientModal">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light ms-1" id="backup-clients-btn" title="Backup Data Klien">
+                                <i class="fas fa-download"></i>
+                            </button>
                         </div>
                     </div>
-                    
-                    <!-- Panel Laporan dan Statistik -->
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-header">
-                                Laporan & Rekapan Penagihan
-                            </div>
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <h5>Jenis Laporan:</h5>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="report-all">
-                                            <label class="form-check-label" for="report-all">
-                                                Semua Data
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="report-paid" checked>
-                                            <label class="form-check-label" for="report-paid">
-                                                Sudah Bayar
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="report-invoiced" checked>
-                                            <label class="form-check-label" for="report-invoiced">
-                                                Sudah Ditagih
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="report-pending" checked>
-                                            <label class="form-check-label" for="report-pending">
-                                                Belum Ditagih
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="report-cancelled" checked>
-                                            <label class="form-check-label" for="report-cancelled">
-                                                Dibatalkan
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h5>Aksi Laporan:</h5>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="action-telegram">
-                                            <label class="form-check-label" for="action-telegram">
-                                                Kirim Laporan Bayar ke Telegram
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="action-download-paid" checked>
-                                            <label class="form-check-label" for="action-download-paid">
-                                                Download Laporan Bayar (Excel)
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="action-download-all" checked>
-                                            <label class="form-check-label" for="action-download-all">
-                                                Download Semua Laporan (Excel)
-                                            </label>
-                                        </div>
-                                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="client-list">
+                            <!-- Daftar klien akan diisi oleh JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Aksi Penagihan
+                    </div>
+                    <div class="card-body">
+                        <div class="action-buttons" id="action-buttons">
+                            <button class="btn btn-paid btn-action" id="btn-paid">
+                                <i class="fas fa-money-bill-wave"></i> Sudah Bayar
+                            </button>
+                            <button class="btn btn-invoiced btn-action" id="btn-invoiced">
+                                <i class="fas fa-receipt"></i> Sudah Ditagih
+                            </button>
+                            <button class="btn btn-pending btn-action" id="btn-pending">
+                                <i class="fas fa-clock"></i> Belum Ditagih
+                            </button>
+                            <button class="btn btn-cancelled btn-action" id="btn-cancelled">
+                                <i class="fas fa-ban"></i> Dibatalkan
+                            </button>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">Pilih klien terlebih dahulu sebelum mengubah status</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Panel Laporan dan Statistik -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        Laporan & Rekapan Penagihan
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h5>Jenis Laporan:</h5>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="report-all">
+                                    <label class="form-check-label" for="report-all">
+                                        Semua Data
+                                    </label>
                                 </div>
-                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                    <button class="btn btn-primary" id="generate-report">
-                                        <i class="fas fa-file-export"></i> Generate Laporan
-                                    </button>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="report-paid" checked>
+                                    <label class="form-check-label" for="report-paid">
+                                        Sudah Bayar
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="report-invoiced" checked>
+                                    <label class="form-check-label" for="report-invoiced">
+                                        Sudah Ditagih
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="report-pending" checked>
+                                    <label class="form-check-label" for="report-pending">
+                                        Belum Ditagih
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="report-cancelled" checked>
+                                    <label class="form-check-label" for="report-cancelled">
+                                        Dibatalkan
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Aksi Laporan:</h5>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="action-telegram">
+                                    <label class="form-check-label" for="action-telegram">
+                                        Kirim Laporan Bayar ke Telegram
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="action-download-paid" checked>
+                                    <label class="form-check-label" for="action-download-paid">
+                                        Download Laporan Bayar (Excel)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="action-download-all" checked>
+                                    <label class="form-check-label" for="action-download-all">
+                                        Download Semua Laporan (Excel)
+                                    </label>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="card mt-4">
-                            <div class="card-header">
-                                Statistik Cepat
-                            </div>
-                            <div class="card-body">
-                                <div class="row text-center">
-                                    <div class="col-6 col-md-3 mb-3">
-                                        <div class="stat-card total">
-                                            <div class="stat-number" id="stat-total">0</div>
-                                            <div>Total Klien</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-md-3 mb-3">
-                                        <div class="stat-card paid">
-                                            <div class="stat-number" id="stat-paid">0</div>
-                                            <div>Sudah Bayar</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-md-3 mb-3">
-                                        <div class="stat-card invoiced">
-                                            <div class="stat-number" id="stat-invoiced">0</div>
-                                            <div>Sudah Ditagih</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 col-md-3 mb-3">
-                                        <div class="stat-card pending">
-                                            <div class="stat-number" id="stat-pending">0</div>
-                                            <div>Belum Ditagih</div>
-                                        </div>
-                                    </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-primary" id="generate-report">
+                                <i class="fas fa-file-export"></i> Generate Laporan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Statistik Cepat
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6 col-md-3 mb-3">
+                                <div class="stat-card total">
+                                    <div class="stat-number" id="stat-total">0</div>
+                                    <div>Total Klien</div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="card mt-4">
-                            <div class="card-header">
-                                Reset Data Penagihan
+                            <div class="col-6 col-md-3 mb-3">
+                                <div class="stat-card paid">
+                                    <div class="stat-number" id="stat-paid">0</div>
+                                    <div>Sudah Bayar</div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <p class="text-muted">Hapus semua history penagihan (hati-hati!)</p>
-                                <div class="d-grid">
-                                    <button class="btn btn-reset" id="reset-data">
-                                        <i class="fas fa-trash-alt"></i> Reset Data Penagihan
-                                    </button>
+                            <div class="col-6 col-md-3 mb-3">
+                                <div class="stat-card invoiced">
+                                    <div class="stat-number" id="stat-invoiced">0</div>
+                                    <div>Sudah Ditagih</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-3">
+                                <div class="stat-card pending">
+                                    <div class="stat-number" id="stat-pending">0</div>
+                                    <div>Belum Ditagih</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Tab Portal -->
-            <div class="tab-pane fade" id="portal" role="tabpanel" aria-labelledby="portal-tab">
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>Daftar Portal</span>
-                                <button class="btn btn-sm btn-light" id="add-portal-btn" data-bs-toggle="modal" data-bs-target="#addPortalModal">
-                                    <i class="fas fa-plus"></i> Tambah Portal
-                                </button>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="list-group list-group-flush" id="portal-list">
+                
+                <!-- Section Portal -->
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Manajemen Portal</span>
+                        <div>
+                            <button class="btn btn-sm btn-light" id="add-portal-btn" data-bs-toggle="modal" data-bs-target="#addPortalModal">
+                                <i class="fas fa-plus"></i> Tambah Portal
+                            </button>
+                            <button class="btn btn-sm btn-light ms-1" id="backup-portals-btn" title="Backup Data Portal">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <h5>Daftar Portal:</h5>
+                                <div class="list-group" id="portal-list">
                                     <!-- Daftar portal akan diisi oleh JavaScript -->
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <h5>Statistik Portal:</h5>
+                                <div class="stat-card total mb-3">
+                                    <div class="stat-number" id="portal-total">0</div>
+                                    <div>Total Portal</div>
+                                </div>
+                                <div class="stat-card paid">
+                                    <div class="stat-number" id="portal-income">Rp 0</div>
+                                    <div>Pendapatan Bersih</div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="card mt-4">
-                            <div class="card-header">
-                                Statistik Portal
-                            </div>
-                            <div class="card-body">
-                                <div class="row text-center">
-                                    <div class="col-6 mb-3">
-                                        <div class="stat-card total">
-                                            <div class="stat-number" id="portal-total">0</div>
-                                            <div>Total Portal</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 mb-3">
-                                        <div class="stat-card paid">
-                                            <div class="stat-number" id="portal-income">Rp 0</div>
-                                            <div>Pendapatan Bersih</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <p><strong>Keterangan:</strong></p>
-                                    <p>Setiap portal memberikan 20% dari total isi kepada partner.</p>
-                                    <p>Pendapatan bersih = Total isi portal - 20% untuk partner</p>
-                                </div>
-                            </div>
+                        <div class="mt-3">
+                            <button class="btn btn-primary" id="generate-portal-report">
+                                <i class="fas fa-file-export"></i> Generate Laporan Portal (Excel)
+                            </button>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <p><strong>Keterangan:</strong> Setiap portal memberikan 20% dari total isi kepada partner. Pendapatan bersih = Total isi portal - 20% untuk partner.</p>
                         </div>
                     </div>
-                    
-                    <div class="col-md-7">
-                        <div class="card">
-                            <div class="card-header">
-                                Laporan Portal
+                </div>
+                
+                <!-- Section Backup & Restore -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Backup & Restore Data
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Backup Data:</h6>
+                                <button class="btn btn-success btn-sm mb-2" id="backup-all-btn">
+                                    <i class="fas fa-database"></i> Backup Semua Data
+                                </button>
+                                <p class="text-muted small">Unduh data untuk disimpan atau dipindahkan ke perangkat lain</p>
                             </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <h5>Opsi Laporan:</h5>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="portal-report-all" checked>
-                                        <label class="form-check-label" for="portal-report-all">
-                                            Semua Portal
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="portal-report-excel" checked>
-                                        <label class="form-check-label" for="portal-report-excel">
-                                            Download Laporan Excel
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                    <button class="btn btn-primary" id="generate-portal-report">
-                                        <i class="fas fa-file-export"></i> Generate Laporan Portal
+                            <div class="col-md-6">
+                                <h6>Restore Data:</h6>
+                                <div class="input-group mb-2">
+                                    <input class="form-control form-control-sm" type="file" id="restore-file" accept=".json">
+                                    <button class="btn btn-warning btn-sm" id="restore-data-btn">
+                                        <i class="fas fa-upload"></i> Restore
                                     </button>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <div class="card mt-4">
-                            <div class="card-header">
-                                Detail Perhitungan
-                            </div>
-                            <div class="card-body">
-                                <div id="portal-details">
-                                    <!-- Detail portal akan diisi oleh JavaScript -->
-                                </div>
+                                <p class="text-muted small">Peringatan: Restore data akan menggantikan semua data yang ada</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Tab Backup & Restore -->
-            <div class="tab-pane fade" id="backup" role="tabpanel" aria-labelledby="backup-tab">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-download"></i> Backup Data
-                            </div>
-                            <div class="card-body">
-                                <p>Unduh data Anda untuk disimpan atau dipindahkan ke perangkat lain.</p>
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-success" id="backup-clients">
-                                        <i class="fas fa-users"></i> Backup Data Klien
-                                    </button>
-                                    <button class="btn btn-primary" id="backup-portals">
-                                        <i class="fas fa-cube"></i> Backup Data Portal
-                                    </button>
-                                    <button class="btn btn-info" id="backup-all">
-                                        <i class="fas fa-database"></i> Backup Semua Data
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Reset Data Penagihan
                     </div>
-                    
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-upload"></i> Restore Data
-                            </div>
-                            <div class="card-body">
-                                <p>Unggah data dari file backup untuk mengembalikan data Anda.</p>
-                                <div class="mb-3">
-                                    <label for="restore-file" class="form-label">Pilih file backup:</label>
-                                    <input class="form-control" type="file" id="restore-file" accept=".json">
-                                </div>
-                                <div class="d-grid">
-                                    <button class="btn btn-warning" id="restore-data">
-                                        <i class="fas fa-upload"></i> Restore Data
-                                    </button>
-                                </div>
-                                <div class="mt-3">
-                                    <div class="alert alert-warning" role="alert">
-                                        <i class="fas fa-exclamation-triangle"></i> 
-                                        <strong>Peringatan:</strong> Restore data akan menggantikan semua data yang ada saat ini.
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="card-body">
+                        <p class="text-muted">Hapus semua history penagihan (hati-hati!)</p>
+                        <div class="d-grid">
+                            <button class="btn btn-reset" id="reset-data">
+                                <i class="fas fa-trash-alt"></i> Reset Data Penagihan
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -662,16 +569,30 @@
                     clientItem.innerHTML = `
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">${client.name}</h5>
-                            <span class="status-badge ${statusClass}">${statusText}</span>
+                            <div>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                                <button class="btn btn-sm btn-outline-danger ms-1 delete-client" data-id="${client.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                         <p class="mb-1">${client.product}</p>
                         <small class="text-muted">Rp ${client.amount.toLocaleString('id-ID')}</small>
                     `;
                     
-                    clientItem.addEventListener('click', () => {
-                        selectedClientId = client.id;
-                        renderClientList();
-                        updateActionButtons();
+                    clientItem.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('delete-client')) {
+                            selectedClientId = client.id;
+                            renderClientList();
+                            updateActionButtons();
+                        }
+                    });
+                    
+                    // Event listener untuk hapus klien
+                    const deleteBtn = clientItem.querySelector('.delete-client');
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteClient(client.id);
                     });
                     
                     clientList.appendChild(clientItem);
@@ -699,56 +620,69 @@
                     
                     portalItem.innerHTML = `
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">${portal.name}</h5>
-                            <span class="badge bg-primary">Rp ${portal.amount.toLocaleString('id-ID')}</span>
+                            <div>
+                                <h6 class="mb-1">${portal.name}</h6>
+                                <p class="mb-1 small">${portal.location} | Partner: ${portal.partner}</p>
+                            </div>
+                            <div>
+                                <span class="badge bg-primary">Rp ${portal.amount.toLocaleString('id-ID')}</span>
+                                <button class="btn btn-sm btn-outline-danger ms-1 delete-portal" data-id="${portal.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
-                        <p class="mb-1">${portal.location}</p>
-                        <p class="mb-1">Partner: ${portal.partner}</p>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-2">
                             <small class="text-muted">Bersih: <span class="portal-profit">Rp ${netIncome.toLocaleString('id-ID')}</span></small>
                             <small class="text-muted">Partner: <span class="portal-partner">Rp ${partnerShare.toLocaleString('id-ID')}</span></small>
                         </div>
                     `;
                     
-                    portalItem.addEventListener('click', () => {
-                        selectedPortalId = portal.id;
-                        renderPortalList();
-                        updatePortalDetails();
+                    portalItem.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('delete-portal')) {
+                            selectedPortalId = portal.id;
+                            renderPortalList();
+                        }
+                    });
+                    
+                    // Event listener untuk hapus portal
+                    const deleteBtn = portalItem.querySelector('.delete-portal');
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deletePortal(portal.id);
                     });
                     
                     portalList.appendChild(portalItem);
                 });
             }
             
-            document.getElementById('portal-total').textContent = `${portals.length} Portal`;
+            document.getElementById('portal-total').textContent = `${portals.length}`;
             updatePortalStatistics();
         }
 
-        // Fungsi untuk memperbarui detail portal
-        function updatePortalDetails() {
-            const portalDetails = document.getElementById('portal-details');
-            
-            if (selectedPortalId === null) {
-                portalDetails.innerHTML = '<p class="text-muted">Pilih portal untuk melihat detail perhitungan</p>';
-                return;
+        // Fungsi untuk menghapus klien
+        function deleteClient(clientId) {
+            if (confirm('Apakah Anda yakin ingin menghapus klien ini?')) {
+                clients = clients.filter(c => c.id !== clientId);
+                if (selectedClientId === clientId) {
+                    selectedClientId = null;
+                    updateActionButtons();
+                }
+                saveData();
+                renderClientList();
+                updateStatistics();
             }
-            
-            const portal = portals.find(p => p.id === selectedPortalId);
-            if (!portal) return;
-            
-            const partnerShare = portal.amount * 0.2;
-            const netIncome = portal.amount - partnerShare;
-            
-            portalDetails.innerHTML = `
-                <h5>${portal.name}</h5>
-                <p><strong>Lokasi:</strong> ${portal.location}</p>
-                <p><strong>Partner:</strong> ${portal.partner}</p>
-                <hr>
-                <h6>Perhitungan:</h6>
-                <p>Total Isi Portal: <strong>Rp ${portal.amount.toLocaleString('id-ID')}</strong></p>
-                <p>Bagian Partner (20%): <strong class="portal-partner">Rp ${partnerShare.toLocaleString('id-ID')}</strong></p>
-                <p>Pendapatan Bersih: <strong class="portal-profit">Rp ${netIncome.toLocaleString('id-ID')}</strong></p>
-            `;
+        }
+
+        // Fungsi untuk menghapus portal
+        function deletePortal(portalId) {
+            if (confirm('Apakah Anda yakin ingin menghapus portal ini?')) {
+                portals = portals.filter(p => p.id !== portalId);
+                if (selectedPortalId === portalId) {
+                    selectedPortalId = null;
+                }
+                saveData();
+                renderPortalList();
+            }
         }
 
         // Fungsi untuk memperbarui statistik portal
@@ -888,13 +822,10 @@
 
         // Fungsi untuk menghasilkan laporan portal
         function generatePortalReport() {
-            const includeAll = document.getElementById('portal-report-all').checked;
-            const downloadExcel = document.getElementById('portal-report-excel').checked;
-            
-            let reportPortals = includeAll ? portals : (selectedPortalId ? [portals.find(p => p.id === selectedPortalId)] : []);
+            let reportPortals = portals;
             
             if (reportPortals.length === 0) {
-                alert("Tidak ada portal yang dipilih untuk dilaporkan!");
+                alert("Tidak ada portal yang dapat dilaporkan!");
                 return;
             }
             
@@ -931,9 +862,7 @@
             
             alert(reportMessage);
             
-            if (downloadExcel) {
-                exportPortalsToExcel(reportPortals, 'Laporan_Portal');
-            }
+            exportPortalsToExcel(reportPortals, 'Laporan_Portal');
         }
 
         // Fungsi untuk ekspor data ke Excel
@@ -1127,7 +1056,6 @@
             renderPortalList();
             updateStatistics();
             updateActionButtons();
-            updatePortalDetails();
             
             // Event listener untuk tombol aksi klien
             document.getElementById('btn-paid').addEventListener('click', () => changeClientStatus('paid'));
@@ -1144,9 +1072,9 @@
             
             // Event listener untuk checkbox "Semua Data"
             document.getElementById('report-all').addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('#client input[type="checkbox"]');
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
                 checkboxes.forEach(cb => {
-                    if (cb.id !== 'report-all') {
+                    if (cb.id !== 'report-all' && cb.id.startsWith('report-')) {
                         cb.checked = this.checked;
                     }
                 });
@@ -1213,12 +1141,12 @@
             });
             
             // Event listener untuk backup data
-            document.getElementById('backup-clients').addEventListener('click', () => backupData('clients'));
-            document.getElementById('backup-portals').addEventListener('click', () => backupData('portals'));
-            document.getElementById('backup-all').addEventListener('click', () => backupData('all'));
+            document.getElementById('backup-clients-btn').addEventListener('click', () => backupData('clients'));
+            document.getElementById('backup-portals-btn').addEventListener('click', () => backupData('portals'));
+            document.getElementById('backup-all-btn').addEventListener('click', () => backupData('all'));
             
             // Event listener untuk restore data
-            document.getElementById('restore-data').addEventListener('click', restoreData);
+            document.getElementById('restore-data-btn').addEventListener('click', restoreData);
         });
     </script>
 </body>
