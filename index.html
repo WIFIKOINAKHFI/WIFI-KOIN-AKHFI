@@ -941,13 +941,22 @@
       <div class="form-group">
         <label for="mikrotikProfile">Profile Hotspot</label>
         <select id="mikrotikProfile">
-          <option value="PAKET-30D-1-USER">PAKET-30D-1-USER (30 Hari, 1 User)</option>
-          <option value="PAKET-30D-2-USER-35RB">PAKET-30D-2-USER-35RB (30 Hari, 2 User)</option>
-          <option value="PAKET-30D-3-USER-35RB">PAKET-30D-3-USER-35RB (30 Hari, 3 User)</option>
-          <option value="PAKET-24-JAM">PAKET-24-JAM (24 Jam, 1 User)</option>
-          <option value="PAKET-12-JAM">PAKET-12-JAM (12 Jam, 1 User)</option>
-          <option value="PAKET-10-JAM">PAKET-10-JAM (10 Jam, 1 User)</option>
-          <option value="PAKET-20-JAM">PAKET-20-JAM (20 Jam, 1 User)</option>
+          <option value="PAGE-1-30RJN">PAGE-1-30RJN (13M/3M)</option>
+          <option value="PAGE-1-30D-1-USER">PAGE-1-30D-1-USER (1.3M/4M)</option>
+          <option value="PAGE-1-30D-1-USER-35RB">PAGE-1-30D-1-USER-35RB (1.2M/2M)</option>
+          <option value="PAGE-1-30D-2-USER">PAGE-1-30D-2-USER (2.3M/4M)</option>
+          <option value="PAGE-1-30D-2-USER-35RB">PAGE-1-30D-2-USER-35RB (2.1M/1M)</option>
+          <option value="PAGE-1-30D-3-USER">PAGE-1-30D-3-USER (3.3M/4M)</option>
+          <option value="PAGE-1-30D-3-USER-35RB">PAGE-1-30D-3-USER-35RB (3.1M/2M)</option>
+          <option value="PAGE-1-30D-4-USER">PAGE-1-30D-4-USER (4.3M/4M)</option>
+          <option value="PAGE-1-30D-5-USER">PAGE-1-30D-5-USER (5.3M/4M)</option>
+          <option value="PAGE-1-30D-6-USER">PAGE-1-30D-6-USER (6.3M/3M)</option>
+          <option value="PAGE-1-30D-8-USER">PAGE-1-30D-8-USER (8.3M/3M)</option>
+          <option value="PAGE-1-30D-10MB">PAGE-1-30D-10MB (1.10M/10M)</option>
+          <option value="PAGE-1-GERATIS">PAGE-1-GERATIS (1.1M/1M)</option>
+          <option value="PAGE-1-GERATIS 2-USER">PAGE-1-GERATIS 2-USER (1.512x/512x)</option>
+          <option value="PAGE-1-GERATIS 3-USER">PAGE-1-GERATIS 3-USER (3.1M/1M)</option>
+          <option value="PAGE-1-GERATIS-AJAK-AJAK">PAGE-1-GERATIS-AJAK-AJAK (1.512x/512x)</option>
         </select>
       </div>
       
@@ -1203,15 +1212,24 @@ let currentInvoiceData = null;
 // URL CLOUDFLARE WORKER - SESUAIKAN DENGAN URL ANDA
 const CLOUDFLARE_WORKER_URL = 'https://wifi-koin-akhfi.muhammadrahmanarrasyid15.workers.dev';
 
-// Profile mapping
+// Profile mapping - Data dari USER PROFILE.png
 const profileMappings = {
-  'PAKET-30D-1-USER': { duration: 43200, sharedUsers: 1, type: '30 Hari', limit: '1 User' },
-  'PAKET-30D-2-USER-35RB': { duration: 43200, sharedUsers: 2, type: '30 Hari', limit: '2 User' },
-  'PAKET-30D-3-USER-35RB': { duration: 43200, sharedUsers: 3, type: '30 Hari', limit: '3 User' },
-  'PAKET-24-JAM': { duration: 1440, sharedUsers: 1, type: '24 Jam', limit: '1 User' },
-  'PAKET-12-JAM': { duration: 720, sharedUsers: 1, type: '12 Jam', limit: '1 User' },
-  'PAKET-10-JAM': { duration: 600, sharedUsers: 1, type: '10 Jam', limit: '1 User' },
-  'PAKET-20-JAM': { duration: 1200, sharedUsers: 1, type: '20 Jam', limit: '1 User' }
+  'PAGE-1-30RJN': { duration: 43200, sharedUsers: 1, type: '30 Hari', limit: '13M/3M', price: 0 },
+  'PAGE-1-30D-1-USER': { duration: 43200, sharedUsers: 1, type: '30 Hari', limit: '1.3M/4M', price: 0 },
+  'PAGE-1-30D-1-USER-35RB': { duration: 43200, sharedUsers: 1, type: '30 Hari', limit: '1.2M/2M', price: 35000 },
+  'PAGE-1-30D-2-USER': { duration: 43200, sharedUsers: 2, type: '30 Hari', limit: '2.3M/4M', price: 0 },
+  'PAGE-1-30D-2-USER-35RB': { duration: 43200, sharedUsers: 2, type: '30 Hari', limit: '2.1M/1M', price: 35000 },
+  'PAGE-1-30D-3-USER': { duration: 43200, sharedUsers: 3, type: '30 Hari', limit: '3.3M/4M', price: 0 },
+  'PAGE-1-30D-3-USER-35RB': { duration: 43200, sharedUsers: 3, type: '30 Hari', limit: '3.1M/2M', price: 35000 },
+  'PAGE-1-30D-4-USER': { duration: 43200, sharedUsers: 4, type: '30 Hari', limit: '4.3M/4M', price: 0 },
+  'PAGE-1-30D-5-USER': { duration: 43200, sharedUsers: 5, type: '30 Hari', limit: '5.3M/4M', price: 0 },
+  'PAGE-1-30D-6-USER': { duration: 43200, sharedUsers: 6, type: '30 Hari', limit: '6.3M/3M', price: 0 },
+  'PAGE-1-30D-8-USER': { duration: 43200, sharedUsers: 8, type: '30 Hari', limit: '8.3M/3M', price: 0 },
+  'PAGE-1-30D-10MB': { duration: 43200, sharedUsers: 1, type: '30 Hari', limit: '1.10M/10M', price: 0 },
+  'PAGE-1-GERATIS': { duration: 60, sharedUsers: 1, type: 'Gratis', limit: '1.1M/1M', price: 0 },
+  'PAGE-1-GERATIS 2-USER': { duration: 60, sharedUsers: 2, type: 'Gratis', limit: '512k/512k', price: 0 },
+  'PAGE-1-GERATIS 3-USER': { duration: 60, sharedUsers: 3, type: 'Gratis', limit: '3.1M/1M', price: 0 },
+  'PAGE-1-GERATIS-AJAK-AJAK': { duration: 60, sharedUsers: 1, type: 'Gratis', limit: '512k/512k', price: 0 }
 };
 
 // Status mapping
@@ -2232,9 +2250,15 @@ function updateProfileInfo() {
     profileDetails.innerHTML = `
       Jenis: ${profile.type}<br>
       Durasi: ${profile.duration} menit<br>
-      Limit Penggunaan: ${profile.limit}<br>
-      Shared Users: ${profile.sharedUsers}
+      Limit Bandwidth: ${profile.limit}<br>
+      Shared Users: ${profile.sharedUsers}<br>
+      Harga Default: ${profile.price > 0 ? 'Rp ' + profile.price.toLocaleString() : 'GRATIS'}
     `;
+    
+    // Set harga default jika tersedia
+    if (profile.price > 0) {
+      document.getElementById('voucherPrice').value = profile.price;
+    }
   } else {
     profileDetails.innerHTML = 'Pilih profile untuk melihat detail';
   }
