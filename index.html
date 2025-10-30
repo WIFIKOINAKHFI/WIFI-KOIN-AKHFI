@@ -295,6 +295,127 @@
       to { transform: rotate(360deg); }
     }
 
+    /* ===== SEARCH AND FILTER STYLES ===== */
+    .search-box {
+      margin-bottom: 15px;
+      position: relative;
+    }
+    
+    .search-box input {
+      padding: 8px 35px 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      width: 100%;
+    }
+    
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+    }
+    
+    .filter-options {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-options select, .filter-options input {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    /* ===== EXPORT STYLES ===== */
+    .export-options {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+      flex-wrap: wrap;
+    }
+    
+    .export-options button {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    /* ===== BACKUP STYLES ===== */
+    .backup-section {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 15px 0;
+      border: 1px solid var(--border);
+    }
+    
+    .backup-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .backup-actions button {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    /* ===== NOTIFICATION STYLES ===== */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      border-radius: 4px;
+      color: white;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .notification.show {
+      opacity: 1;
+    }
+    
+    .notification.success {
+      background: var(--success);
+    }
+    
+    .notification.error {
+      background: var(--danger);
+    }
+
+    .status-connected {
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    .status-disconnected {
+      color: var(--danger);
+      font-weight: bold;
+    }
+
+    .profile-info {
+      background: #e9ecef;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 5px;
+      font-size: 12px;
+    }
+
+    /* ===== DUE DATE STYLES ===== */
+    .due-soon {
+      background-color: #fff3cd !important;
+      color: #856404;
+    }
+    
+    .due-overdue {
+      background-color: #f8d7da !important;
+      color: #721c24;
+    }
+
     /* ===== RESPONSIVE STYLES ===== */
     @media (min-width: 768px) {
       body {
@@ -389,49 +510,10 @@
         padding: 10px 20px;
         font-size: 14px;
       }
-    }
-
-    /* Notification styles */
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 10px 15px;
-      border-radius: 4px;
-      color: white;
-      z-index: 1001;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    
-    .notification.show {
-      opacity: 1;
-    }
-    
-    .notification.success {
-      background: var(--success);
-    }
-    
-    .notification.error {
-      background: var(--danger);
-    }
-
-    .status-connected {
-      color: var(--success);
-      font-weight: bold;
-    }
-
-    .status-disconnected {
-      color: var(--danger);
-      font-weight: bold;
-    }
-
-    .profile-info {
-      background: #e9ecef;
-      padding: 8px 12px;
-      border-radius: 4px;
-      margin-top: 5px;
-      font-size: 12px;
+      
+      .search-box {
+        max-width: 300px;
+      }
     }
   </style>
 </head>
@@ -449,11 +531,18 @@
     <button onclick="showSection('rekeningTab')">Pembayaran/DANA</button>
     <button onclick="showSection('invoiceTab')">Buat Invoice</button>
     <button onclick="showSection('voucherTab')">Kirim Voucher</button>
+    <button onclick="showSection('backupTab')">Backup & Export</button>
   </nav>
 
   <!-- CLIENT -->
   <section id="clientTab" class="active">
     <h2>Manajemen Client</h2>
+    
+    <div class="search-box">
+      <input type="text" id="searchClient" placeholder="Cari client..." onkeyup="filterClients()">
+      <span class="search-icon">🔍</span>
+    </div>
+    
     <form id="clientForm">
       <input type="hidden" id="clientEditIndex" value="-1">
       <div class="form-group">
@@ -469,10 +558,19 @@
         <label for="clientStartDate">Tanggal Mulai</label>
         <input type="date" id="clientStartDate">
       </div>
+      <div class="form-group">
+        <label for="clientDueDate">Tanggal Jatuh Tempo</label>
+        <input type="date" id="clientDueDate">
+      </div>
       <button type="button" class="btn" onclick="handleClientSubmit()">Tambah Client</button>
       <button type="button" id="cancelEditBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditClient()">Batal Edit</button>
       <button type="button" class="btn btn-danger" onclick="deleteSelectedClients()">Hapus Terpilih</button>
     </form>
+    
+    <div class="export-options">
+      <button class="btn btn-success" onclick="exportClientsToCSV()">Export ke CSV</button>
+      <button class="btn btn-warning" onclick="checkDueDates()">Cek Jatuh Tempo</button>
+    </div>
     
     <div class="table-container">
       <table id="clientTable">
@@ -482,6 +580,8 @@
             <th>Nama</th>
             <th>WhatsApp</th>
             <th>Tanggal Mulai</th>
+            <th>Jatuh Tempo</th>
+            <th>Status</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -493,6 +593,12 @@
   <!-- PRODUK -->
   <section id="produkTab">
     <h2>Manajemen Produk</h2>
+    
+    <div class="search-box">
+      <input type="text" id="searchProduk" placeholder="Cari produk..." onkeyup="filterProduks()">
+      <span class="search-icon">🔍</span>
+    </div>
+    
     <input type="hidden" id="produkEditIndex" value="-1">
     <div class="form-group">
       <label for="produkNama">Nama Produk</label>
@@ -508,6 +614,10 @@
     </div>
     <button class="btn" onclick="addProduk()">Tambah Produk</button>
     <button type="button" id="cancelEditProdukBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditProduk()">Batal Edit</button>
+    
+    <div class="export-options">
+      <button class="btn btn-success" onclick="exportProduksToCSV()">Export ke CSV</button>
+    </div>
     
     <div class="table-container">
       <table id="produkTable">
@@ -527,6 +637,12 @@
   <!-- REKENING -->
   <section id="rekeningTab">
     <h2>Rekening & DANA</h2>
+    
+    <div class="search-box">
+      <input type="text" id="searchRekening" placeholder="Cari rekening..." onkeyup="filterRekenings()">
+      <span class="search-icon">🔍</span>
+    </div>
+    
     <form id="rekeningForm">
       <input type="hidden" id="rekeningEditIndex" value="-1">
       <div class="form-group">
@@ -544,6 +660,10 @@
       <button type="button" class="btn" onclick="simpanRekening()">Simpan Rekening</button>
       <button type="button" id="cancelEditRekeningBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditRekening()">Batal Edit</button>
     </form>
+    
+    <div class="export-options">
+      <button class="btn btn-success" onclick="exportRekeningsToCSV()">Export ke CSV</button>
+    </div>
     
     <div class="table-container">
       <table id="rekeningTable">
@@ -611,6 +731,7 @@
     <div class="voucher-tabs">
       <button class="voucher-tab active" onclick="showVoucherSubsection('voucherSetting')">Setting</button>
       <button class="voucher-tab" onclick="showVoucherSubsection('voucherKirim')">Kirim</button>
+      <button class="voucher-tab" onclick="showVoucherSubsection('voucherHistory')">Riwayat</button>
     </div>
     
     <!-- Subsection Setting -->
@@ -687,6 +808,77 @@
         <button class="btn" onclick="kembaliKeMenu()">Kembali ke Menu Utama</button>
       </div>
     </div>
+    
+    <!-- Subsection Riwayat -->
+    <div id="voucherHistory" class="voucher-subsection">
+      <h3>Riwayat Voucher</h3>
+      
+      <div class="search-box">
+        <input type="text" id="searchVoucher" placeholder="Cari voucher..." onkeyup="filterVouchers()">
+        <span class="search-icon">🔍</span>
+      </div>
+      
+      <div class="export-options">
+        <button class="btn btn-success" onclick="exportVouchersToCSV()">Export ke CSV</button>
+        <button class="btn btn-danger" onclick="clearVoucherHistory()">Hapus Riwayat</button>
+      </div>
+      
+      <div class="table-container">
+        <table id="voucherHistoryTable">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Client</th>
+              <th>Kode Voucher</th>
+              <th>Profile</th>
+              <th>Harga</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- BACKUP & EXPORT -->
+  <section id="backupTab">
+    <h2>Backup & Restore Data</h2>
+    
+    <div class="backup-section">
+      <h3>Backup Data</h3>
+      <p>Backup semua data aplikasi ke file JSON:</p>
+      <div class="backup-actions">
+        <button class="btn btn-success" onclick="backupAllData()">Backup Semua Data</button>
+        <button class="btn btn-warning" onclick="exportAllToCSV()">Export Semua ke CSV</button>
+      </div>
+    </div>
+    
+    <div class="backup-section">
+      <h3>Restore Data</h3>
+      <p>Restore data dari file backup JSON:</p>
+      <div class="form-group">
+        <label for="backupFile">Pilih File Backup</label>
+        <input type="file" id="backupFile" accept=".json">
+      </div>
+      <div class="backup-actions">
+        <button class="btn btn-success" onclick="restoreData()">Restore Data</button>
+        <button class="btn btn-danger" onclick="clearAllData()">Hapus Semua Data</button>
+      </div>
+    </div>
+    
+    <div class="backup-section">
+      <h3>Notifikasi Jatuh Tempo</h3>
+      <p>Atur notifikasi untuk client yang mendekati jatuh tempo:</p>
+      <div class="form-group">
+        <label for="notificationDays">Hari sebelum jatuh tempo</label>
+        <input type="number" id="notificationDays" value="7" min="1" max="30">
+      </div>
+      <div class="backup-actions">
+        <button class="btn btn-warning" onclick="checkDueDates()">Cek Sekarang</button>
+        <button class="btn btn-success" onclick="saveNotificationSettings()">Simpan Setting</button>
+      </div>
+    </div>
   </section>
 
 <script>
@@ -699,6 +891,7 @@ let vouchers = JSON.parse(localStorage.getItem("vouchers")) || [];
 let invoiceText = "";
 let voucherCode = "";
 let currentVoucherData = null;
+let notificationDays = parseInt(localStorage.getItem("notificationDays")) || 7;
 
 // URL CLOUDFLARE WORKER - SESUAIKAN DENGAN URL ANDA
 const CLOUDFLARE_WORKER_URL = 'https://wifi-koin-akhfi.muhammadrahmanarrasyid15.workers.dev';
@@ -853,6 +1046,11 @@ function showSection(sectionId) {
   if (buttonIndex !== -1) {
     buttons[buttonIndex].classList.add('active');
   }
+  
+  // Load data khusus untuk section tertentu
+  if (sectionId === 'voucherTab') {
+    loadVoucherHistory();
+  }
 }
 
 function kembaliKeMenu() {
@@ -867,12 +1065,17 @@ function loadClients() {
   tbody.innerHTML = "";
   
   clients.forEach((c, i) => {
+    const statusClass = getDueDateStatus(c.dueDate);
+    const statusText = getDueDateText(c.dueDate);
+    
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="checkbox-cell"><input type="checkbox" class="select-client" data-index="${i}"></td>
       <td>${c.name}</td>
       <td>${c.whatsapp}</td>
       <td>${c.startDate || ""}</td>
+      <td class="${statusClass}">${c.dueDate || ""}</td>
+      <td class="${statusClass}">${statusText}</td>
       <td>
         <button class="btn btn-sm" onclick="editClient(${i})">Edit</button>
         <button class="btn btn-sm btn-danger" onclick="deleteClient(${i})">Hapus</button>
@@ -884,10 +1087,38 @@ function loadClients() {
   refreshVoucherClientOptions();
 }
 
+function getDueDateStatus(dueDate) {
+  if (!dueDate) return '';
+  
+  const today = new Date();
+  const due = new Date(dueDate);
+  const diffTime = due - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return 'due-overdue';
+  if (diffDays <= notificationDays) return 'due-soon';
+  return '';
+}
+
+function getDueDateText(dueDate) {
+  if (!dueDate) return '-';
+  
+  const today = new Date();
+  const due = new Date(dueDate);
+  const diffTime = due - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return `${Math.abs(diffDays)} hari lewat`;
+  if (diffDays === 0) return 'Hari ini';
+  if (diffDays === 1) return 'Besok';
+  return `${diffDays} hari lagi`;
+}
+
 function handleClientSubmit() {
   const name = document.getElementById("clientName").value;
   const whatsapp = document.getElementById("clientWhatsapp").value;
   const startDate = document.getElementById("clientStartDate").value;
+  const dueDate = document.getElementById("clientDueDate").value;
   const editIndex = parseInt(document.getElementById("clientEditIndex").value);
   
   if (!whatsapp.startsWith("628")) {
@@ -896,11 +1127,11 @@ function handleClientSubmit() {
   }
   
   if (editIndex > -1) {
-    clients[editIndex] = { name, whatsapp, startDate };
+    clients[editIndex] = { name, whatsapp, startDate, dueDate };
     document.getElementById("clientEditIndex").value = "-1";
     document.getElementById("cancelEditBtn").style.display = "none";
   } else {
-    clients.push({ name, whatsapp, startDate });
+    clients.push({ name, whatsapp, startDate, dueDate });
   }
   
   saveData("clients", clients);
@@ -909,6 +1140,7 @@ function handleClientSubmit() {
   document.getElementById("clientName").value = "";
   document.getElementById("clientWhatsapp").value = "";
   document.getElementById("clientStartDate").value = "";
+  document.getElementById("clientDueDate").value = "";
   
   showNotification("Data client berhasil disimpan!");
 }
@@ -927,6 +1159,7 @@ function editClient(index) {
   document.getElementById("clientName").value = c.name;
   document.getElementById("clientWhatsapp").value = c.whatsapp;
   document.getElementById("clientStartDate").value = c.startDate || "";
+  document.getElementById("clientDueDate").value = c.dueDate || "";
   document.getElementById("clientEditIndex").value = index;
   document.getElementById("cancelEditBtn").style.display = "inline-block";
 }
@@ -935,6 +1168,7 @@ function cancelEditClient() {
   document.getElementById("clientName").value = "";
   document.getElementById("clientWhatsapp").value = "";
   document.getElementById("clientStartDate").value = "";
+  document.getElementById("clientDueDate").value = "";
   document.getElementById("clientEditIndex").value = "-1";
   document.getElementById("cancelEditBtn").style.display = "none";
 }
@@ -954,6 +1188,22 @@ function deleteSelectedClients() {
     loadClients();
     showNotification(`${checkboxes.length} client berhasil dihapus`);
   }
+}
+
+function filterClients() {
+  const searchTerm = document.getElementById('searchClient').value.toLowerCase();
+  const rows = document.querySelectorAll('#clientTable tbody tr');
+  
+  rows.forEach(row => {
+    const name = row.cells[1].textContent.toLowerCase();
+    const whatsapp = row.cells[2].textContent.toLowerCase();
+    
+    if (name.includes(searchTerm) || whatsapp.includes(searchTerm)) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
 }
 
 // ===== PRODUCT MANAGEMENT =====
@@ -1031,6 +1281,22 @@ function deleteProduk(i) {
     renderProduks();
     showNotification("Produk berhasil dihapus");
   }
+}
+
+function filterProduks() {
+  const searchTerm = document.getElementById('searchProduk').value.toLowerCase();
+  const rows = document.querySelectorAll('#produkTable tbody tr');
+  
+  rows.forEach(row => {
+    const name = row.cells[0].textContent.toLowerCase();
+    const desc = row.cells[2].textContent.toLowerCase();
+    
+    if (name.includes(searchTerm) || desc.includes(searchTerm)) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
 }
 
 // ===== REKENING MANAGEMENT =====
@@ -1120,6 +1386,22 @@ function cancelEditRekening() {
   document.getElementById("rekeningForm").reset();
   document.getElementById("rekeningEditIndex").value = "-1";
   document.getElementById("cancelEditRekeningBtn").style.display = "none";
+}
+
+function filterRekenings() {
+  const searchTerm = document.getElementById('searchRekening').value.toLowerCase();
+  const rows = document.querySelectorAll('#rekeningTable tbody tr');
+  
+  rows.forEach(row => {
+    const bank = row.cells[0].textContent.toLowerCase();
+    const noRek = row.cells[1].textContent.toLowerCase();
+    
+    if (bank.includes(searchTerm) || noRek.includes(searchTerm)) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
 }
 
 // ===== INVOICE SYSTEM =====
@@ -1249,6 +1531,10 @@ function showVoucherSubsection(subsectionId) {
   );
   if (activeTab) {
     activeTab.classList.add('active');
+  }
+  
+  if (subsectionId === 'voucherHistory') {
+    loadVoucherHistory();
   }
 }
 
@@ -1422,6 +1708,369 @@ async function createAndSendVoucher() {
   }, 3000);
 }
 
+function loadVoucherHistory() {
+  const tbody = document.querySelector("#voucherHistoryTable tbody");
+  if (!tbody) return;
+  
+  tbody.innerHTML = "";
+  
+  if (!Array.isArray(vouchers)) {
+    vouchers = [];
+    saveData("vouchers", vouchers);
+  }
+  
+  vouchers.forEach((v, i) => {
+    const date = new Date(v.date).toLocaleDateString("id-ID");
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${date}</td>
+      <td>${v.client}</td>
+      <td>${v.code}</td>
+      <td>${v.profile}</td>
+      <td>${v.price > 0 ? 'Rp ' + parseInt(v.price).toLocaleString() : 'GRATIS'}</td>
+      <td>
+        <button class="btn btn-sm" onclick="resendVoucher(${i})">Kirim Ulang</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteVoucher(${i})">Hapus</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterVouchers() {
+  const searchTerm = document.getElementById('searchVoucher').value.toLowerCase();
+  const rows = document.querySelectorAll('#voucherHistoryTable tbody tr');
+  
+  rows.forEach(row => {
+    const client = row.cells[1].textContent.toLowerCase();
+    const code = row.cells[2].textContent.toLowerCase();
+    const profile = row.cells[3].textContent.toLowerCase();
+    
+    if (client.includes(searchTerm) || code.includes(searchTerm) || profile.includes(searchTerm)) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
+
+function resendVoucher(index) {
+  const v = vouchers[index];
+  const voucherMessage = `VOUCHER WIFI KOIN AKHFI
+========================
+Username: ${v.code}
+Password: ${v.code}
+Profile: ${v.profile}
+${v.price > 0 ? `Harga: Rp ${parseInt(v.price).toLocaleString()}` : "GRATIS"}
+${v.comment ? `Keterangan: ${v.comment}` : ''}
+========================
+Cara pakai:
+1. Hubungkan ke WiFi Koin Akhfi
+2. Buka browser
+3. Masukkan Kode Voucher
+4. Nikmati internet
+========================
+Terima kasih!`;
+  
+  const noWa = v.whatsapp.replace(/\D/g, "");
+  const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(voucherMessage);
+  window.open(url, "_blank");
+  
+  showNotification("Voucher dikirim ulang ke WhatsApp!");
+}
+
+function deleteVoucher(index) {
+  if (confirm("Apakah Anda yakin ingin menghapus voucher ini dari riwayat?")) {
+    if (!Array.isArray(vouchers)) {
+      vouchers = [];
+    }
+    
+    vouchers.splice(index, 1);
+    saveData("vouchers", vouchers);
+    loadVoucherHistory();
+    showNotification("Voucher berhasil dihapus dari riwayat");
+  }
+}
+
+function clearVoucherHistory() {
+  if (confirm("Apakah Anda yakin ingin menghapus semua riwayat voucher?")) {
+    vouchers = [];
+    saveData("vouchers", vouchers);
+    loadVoucherHistory();
+    showNotification("Semua riwayat voucher berhasil dihapus");
+  }
+}
+
+// ===== EXPORT FUNCTIONS =====
+function exportClientsToCSV() {
+  if (clients.length === 0) {
+    showNotification("Tidak ada data client untuk diexport", "error");
+    return;
+  }
+  
+  let csv = "Nama,WhatsApp,Tanggal Mulai,Jatuh Tempo\n";
+  
+  clients.forEach(client => {
+    csv += `"${client.name}","${client.whatsapp}","${client.startDate || ''}","${client.dueDate || ''}"\n`;
+  });
+  
+  downloadCSV(csv, "clients.csv");
+  showNotification("Data client berhasil diexport ke CSV");
+}
+
+function exportProduksToCSV() {
+  if (produks.length === 0) {
+    showNotification("Tidak ada data produk untuk diexport", "error");
+    return;
+  }
+  
+  let csv = "Nama,Harga,Deskripsi\n";
+  
+  produks.forEach(produk => {
+    csv += `"${produk.nama}","${produk.harga}","${produk.deskripsi}"\n`;
+  });
+  
+  downloadCSV(csv, "produks.csv");
+  showNotification("Data produk berhasil diexport ke CSV");
+}
+
+function exportRekeningsToCSV() {
+  if (rekenings.length === 0) {
+    showNotification("Tidak ada data rekening untuk diexport", "error");
+    return;
+  }
+  
+  let csv = "Bank,No Rekening,No DANA\n";
+  
+  rekenings.forEach(rekening => {
+    csv += `"${rekening.bank}","${rekening.noRekening}","${rekening.noDana || ''}"\n`;
+  });
+  
+  downloadCSV(csv, "rekenings.csv");
+  showNotification("Data rekening berhasil diexport ke CSV");
+}
+
+function exportVouchersToCSV() {
+  if (vouchers.length === 0) {
+    showNotification("Tidak ada data voucher untuk diexport", "error");
+    return;
+  }
+  
+  let csv = "Tanggal,Client,Kode Voucher,Profile,Harga,Keterangan\n";
+  
+  vouchers.forEach(voucher => {
+    const date = new Date(voucher.date).toLocaleDateString("id-ID");
+    csv += `"${date}","${voucher.client}","${voucher.code}","${voucher.profile}","${voucher.price}","${voucher.comment || ''}"\n`;
+  });
+  
+  downloadCSV(csv, "vouchers.csv");
+  showNotification("Data voucher berhasil diexport ke CSV");
+}
+
+function exportAllToCSV() {
+  if (clients.length === 0 && produks.length === 0 && rekenings.length === 0 && vouchers.length === 0) {
+    showNotification("Tidak ada data untuk diexport", "error");
+    return;
+  }
+  
+  let zip = new JSZip();
+  
+  if (clients.length > 0) {
+    let csv = "Nama,WhatsApp,Tanggal Mulai,Jatuh Tempo\n";
+    clients.forEach(client => {
+      csv += `"${client.name}","${client.whatsapp}","${client.startDate || ''}","${client.dueDate || ''}"\n`;
+    });
+    zip.file("clients.csv", csv);
+  }
+  
+  if (produks.length > 0) {
+    let csv = "Nama,Harga,Deskripsi\n";
+    produks.forEach(produk => {
+      csv += `"${produk.nama}","${produk.harga}","${produk.deskripsi}"\n`;
+    });
+    zip.file("produks.csv", csv);
+  }
+  
+  if (rekenings.length > 0) {
+    let csv = "Bank,No Rekening,No DANA\n";
+    rekenings.forEach(rekening => {
+      csv += `"${rekening.bank}","${rekening.noRekening}","${rekening.noDana || ''}"\n`;
+    });
+    zip.file("rekenings.csv", csv);
+  }
+  
+  if (vouchers.length > 0) {
+    let csv = "Tanggal,Client,Kode Voucher,Profile,Harga,Keterangan\n";
+    vouchers.forEach(voucher => {
+      const date = new Date(voucher.date).toLocaleDateString("id-ID");
+      csv += `"${date}","${voucher.client}","${voucher.code}","${voucher.profile}","${voucher.price}","${voucher.comment || ''}"\n`;
+    });
+    zip.file("vouchers.csv", csv);
+  }
+  
+  zip.generateAsync({type:"blob"}).then(function(content) {
+    const url = URL.createObjectURL(content);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "wifi_koin_akhfi_backup.zip";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+  
+  showNotification("Semua data berhasil diexport");
+}
+
+function downloadCSV(csv, filename) {
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== BACKUP & RESTORE FUNCTIONS =====
+function backupAllData() {
+  const backupData = {
+    clients: clients,
+    produks: produks,
+    rekenings: rekenings,
+    vouchers: vouchers,
+    mikrotikSettings: mikrotikSettings,
+    backupDate: new Date().toISOString()
+  };
+  
+  const dataStr = JSON.stringify(backupData, null, 2);
+  const dataBlob = new Blob([dataStr], { type: 'application/json' });
+  
+  const url = URL.createObjectURL(dataBlob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `wifi_koin_akhfi_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  showNotification("Backup semua data berhasil!");
+}
+
+function restoreData() {
+  const fileInput = document.getElementById('backupFile');
+  const file = fileInput.files[0];
+  
+  if (!file) {
+    showNotification("Pilih file backup terlebih dahulu", "error");
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const backupData = JSON.parse(e.target.result);
+      
+      if (confirm("Apakah Anda yakin ingin restore data? Data saat ini akan diganti.")) {
+        if (backupData.clients) clients = backupData.clients;
+        if (backupData.produks) produks = backupData.produks;
+        if (backupData.rekenings) rekenings = backupData.rekenings;
+        if (backupData.vouchers) vouchers = backupData.vouchers;
+        if (backupData.mikrotikSettings) mikrotikSettings = backupData.mikrotikSettings;
+        
+        saveData("clients", clients);
+        saveData("produks", produks);
+        saveData("rekening", rekenings);
+        saveData("vouchers", vouchers);
+        localStorage.setItem("mikrotikSettings", JSON.stringify(mikrotikSettings));
+        
+        // Reload semua data
+        loadClients();
+        renderProduks();
+        loadRekening();
+        loadVoucherHistory();
+        
+        // Load Mikrotik settings
+        if (mikrotikSettings.host) {
+          document.getElementById('mikrotikHost').value = mikrotikSettings.host;
+          document.getElementById('mikrotikUser').value = mikrotikSettings.user;
+          document.getElementById('mikrotikPassword').value = mikrotikSettings.password;
+        }
+        
+        showNotification("Data berhasil direstore!");
+        fileInput.value = "";
+      }
+    } catch (error) {
+      showNotification("Error: File backup tidak valid", "error");
+      console.error(error);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData() {
+  if (confirm("Apakah Anda yakin ingin menghapus SEMUA data? Tindakan ini tidak dapat dibatalkan!")) {
+    clients = [];
+    produks = [];
+    rekenings = [];
+    vouchers = [];
+    
+    saveData("clients", clients);
+    saveData("produks", produks);
+    saveData("rekening", rekenings);
+    saveData("vouchers", vouchers);
+    
+    loadClients();
+    renderProduks();
+    loadRekening();
+    loadVoucherHistory();
+    
+    showNotification("Semua data berhasil dihapus");
+  }
+}
+
+// ===== NOTIFICATION FUNCTIONS =====
+function checkDueDates() {
+  const today = new Date();
+  let dueSoonCount = 0;
+  let overdueCount = 0;
+  
+  clients.forEach(client => {
+    if (client.dueDate) {
+      const due = new Date(client.dueDate);
+      const diffTime = due - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 0) {
+        overdueCount++;
+      } else if (diffDays <= notificationDays) {
+        dueSoonCount++;
+      }
+    }
+  });
+  
+  let message = "";
+  if (overdueCount > 0) {
+    message += `${overdueCount} client sudah lewat jatuh tempo. `;
+  }
+  if (dueSoonCount > 0) {
+    message += `${dueSoonCount} client mendekati jatuh tempo (${notificationDays} hari).`;
+  }
+  
+  if (message) {
+    showNotification(message, overdueCount > 0 ? "error" : "success");
+  } else {
+    showNotification("Tidak ada client yang mendekati jatuh tempo", "success");
+  }
+}
+
+function saveNotificationSettings() {
+  const days = parseInt(document.getElementById('notificationDays').value);
+  if (days >= 1 && days <= 30) {
+    notificationDays = days;
+    localStorage.setItem("notificationDays", days.toString());
+    showNotification("Setting notifikasi berhasil disimpan!");
+  } else {
+    showNotification("Masukkan angka antara 1-30", "error");
+  }
+}
+
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Aplikasi dimuat');
@@ -1438,6 +2087,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadRekening();
   refreshClientOptions();
   refreshProdukOptions();
+  refreshVoucherClientOptions();
   
   // Set invoice defaults
   document.getElementById("noInvoice").value = generateInvoiceNo();
@@ -1454,6 +2104,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('mikrotikPassword').value = mikrotikSettings.password;
   }
   
+  // Load notification settings
+  document.getElementById('notificationDays').value = notificationDays;
+  
   // Event listener untuk profile
   document.getElementById('mikrotikProfile').addEventListener('change', updateProfileInfo);
   
@@ -1463,5 +2116,6 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Aplikasi siap digunakan');
 });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </body>
 </html>
