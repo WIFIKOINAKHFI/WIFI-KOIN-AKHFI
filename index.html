@@ -1,1153 +1,1467 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WIFI KOIN AKHFI - Sistem Manajemen</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        :root {
-            --primary: #4361ee;
-            --success: #4cc9f0;
-            --warning: #f72585;
-            --danger: #f72585;
-            --light: #f8f9fa;
-            --dark: #212529;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fb;
-            color: #333;
-            padding-top: 20px;
-        }
-        
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: none;
-            margin-bottom: 20px;
-        }
-        
-        .card-header {
-            background-color: var(--primary);
-            color: white;
-            border-radius: 12px 12px 0 0 !important;
-            font-weight: 600;
-        }
-        
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .status-paid {
-            background-color: rgba(76, 201, 240, 0.2);
-            color: #4cc9f0;
-        }
-        
-        .status-invoiced {
-            background-color: rgba(67, 97, 238, 0.2);
-            color: #4361ee;
-        }
-        
-        .status-pending {
-            background-color: rgba(247, 37, 133, 0.2);
-            color: #f72585;
-        }
-        
-        .status-cancelled {
-            background-color: rgba(108, 117, 125, 0.2);
-            color: #6c757d;
-        }
-        
-        .btn-action {
-            border-radius: 8px;
-            font-weight: 600;
-            padding: 8px 16px;
-            margin: 5px;
-        }
-        
-        .btn-paid {
-            background-color: #4cc9f0;
-            border-color: #4cc9f0;
-            color: white;
-        }
-        
-        .btn-invoiced {
-            background-color: #4361ee;
-            border-color: #4361ee;
-            color: white;
-        }
-        
-        .btn-pending {
-            background-color: #f72585;
-            border-color: #f72585;
-            color: white;
-        }
-        
-        .btn-cancelled {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            color: white;
-        }
-        
-        .client-item {
-            border-left: 4px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .client-item:hover {
-            background-color: rgba(67, 97, 238, 0.05);
-            border-left-color: var(--primary);
-        }
-        
-        .client-item.selected {
-            background-color: rgba(67, 97, 238, 0.1);
-            border-left-color: var(--primary);
-        }
-        
-        .stat-card {
-            text-align: center;
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-        }
-        
-        .stat-card.total {
-            background: linear-gradient(135deg, #4361ee, #3a56d4);
-        }
-        
-        .stat-card.paid {
-            background: linear-gradient(135deg, #4cc9f0, #3ab5d9);
-        }
-        
-        .stat-card.invoiced {
-            background: linear-gradient(135deg, #7209b7, #5f0b9c);
-        }
-        
-        .stat-card.pending {
-            background: linear-gradient(135deg, #f72585, #d91a6d);
-        }
-        
-        .stat-card.cancelled {
-            background: linear-gradient(135deg, #6c757d, #5a6268);
-        }
-        
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin: 10px 0;
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-            color: #333;
-        }
-        
-        .form-check-input:checked {
-            background-color: var(--primary);
-            border-color: var(--primary);
-        }
-        
-        .btn-reset {
-            background-color: #f72585;
-            border-color: #f72585;
-            color: white;
-        }
-        
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 15px 0;
-        }
-        
-        .portal-item {
-            border-left: 4px solid #7209b7;
-        }
-        
-        .portal-profit {
-            font-weight: bold;
-            color: #4cc9f0;
-        }
-        
-        .portal-partner {
-            font-weight: bold;
-            color: #f72585;
-        }
-        
-        .section-title {
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            color: var(--primary);
-        }
-        
-        @media (max-width: 768px) {
-            .action-buttons {
-                flex-direction: column;
-            }
-            
-            .btn-action {
-                width: 100%;
-                margin: 5px 0;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+    connect-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+    script-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+    style-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
+  ">
+  <title>WIFI KOIN AKHFI</title>
+  <style>
+    /* ===== VARIABEL CSS ===== */
+    :root {
+      --primary: #0044cc;
+      --secondary: #007bff;
+      --dark: #0056b3;
+      --danger: #dc3545;
+      --danger-dark: #c82333;
+      --success: #28a745;
+      --warning: #ffc107;
+      --light: #f8f9fa;
+      --dark-text: #212529;
+      --border: #dee2e6;
+    }
+
+    /* ===== RESET & BASE STYLES ===== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f8ff;
+      color: var(--dark-text);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 8px 10px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    header img {
+      height: 50px;
+      border-radius: 5px;
+    }
+    
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* ===== NAVIGASI ===== */
+    nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      background: var(--secondary);
+      gap: 1px;
+    }
+    
+    nav button {
+      padding: 10px 5px;
+      border: none;
+      background: var(--secondary);
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    nav button:hover, nav button.active {
+      background: var(--dark);
+    }
+
+    /* ===== SECTION ===== */
+    section {
+      display: none;
+      padding: 12px;
+    }
+    
+    section.active {
+      display: block;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: var(--primary);
+      text-align: center;
+    }
+
+    /* ===== FORM STYLES ===== */
+    .form-group {
+      margin-bottom: 10px;
+    }
+    
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+    
+    input, select {
+      padding: 8px;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .form-note {
+      font-size: 0.7rem;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    /* ===== BUTTON STYLES ===== */
+    .btn {
+      background: var(--secondary);
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      margin: 5px 0;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.3s;
+      width: 100%;
+    }
+    
+    .btn:hover {
+      background: var(--dark);
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+    }
+    
+    .btn-danger:hover {
+      background: var(--danger-dark);
+    }
+    
+    .btn-success {
+      background: var(--success);
+    }
+    
+    .btn-warning {
+      background: var(--warning);
+      color: var(--dark-text);
+    }
+
+    .btn-sm {
+      padding: 5px 8px;
+      font-size: 12px;
+      margin: 2px;
+    }
+
+    /* ===== TABLE STYLES ===== */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 12px;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 500px;
+      font-size: 12px;
+    }
+    
+    table, th, td {
+      border: 1px solid var(--border);
+    }
+    
+    th, td {
+      padding: 6px;
+      text-align: left;
+    }
+    
+    th {
+      background-color: var(--light);
+      font-weight: bold;
+      font-size: 11px;
+    }
+    
+    /* Checkbox column */
+    .checkbox-cell {
+      width: 30px;
+      text-align: center;
+    }
+    
+    .checkbox-cell input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ===== INVOICE PREVIEW ===== */
+    #previewBox {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 10px;
+      margin-top: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      line-height: 1.2;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: auto;
+    }
+    
+    .invoice-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    /* ===== VOUCHER SECTION STYLES ===== */
+    .voucher-tabs {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .voucher-tab {
+      padding: 8px 15px;
+      cursor: pointer;
+      border: none;
+      background: var(--light);
+      border-bottom: 2px solid transparent;
+    }
+    
+    .voucher-tab.active {
+      background: white;
+      border-bottom: 2px solid var(--primary);
+      font-weight: bold;
+    }
+    
+    .voucher-subsection {
+      display: none;
+    }
+    
+    .voucher-subsection.active {
+      display: block;
+    }
+    
+    .voucher-preview {
+      background: #f8f9fa;
+      border: 1px solid var(--border);
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    /* ===== LOADING STYLES ===== */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== RESPONSIVE STYLES ===== */
+    @media (min-width: 768px) {
+      body {
+        font-size: 15px;
+      }
+      
+      header {
+        padding: 12px 15px;
+      }
+      
+      header img {
+        height: 60px;
+      }
+      
+      header h1 {
+        font-size: 1.4rem;
+      }
+      
+      nav {
+        display: flex;
+      }
+      
+      nav button {
+        padding: 12px 8px;
+        font-size: 14px;
+        flex: 1;
+      }
+      
+      section {
+        padding: 15px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      
+      h2 {
+        font-size: 1.4rem;
+      }
+      
+      .form-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      
+      label {
+        width: 150px;
+        margin-bottom: 0;
+        font-size: 14px;
+      }
+      
+      input, select {
+        width: calc(100% - 160px);
+        max-width: 400px;
+      }
+      
+      .form-note {
+        margin-left: 150px;
+      }
+      
+      .btn {
+        width: auto;
+        margin: 8px 5px 0 0;
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+      
+      .invoice-actions {
+        flex-direction: row;
+        justify-content: center;
+      }
+      
+      th, td {
+        padding: 8px;
+        font-size: 13px;
+      }
+      
+      th {
+        font-size: 12px;
+      }
+      
+      #previewBox {
+        font-size: 11px;
+        padding: 12px;
+        max-width: 300px;
+      }
+      
+      .voucher-tabs {
+        margin-bottom: 20px;
+      }
+      
+      .voucher-tab {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+    }
+
+    /* Notification styles */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      border-radius: 4px;
+      color: white;
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .notification.show {
+      opacity: 1;
+    }
+    
+    .notification.success {
+      background: var(--success);
+    }
+    
+    .notification.error {
+      background: var(--danger);
+    }
+
+    .status-connected {
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    .status-disconnected {
+      color: var(--danger);
+      font-weight: bold;
+    }
+
+    .profile-info {
+      background: #e9ecef;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 5px;
+      font-size: 12px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1 class="text-center mb-0">WIFI KOIN AKHFI</h1>
-                <p class="text-center text-muted">Sistem Manajemen Penagihan & Portal</p>
-            </div>
-        </div>
+  <div id="notification" class="notification"></div>
 
-        <div class="row">
-            <!-- Panel Klien -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Daftar Klien</span>
-                        <div>
-                            <span class="badge bg-light text-dark" id="client-count">0 klien</span>
-                            <button class="btn btn-sm btn-light ms-2" id="add-client-btn" data-bs-toggle="modal" data-bs-target="#addClientModal">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                            <button class="btn btn-sm btn-light ms-1" id="backup-clients-btn" title="Backup Data Klien">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="list-group list-group-flush" id="client-list">
-                            <!-- Daftar klien akan diisi oleh JavaScript -->
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card mt-4">
-                    <div class="card-header">
-                        Aksi Penagihan
-                    </div>
-                    <div class="card-body">
-                        <div class="action-buttons" id="action-buttons">
-                            <button class="btn btn-paid btn-action" id="btn-paid">
-                                <i class="fas fa-money-bill-wave"></i> Sudah Bayar
-                            </button>
-                            <button class="btn btn-invoiced btn-action" id="btn-invoiced">
-                                <i class="fas fa-receipt"></i> Sudah Ditagih
-                            </button>
-                            <button class="btn btn-pending btn-action" id="btn-pending">
-                                <i class="fas fa-clock"></i> Belum Ditagih
-                            </button>
-                            <button class="btn btn-cancelled btn-action" id="btn-cancelled">
-                                <i class="fas fa-ban"></i> Dibatalkan
-                            </button>
-                        </div>
-                        <div class="mt-3 text-center">
-                            <small class="text-muted">Pilih klien terlebih dahulu sebelum mengubah status</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Panel Laporan dan Statistik -->
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        Laporan & Rekapan Penagihan
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <h5>Jenis Laporan:</h5>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="report-all">
-                                    <label class="form-check-label" for="report-all">
-                                        Semua Data
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="report-paid" checked>
-                                    <label class="form-check-label" for="report-paid">
-                                        Sudah Bayar
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="report-invoiced" checked>
-                                    <label class="form-check-label" for="report-invoiced">
-                                        Sudah Ditagih
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="report-pending" checked>
-                                    <label class="form-check-label" for="report-pending">
-                                        Belum Ditagih
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="report-cancelled" checked>
-                                    <label class="form-check-label" for="report-cancelled">
-                                        Dibatalkan
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <h5>Aksi Laporan:</h5>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="action-telegram">
-                                    <label class="form-check-label" for="action-telegram">
-                                        Kirim Laporan Bayar ke Telegram
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="action-download-paid" checked>
-                                    <label class="form-check-label" for="action-download-paid">
-                                        Download Laporan Bayar (Excel)
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="action-download-all" checked>
-                                    <label class="form-check-label" for="action-download-all">
-                                        Download Semua Laporan (Excel)
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button class="btn btn-primary" id="generate-report">
-                                <i class="fas fa-file-export"></i> Generate Laporan
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card mt-4">
-                    <div class="card-header">
-                        Statistik Cepat
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-6 col-md-3 mb-3">
-                                <div class="stat-card total">
-                                    <div class="stat-number" id="stat-total">0</div>
-                                    <div>Total Klien</div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3 mb-3">
-                                <div class="stat-card paid">
-                                    <div class="stat-number" id="stat-paid">0</div>
-                                    <div>Sudah Bayar</div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3 mb-3">
-                                <div class="stat-card invoiced">
-                                    <div class="stat-number" id="stat-invoiced">0</div>
-                                    <div>Sudah Ditagih</div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-3 mb-3">
-                                <div class="stat-card pending">
-                                    <div class="stat-number" id="stat-pending">0</div>
-                                    <div>Belum Ditagih</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Section Portal -->
-                <div class="card mt-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Manajemen Portal</span>
-                        <div>
-                            <button class="btn btn-sm btn-light" id="add-portal-btn" data-bs-toggle="modal" data-bs-target="#addPortalModal">
-                                <i class="fas fa-plus"></i> Tambah Portal
-                            </button>
-                            <button class="btn btn-sm btn-light ms-1" id="backup-portals-btn" title="Backup Data Portal">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-8">
-                                <h5>Daftar Portal:</h5>
-                                <div class="list-group" id="portal-list">
-                                    <!-- Daftar portal akan diisi oleh JavaScript -->
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <h5>Statistik Portal:</h5>
-                                <div class="stat-card total mb-3">
-                                    <div class="stat-number" id="portal-total">0</div>
-                                    <div>Total Portal</div>
-                                </div>
-                                <div class="stat-card paid">
-                                    <div class="stat-number" id="portal-income">Rp 0</div>
-                                    <div>Pendapatan Bersih</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3">
-                            <button class="btn btn-primary" id="generate-portal-report">
-                                <i class="fas fa-file-export"></i> Generate Laporan Portal (Excel)
-                            </button>
-                        </div>
-                        
-                        <div class="mt-3">
-                            <p><strong>Keterangan:</strong> Setiap portal memberikan 20% dari total isi kepada partner. Pendapatan bersih = Total isi portal - 20% untuk partner.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Section Backup & Restore -->
-                <div class="card mt-4">
-                    <div class="card-header">
-                        Backup & Restore Data
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6>Backup Data:</h6>
-                                <button class="btn btn-success btn-sm mb-2" id="backup-all-btn">
-                                    <i class="fas fa-database"></i> Backup Semua Data
-                                </button>
-                                <p class="text-muted small">Unduh data untuk disimpan atau dipindahkan ke perangkat lain</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h6>Restore Data:</h6>
-                                <div class="input-group mb-2">
-                                    <input class="form-control form-control-sm" type="file" id="restore-file" accept=".json">
-                                    <button class="btn btn-warning btn-sm" id="restore-data-btn">
-                                        <i class="fas fa-upload"></i> Restore
-                                    </button>
-                                </div>
-                                <p class="text-muted small">Peringatan: Restore data akan menggantikan semua data yang ada</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card mt-4">
-                    <div class="card-header">
-                        Reset Data Penagihan
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted">Hapus semua history penagihan (hati-hati!)</p>
-                        <div class="d-grid">
-                            <button class="btn btn-reset" id="reset-data">
-                                <i class="fas fa-trash-alt"></i> Reset Data Penagihan
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <header>
+    <img src="gatotkaca.png" alt="Logo WIFI KOIN AKHFI" onerror="this.style.display='none'">
+    <h1>WIFI KOIN AKHFI</h1>
+  </header>
+
+  <nav>
+    <button onclick="showSection('clientTab')" class="active">Client</button>
+    <button onclick="showSection('produkTab')">Produk</button>
+    <button onclick="showSection('rekeningTab')">Pembayaran/DANA</button>
+    <button onclick="showSection('invoiceTab')">Buat Invoice</button>
+    <button onclick="showSection('voucherTab')">Kirim Voucher</button>
+  </nav>
+
+  <!-- CLIENT -->
+  <section id="clientTab" class="active">
+    <h2>Manajemen Client</h2>
+    <form id="clientForm">
+      <input type="hidden" id="clientEditIndex" value="-1">
+      <div class="form-group">
+        <label for="clientName">Nama</label>
+        <input type="text" id="clientName" required>
+      </div>
+      <div class="form-group">
+        <label for="clientWhatsapp">WhatsApp</label>
+        <input type="text" id="clientWhatsapp" required>
+        <div class="form-note">Format: 628xxxxxxxxxx (contoh: 6281234567890)</div>
+      </div>
+      <div class="form-group">
+        <label for="clientStartDate">Tanggal Mulai</label>
+        <input type="date" id="clientStartDate">
+      </div>
+      <button type="button" class="btn" onclick="handleClientSubmit()">Tambah Client</button>
+      <button type="button" id="cancelEditBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditClient()">Batal Edit</button>
+      <button type="button" class="btn btn-danger" onclick="deleteSelectedClients()">Hapus Terpilih</button>
+    </form>
+    
+    <div class="table-container">
+      <table id="clientTable">
+        <thead>
+          <tr>
+            <th class="checkbox-cell">Pilih</th>
+            <th>Nama</th>
+            <th>WhatsApp</th>
+            <th>Tanggal Mulai</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
+  </section>
 
-    <!-- Modal Tambah Klien -->
-    <div class="modal fade" id="addClientModal" tabindex="-1" aria-labelledby="addClientModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addClientModalLabel">Tambah Klien Baru</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-client-form">
-                        <div class="mb-3">
-                            <label for="client-name" class="form-label">Nama Klien</label>
-                            <input type="text" class="form-control" id="client-name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="client-product" class="form-label">Produk</label>
-                            <select class="form-select" id="client-product" required>
-                                <option value="Paket Standar">Paket Standar</option>
-                                <option value="Paket Premium">Paket Premium</option>
-                                <option value="Paket Bisnis">Paket Bisnis</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="client-amount" class="form-label">Jumlah Tagihan (Rp)</label>
-                            <input type="number" class="form-control" id="client-amount" required min="0">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary" id="save-client">Simpan Klien</button>
-                </div>
-            </div>
-        </div>
+  <!-- PRODUK -->
+  <section id="produkTab">
+    <h2>Manajemen Produk</h2>
+    <input type="hidden" id="produkEditIndex" value="-1">
+    <div class="form-group">
+      <label for="produkNama">Nama Produk</label>
+      <input id="produkNama">
     </div>
-
-    <!-- Modal Tambah Portal -->
-    <div class="modal fade" id="addPortalModal" tabindex="-1" aria-labelledby="addPortalModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addPortalModalLabel">Tambah Portal Baru</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-portal-form">
-                        <div class="mb-3">
-                            <label for="portal-name" class="form-label">Nama Portal</label>
-                            <input type="text" class="form-control" id="portal-name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="portal-location" class="form-label">Lokasi</label>
-                            <input type="text" class="form-control" id="portal-location" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="portal-amount" class="form-label">Isi Portal (Rp)</label>
-                            <input type="number" class="form-control" id="portal-amount" required min="0">
-                        </div>
-                        <div class="mb-3">
-                            <label for="portal-partner" class="form-label">Nama Partner</label>
-                            <input type="text" class="form-control" id="portal-partner" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary" id="save-portal">Simpan Portal</button>
-                </div>
-            </div>
-        </div>
+    <div class="form-group">
+      <label for="produkHarga">Harga</label>
+      <input id="produkHarga" type="number">
     </div>
+    <div class="form-group">
+      <label for="produkDeskripsi">Deskripsi</label>
+      <input id="produkDeskripsi">
+    </div>
+    <button class="btn" onclick="addProduk()">Tambah Produk</button>
+    <button type="button" id="cancelEditProdukBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditProduk()">Batal Edit</button>
+    
+    <div class="table-container">
+      <table id="produkTable">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Harga</th>
+            <th>Deskripsi</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Data klien dan portal
-        let clients = JSON.parse(localStorage.getItem('wifiKoinClients')) || [
-            { id: 1, name: "PT. Maju Jaya", product: "Paket Bisnis", status: "pending", amount: 500000 },
-            { id: 2, name: "CV. Sejahtera", product: "Paket Premium", status: "invoiced", amount: 350000 },
-            { id: 3, name: "Toko Sinar Abadi", product: "Paket Standar", status: "paid", amount: 250000 },
-            { id: 4, name: "UD. Makmur Sentosa", product: "Paket Premium", status: "pending", amount: 350000 }
-        ];
+  <!-- REKENING -->
+  <section id="rekeningTab">
+    <h2>Rekening & DANA</h2>
+    <form id="rekeningForm">
+      <input type="hidden" id="rekeningEditIndex" value="-1">
+      <div class="form-group">
+        <label for="bank">Bank</label>
+        <input type="text" id="bank" required>
+      </div>
+      <div class="form-group">
+        <label for="noRekening">No Rekening</label>
+        <input type="text" id="noRekening" required>
+      </div>
+      <div class="form-group">
+        <label for="noDana">No DANA</label>
+        <input type="text" id="noDana">
+      </div>
+      <button type="button" class="btn" onclick="simpanRekening()">Simpan Rekening</button>
+      <button type="button" id="cancelEditRekeningBtn" class="btn btn-danger" style="display:none;" onclick="cancelEditRekening()">Batal Edit</button>
+    </form>
+    
+    <div class="table-container">
+      <table id="rekeningTable">
+        <thead>
+          <tr>
+            <th>Bank</th>
+            <th>No Rekening</th>
+            <th>No DANA</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
 
-        let portals = JSON.parse(localStorage.getItem('wifiKoinPortals')) || [
-            { id: 1, name: "Portal A", location: "Mall Central", amount: 300000, partner: "Budi Santoso" },
-            { id: 2, name: "Portal B", location: "Stasiun Kota", amount: 450000, partner: "Sari Indah" },
-            { id: 3, name: "Portal C", location: "Kampus Merdeka", amount: 280000, partner: "Ahmad Fauzi" }
-        ];
+  <!-- INVOICE -->
+  <section id="invoiceTab">
+    <h2>Buat Invoice</h2>
+    <div class="form-group">
+      <label for="noInvoice">Nomor Invoice</label>
+      <input id="noInvoice" readonly>
+    </div>
+    <div class="form-group">
+      <label for="tglInvoice">Tanggal</label>
+      <input id="tglInvoice" readonly>
+    </div>
+    <div class="form-group">
+      <label for="jatuhTempo">Jatuh Tempo</label>
+      <input type="date" id="jatuhTempo">
+    </div>
+    <div class="form-group">
+      <label for="pilihClient">Pilih Client</label>
+      <select id="pilihClient"></select>
+    </div>
+    <div class="form-group">
+      <label for="pilihProduk">Pilih Produk</label>
+      <select id="pilihProduk"></select>
+    </div>
+    <div class="form-group">
+      <label for="periode">Periode</label>
+      <select id="periode">
+        <option value="1">1 Bulan</option>
+        <option value="2">2 Bulan</option>
+        <option value="3">3 Bulan</option>
+        <option value="6">6 Bulan</option>
+        <option value="12">12 Bulan</option>
+      </select>
+    </div>
+    
+    <button class="btn" onclick="reviewInvoice()">REVIEW INVOICE</button>
+    
+    <div id="previewBox"></div>
+    
+    <div class="invoice-actions">
+      <button id="btnWa" class="btn btn-success" style="display:none;" onclick="kirimWA()">Kirim ke WhatsApp</button>
+      <button class="btn" onclick="kembaliKeMenu()">Kembali ke Menu Utama</button>
+    </div>
+  </section>
 
-        let selectedClientId = null;
-        let selectedPortalId = null;
+  <!-- VOUCHER -->
+  <section id="voucherTab">
+    <h2>Kirim Voucher</h2>
+    
+    <div class="voucher-tabs">
+      <button class="voucher-tab active" onclick="showVoucherSubsection('voucherSetting')">Setting</button>
+      <button class="voucher-tab" onclick="showVoucherSubsection('voucherKirim')">Kirim</button>
+    </div>
+    
+    <!-- Subsection Setting -->
+    <div id="voucherSetting" class="voucher-subsection active">
+      <h3>Setting Mikrotik</h3>
+      
+      <div class="form-group">
+        <label for="mikrotikHost">Host/IP Mikrotik</label>
+        <input type="text" id="mikrotikHost" placeholder="192.168.1.1" value="192.168.202.2">
+      </div>
+      <div class="form-group">
+        <label for="mikrotikUser">Username</label>
+        <input type="text" id="mikrotikUser" placeholder="admin" value="admin">
+      </div>
+      <div class="form-group">
+        <label for="mikrotikPassword">Password</label>
+        <input type="password" id="mikrotikPassword" placeholder="Password Mikrotik">
+      </div>
+      
+      <button class="btn btn-success" onclick="saveMikrotikSettings()">Simpan Setting</button>
+      <button class="btn btn-warning" onclick="testMikrotikConnection()">Test Koneksi</button>
+      <div class="form-note">Setting disimpan di browser Anda</div>
+    </div>
+    
+    <!-- Subsection Kirim -->
+    <div id="voucherKirim" class="voucher-subsection">
+      <h3>Kirim Voucher ke Client</h3>
+      
+      <div class="form-group">
+        <label for="voucherClient">Pilih Client</label>
+        <select id="voucherClient">
+          <option value="">Pilih Client...</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="mikrotikProfile">Profile Hotspot</label>
+        <select id="mikrotikProfile">
+          <option value="PAKET-30D-1-USER">PAKET-30D-1-USER (30 Hari, 1 User)</option>
+          <option value="PAKET-30D-2-USER-35RB">PAKET-30D-2-USER-35RB (30 Hari, 2 User)</option>
+          <option value="PAKET-30D-3-USER-35RB">PAKET-30D-3-USER-35RB (30 Hari, 3 User)</option>
+          <option value="PAKET-24-JAM">PAKET-24-JAM (24 Jam, 1 User)</option>
+          <option value="PAKET-12-JAM">PAKET-12-JAM (12 Jam, 1 User)</option>
+          <option value="PAKET-10-JAM">PAKET-10-JAM (10 Jam, 1 User)</option>
+          <option value="PAKET-20-JAM">PAKET-20-JAM (20 Jam, 1 User)</option>
+        </select>
+      </div>
+      
+      <div id="profileInfo" class="profile-info">
+        <strong>Info Profile:</strong>
+        <div id="profileDetails">Pilih profile untuk melihat detail</div>
+      </div>
+      
+      <div class="form-group">
+        <label for="voucherPrice">Harga Voucher</label>
+        <input type="number" id="voucherPrice" placeholder="100000" value="100000">
+      </div>
+      
+      <div class="form-group">
+        <label for="voucherComment">Keterangan (opsional)</label>
+        <input type="text" id="voucherComment" placeholder="Keterangan voucher">
+      </div>
+      
+      <button class="btn btn-success" onclick="generateVoucher()" id="generateVoucherBtn">
+        Buat & Preview Voucher
+      </button>
+      
+      <div id="voucherPreview" class="voucher-preview" style="display: none;"></div>
+      
+      <div class="invoice-actions" id="voucherActions" style="display: none;">
+        <button class="btn btn-success" onclick="createAndSendVoucher()" id="createVoucherBtn">
+          Simpan & Kirim ke WhatsApp
+        </button>
+        <button class="btn" onclick="kembaliKeMenu()">Kembali ke Menu Utama</button>
+      </div>
+    </div>
+  </section>
 
-        // Fungsi untuk menyimpan data ke localStorage
-        function saveData() {
-            localStorage.setItem('wifiKoinClients', JSON.stringify(clients));
-            localStorage.setItem('wifiKoinPortals', JSON.stringify(portals));
-        }
+<script>
+// ===== GLOBAL VARIABLES =====
+let mikrotikSettings = JSON.parse(localStorage.getItem("mikrotikSettings")) || {};
+let clients = JSON.parse(localStorage.getItem("clients")) || [];
+let produks = JSON.parse(localStorage.getItem("produks")) || [];
+let rekenings = JSON.parse(localStorage.getItem("rekening")) || [];
+let vouchers = JSON.parse(localStorage.getItem("vouchers")) || [];
+let invoiceText = "";
+let voucherCode = "";
+let currentVoucherData = null;
 
-        // Fungsi untuk merender daftar klien
-        function renderClientList() {
-            const clientList = document.getElementById('client-list');
-            clientList.innerHTML = '';
-            
-            if (clients.length === 0) {
-                clientList.innerHTML = '<div class="list-group-item text-center text-muted">Tidak ada klien</div>';
-            } else {
-                clients.forEach(client => {
-                    const statusClass = `status-${client.status}`;
-                    const statusText = getStatusText(client.status);
-                    
-                    const clientItem = document.createElement('div');
-                    clientItem.className = `list-group-item client-item ${selectedClientId === client.id ? 'selected' : ''}`;
-                    clientItem.setAttribute('data-client-id', client.id);
-                    
-                    clientItem.innerHTML = `
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">${client.name}</h5>
-                            <div>
-                                <span class="status-badge ${statusClass}">${statusText}</span>
-                                <button class="btn btn-sm btn-outline-danger ms-1 delete-client" data-id="${client.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <p class="mb-1">${client.product}</p>
-                        <small class="text-muted">Rp ${client.amount.toLocaleString('id-ID')}</small>
-                    `;
-                    
-                    clientItem.addEventListener('click', (e) => {
-                        if (!e.target.classList.contains('delete-client')) {
-                            selectedClientId = client.id;
-                            renderClientList();
-                            updateActionButtons();
-                        }
-                    });
-                    
-                    // Event listener untuk hapus klien
-                    const deleteBtn = clientItem.querySelector('.delete-client');
-                    deleteBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteClient(client.id);
-                    });
-                    
-                    clientList.appendChild(clientItem);
-                });
-            }
-            
-            document.getElementById('client-count').textContent = `${clients.length} klien`;
-        }
+// URL CLOUDFLARE WORKER - SESUAIKAN DENGAN URL ANDA
+const CLOUDFLARE_WORKER_URL = 'https://wifi-koin-akhfi.muhammadrahmanarrasyid15.workers.dev';
 
-        // Fungsi untuk merender daftar portal
-        function renderPortalList() {
-            const portalList = document.getElementById('portal-list');
-            portalList.innerHTML = '';
-            
-            if (portals.length === 0) {
-                portalList.innerHTML = '<div class="list-group-item text-center text-muted">Tidak ada portal</div>';
-            } else {
-                portals.forEach(portal => {
-                    const partnerShare = portal.amount * 0.2;
-                    const netIncome = portal.amount - partnerShare;
-                    
-                    const portalItem = document.createElement('div');
-                    portalItem.className = `list-group-item portal-item ${selectedPortalId === portal.id ? 'selected' : ''}`;
-                    portalItem.setAttribute('data-portal-id', portal.id);
-                    
-                    portalItem.innerHTML = `
-                        <div class="d-flex w-100 justify-content-between">
-                            <div>
-                                <h6 class="mb-1">${portal.name}</h6>
-                                <p class="mb-1 small">${portal.location} | Partner: ${portal.partner}</p>
-                            </div>
-                            <div>
-                                <span class="badge bg-primary">Rp ${portal.amount.toLocaleString('id-ID')}</span>
-                                <button class="btn btn-sm btn-outline-danger ms-1 delete-portal" data-id="${portal.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between mt-2">
-                            <small class="text-muted">Bersih: <span class="portal-profit">Rp ${netIncome.toLocaleString('id-ID')}</span></small>
-                            <small class="text-muted">Partner: <span class="portal-partner">Rp ${partnerShare.toLocaleString('id-ID')}</span></small>
-                        </div>
-                    `;
-                    
-                    portalItem.addEventListener('click', (e) => {
-                        if (!e.target.classList.contains('delete-portal')) {
-                            selectedPortalId = portal.id;
-                            renderPortalList();
-                        }
-                    });
-                    
-                    // Event listener untuk hapus portal
-                    const deleteBtn = portalItem.querySelector('.delete-portal');
-                    deleteBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deletePortal(portal.id);
-                    });
-                    
-                    portalList.appendChild(portalItem);
-                });
-            }
-            
-            document.getElementById('portal-total').textContent = `${portals.length}`;
-            updatePortalStatistics();
-        }
+// Profile mapping
+const profileMappings = {
+  'PAKET-30D-1-USER': { duration: 43200, sharedUsers: 1, type: '30 Hari', limit: '1 User' },
+  'PAKET-30D-2-USER-35RB': { duration: 43200, sharedUsers: 2, type: '30 Hari', limit: '2 User' },
+  'PAKET-30D-3-USER-35RB': { duration: 43200, sharedUsers: 3, type: '30 Hari', limit: '3 User' },
+  'PAKET-24-JAM': { duration: 1440, sharedUsers: 1, type: '24 Jam', limit: '1 User' },
+  'PAKET-12-JAM': { duration: 720, sharedUsers: 1, type: '12 Jam', limit: '1 User' },
+  'PAKET-10-JAM': { duration: 600, sharedUsers: 1, type: '10 Jam', limit: '1 User' },
+  'PAKET-20-JAM': { duration: 1200, sharedUsers: 1, type: '20 Jam', limit: '1 User' }
+};
 
-        // Fungsi untuk menghapus klien
-        function deleteClient(clientId) {
-            if (confirm('Apakah Anda yakin ingin menghapus klien ini?')) {
-                clients = clients.filter(c => c.id !== clientId);
-                if (selectedClientId === clientId) {
-                    selectedClientId = null;
-                    updateActionButtons();
-                }
-                saveData();
-                renderClientList();
-                updateStatistics();
-            }
-        }
+// ===== MIKROTIK API FUNCTIONS =====
+async function testMikrotikConnection() {
+  const host = document.getElementById('mikrotikHost').value;
+  const user = document.getElementById('mikrotikUser').value;
+  const password = document.getElementById('mikrotikPassword').value;
+  
+  if (!host || !user || !password) {
+    showNotification('Host, user, dan password harus diisi!', 'error');
+    return false;
+  }
+  
+  showNotification('🔄 Menguji koneksi ke Mikrotik...', 'success');
+  
+  try {
+    const response = await fetch(`${CLOUDFLARE_WORKER_URL}/test`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ host, user, password })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification(`✅ Koneksi berhasil! Mikrotik ${result.data.platform} v${result.data.version}`, 'success');
+      return true;
+    } else {
+      showNotification(`❌ Gagal: ${result.error}`, 'error');
+      return false;
+    }
+  } catch (error) {
+    showNotification(`❌ Error: ${error.message}`, 'error');
+    return false;
+  }
+}
 
-        // Fungsi untuk menghapus portal
-        function deletePortal(portalId) {
-            if (confirm('Apakah Anda yakin ingin menghapus portal ini?')) {
-                portals = portals.filter(p => p.id !== portalId);
-                if (selectedPortalId === portalId) {
-                    selectedPortalId = null;
-                }
-                saveData();
-                renderPortalList();
-            }
-        }
+async function createMikrotikVoucher(voucherData) {
+  const host = document.getElementById('mikrotikHost').value;
+  const user = document.getElementById('mikrotikUser').value;
+  const password = document.getElementById('mikrotikPassword').value;
+  
+  showNotification('🔄 Membuat voucher di Mikrotik...', 'success');
+  
+  try {
+    const response = await fetch(`${CLOUDFLARE_WORKER_URL}/create-voucher`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        host,
+        user,
+        password,
+        voucherCode: voucherData.voucherCode,
+        profile: voucherData.profile,
+        comment: voucherData.comment,
+        limitUptime: voucherData.duration
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification('✅ Voucher berhasil dibuat di Mikrotik!', 'success');
+      return true;
+    } else {
+      showNotification(`❌ Gagal buat voucher: ${result.error}`, 'error');
+      return false;
+    }
+  } catch (error) {
+    showNotification(`❌ Error: ${error.message}`, 'error');
+    return false;
+  }
+}
 
-        // Fungsi untuk memperbarui statistik portal
-        function updatePortalStatistics() {
-            let totalAmount = 0;
-            let totalNetIncome = 0;
-            
-            portals.forEach(portal => {
-                totalAmount += portal.amount;
-                totalNetIncome += portal.amount * 0.8; // 80% untuk kita
-            });
-            
-            document.getElementById('portal-income').textContent = `Rp ${totalNetIncome.toLocaleString('id-ID')}`;
-        }
+// ===== UTILITY FUNCTIONS =====
+function showNotification(message, type = 'success') {
+  const notification = document.getElementById('notification');
+  notification.textContent = message;
+  notification.className = `notification ${type} show`;
+  
+  setTimeout(() => {
+    notification.classList.remove('show');
+  }, 3000);
+}
 
-        // Fungsi untuk mendapatkan teks status
-        function getStatusText(status) {
-            switch(status) {
-                case 'paid': return 'Sudah Bayar';
-                case 'invoiced': return 'Sudah Ditagih';
-                case 'pending': return 'Belum Ditagih';
-                case 'cancelled': return 'Dibatalkan';
-                default: return 'Tidak Diketahui';
-            }
-        }
+function saveData(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+    return true;
+  } catch (e) {
+    console.warn('LocalStorage error:', e);
+    return false;
+  }
+}
 
-        // Fungsi untuk memperbarui statistik
-        function updateStatistics() {
-            const total = clients.length;
-            const paid = clients.filter(c => c.status === 'paid').length;
-            const invoiced = clients.filter(c => c.status === 'invoiced').length;
-            const pending = clients.filter(c => c.status === 'pending').length;
-            const cancelled = clients.filter(c => c.status === 'cancelled').length;
-            
-            document.getElementById('stat-total').textContent = total;
-            document.getElementById('stat-paid').textContent = paid;
-            document.getElementById('stat-invoiced').textContent = invoiced;
-            document.getElementById('stat-pending').textContent = pending;
-        }
+function loadData(key) {
+  try {
+    const data = localStorage.getItem(key);
+    if (!data) return [];
+    
+    const parsed = JSON.parse(data);
+    
+    if (Array.isArray(parsed)) {
+      return parsed;
+    } else {
+      console.warn(`Data ${key} bukan array, mengembalikan array kosong`);
+      return [];
+    }
+  } catch (e) {
+    console.warn(`Gagal memuat data ${key}:`, e);
+    return [];
+  }
+}
 
-        // Fungsi untuk memperbarui status tombol aksi
-        function updateActionButtons() {
-            const hasSelection = selectedClientId !== null;
-            
-            document.getElementById('btn-paid').disabled = !hasSelection;
-            document.getElementById('btn-invoiced').disabled = !hasSelection;
-            document.getElementById('btn-pending').disabled = !hasSelection;
-            document.getElementById('btn-cancelled').disabled = !hasSelection;
-        }
+// ===== NAVIGATION =====
+function showSection(sectionId) {
+  const sections = document.querySelectorAll('section');
+  sections.forEach(section => {
+    section.classList.remove('active');
+  });
+  
+  const targetSection = document.getElementById(sectionId);
+  if (targetSection) {
+    targetSection.classList.add('active');
+  }
+  
+  const buttons = document.querySelectorAll('nav button');
+  buttons.forEach(button => {
+    button.classList.remove('active');
+  });
+  
+  const buttonIndex = Array.from(buttons).findIndex(btn => 
+    btn.getAttribute('onclick')?.includes(sectionId)
+  );
+  if (buttonIndex !== -1) {
+    buttons[buttonIndex].classList.add('active');
+  }
+}
 
-        // Fungsi untuk mengubah status klien
-        function changeClientStatus(status) {
-            if (selectedClientId === null) {
-                alert('Pilih klien terlebih dahulu!');
-                return;
-            }
-            
-            const clientIndex = clients.findIndex(c => c.id === selectedClientId);
-            if (clientIndex !== -1) {
-                clients[clientIndex].status = status;
-                saveData();
-                renderClientList();
-                updateStatistics();
-                
-                // Tampilkan notifikasi
-                const clientName = clients[clientIndex].name;
-                const statusText = getStatusText(status);
-                alert(`Status ${clientName} berhasil diubah menjadi: ${statusText}`);
-            }
-        }
+function kembaliKeMenu() {
+  showSection('clientTab');
+}
 
-        // Fungsi untuk menghasilkan laporan klien
-        function generateClientReport() {
-            const reportTypes = {
-                all: document.getElementById('report-all').checked,
-                paid: document.getElementById('report-paid').checked,
-                invoiced: document.getElementById('report-invoiced').checked,
-                pending: document.getElementById('report-pending').checked,
-                cancelled: document.getElementById('report-cancelled').checked
-            };
-            
-            const actions = {
-                telegram: document.getElementById('action-telegram').checked,
-                downloadPaid: document.getElementById('action-download-paid').checked,
-                downloadAll: document.getElementById('action-download-all').checked
-            };
-            
-            // Filter klien berdasarkan jenis laporan yang dipilih
-            let filteredClients = [];
-            
-            if (reportTypes.all) {
-                filteredClients = clients;
-            } else {
-                if (reportTypes.paid) {
-                    filteredClients = filteredClients.concat(clients.filter(c => c.status === 'paid'));
-                }
-                if (reportTypes.invoiced) {
-                    filteredClients = filteredClients.concat(clients.filter(c => c.status === 'invoiced'));
-                }
-                if (reportTypes.pending) {
-                    filteredClients = filteredClients.concat(clients.filter(c => c.status === 'pending'));
-                }
-                if (reportTypes.cancelled) {
-                    filteredClients = filteredClients.concat(clients.filter(c => c.status === 'cancelled'));
-                }
-            }
-            
-            // Hitung total pendapatan
-            let totalIncome = 0;
-            filteredClients.forEach(client => {
-                if (client.status === 'paid') {
-                    totalIncome += client.amount;
-                }
-            });
-            
-            // Tampilkan hasil laporan
-            let reportMessage = "LAPORAN PENAGIHAN KLIENT\n";
-            reportMessage += "==========================\n\n";
-            
-            filteredClients.forEach(client => {
-                reportMessage += `${client.name} | ${client.product} | Rp ${client.amount.toLocaleString('id-ID')} | ${getStatusText(client.status)}\n`;
-            });
-            
-            reportMessage += `\nTOTAL PENDAPATAN: Rp ${totalIncome.toLocaleString('id-ID')}`;
-            
-            alert(reportMessage);
-            
-            // Simulasi aksi laporan
-            if (actions.telegram) {
-                alert("Mengirim laporan ke Telegram...");
-            }
-            
-            if (actions.downloadPaid || actions.downloadAll) {
-                exportToExcel(filteredClients, 'Laporan_Penagihan_Klient');
-            }
-        }
+// ===== CLIENT MANAGEMENT =====
+function loadClients() {
+  const tbody = document.querySelector("#clientTable tbody");
+  if (!tbody) return;
+  
+  tbody.innerHTML = "";
+  
+  clients.forEach((c, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="checkbox-cell"><input type="checkbox" class="select-client" data-index="${i}"></td>
+      <td>${c.name}</td>
+      <td>${c.whatsapp}</td>
+      <td>${c.startDate || ""}</td>
+      <td>
+        <button class="btn btn-sm" onclick="editClient(${i})">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteClient(${i})">Hapus</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  
+  refreshClientOptions();
+  refreshVoucherClientOptions();
+}
 
-        // Fungsi untuk menghasilkan laporan portal
-        function generatePortalReport() {
-            let reportPortals = portals;
-            
-            if (reportPortals.length === 0) {
-                alert("Tidak ada portal yang dapat dilaporkan!");
-                return;
-            }
-            
-            // Hitung total
-            let totalAmount = 0;
-            let totalPartnerShare = 0;
-            let totalNetIncome = 0;
-            
-            reportPortals.forEach(portal => {
-                const partnerShare = portal.amount * 0.2;
-                const netIncome = portal.amount - partnerShare;
-                
-                totalAmount += portal.amount;
-                totalPartnerShare += partnerShare;
-                totalNetIncome += netIncome;
-            });
-            
-            // Tampilkan hasil laporan
-            let reportMessage = "LAPORAN PORTAL\n";
-            reportMessage += "==============\n\n";
-            
-            reportPortals.forEach(portal => {
-                const partnerShare = portal.amount * 0.2;
-                const netIncome = portal.amount - partnerShare;
-                
-                reportMessage += `${portal.name} | ${portal.location} | ${portal.partner}\n`;
-                reportMessage += `  Total: Rp ${portal.amount.toLocaleString('id-ID')} | Partner: Rp ${partnerShare.toLocaleString('id-ID')} | Bersih: Rp ${netIncome.toLocaleString('id-ID')}\n\n`;
-            });
-            
-            reportMessage += `TOTAL KESELURUHAN:\n`;
-            reportMessage += `Total Isi Portal: Rp ${totalAmount.toLocaleString('id-ID')}\n`;
-            reportMessage += `Total Untuk Partner: Rp ${totalPartnerShare.toLocaleString('id-ID')}\n`;
-            reportMessage += `Total Pendapatan Bersih: Rp ${totalNetIncome.toLocaleString('id-ID')}`;
-            
-            alert(reportMessage);
-            
-            exportPortalsToExcel(reportPortals, 'Laporan_Portal');
-        }
+function handleClientSubmit() {
+  const name = document.getElementById("clientName").value;
+  const whatsapp = document.getElementById("clientWhatsapp").value;
+  const startDate = document.getElementById("clientStartDate").value;
+  const editIndex = parseInt(document.getElementById("clientEditIndex").value);
+  
+  if (!whatsapp.startsWith("628")) {
+    alert("Format WhatsApp harus dimulai dengan 628 (contoh: 6281234567890)");
+    return;
+  }
+  
+  if (editIndex > -1) {
+    clients[editIndex] = { name, whatsapp, startDate };
+    document.getElementById("clientEditIndex").value = "-1";
+    document.getElementById("cancelEditBtn").style.display = "none";
+  } else {
+    clients.push({ name, whatsapp, startDate });
+  }
+  
+  saveData("clients", clients);
+  loadClients();
+  
+  document.getElementById("clientName").value = "";
+  document.getElementById("clientWhatsapp").value = "";
+  document.getElementById("clientStartDate").value = "";
+  
+  showNotification("Data client berhasil disimpan!");
+}
 
-        // Fungsi untuk ekspor data ke Excel
-        function exportToExcel(data, filename) {
-            // Siapkan data untuk Excel
-            const worksheetData = [
-                ['Nama Klien', 'Produk', 'Jumlah Tagihan', 'Status']
-            ];
-            
-            let totalIncome = 0;
-            
-            data.forEach(client => {
-                worksheetData.push([
-                    client.name,
-                    client.product,
-                    client.amount,
-                    getStatusText(client.status)
-                ]);
-                
-                if (client.status === 'paid') {
-                    totalIncome += client.amount;
-                }
-            });
-            
-            // Tambahkan baris total
-            worksheetData.push([]);
-            worksheetData.push(['TOTAL PENDAPATAN', '', totalIncome, '']);
-            
-            // Buat worksheet
-            const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-            
-            // Buat workbook dan tambahkan worksheet
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan Penagihan");
-            
-            // Ekspor ke file Excel
-            XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
-        }
+function deleteClient(index) {
+  if (confirm("Apakah Anda yakin ingin menghapus client ini?")) {
+    clients.splice(index, 1);
+    saveData("clients", clients);
+    loadClients();
+    showNotification("Client berhasil dihapus");
+  }
+}
 
-        // Fungsi untuk ekspor data portal ke Excel
-        function exportPortalsToExcel(data, filename) {
-            // Siapkan data untuk Excel
-            const worksheetData = [
-                ['Nama Portal', 'Lokasi', 'Partner', 'Total Isi', 'Bagian Partner (20%)', 'Pendapatan Bersih']
-            ];
-            
-            let totalAmount = 0;
-            let totalPartnerShare = 0;
-            let totalNetIncome = 0;
-            
-            data.forEach(portal => {
-                const partnerShare = portal.amount * 0.2;
-                const netIncome = portal.amount - partnerShare;
-                
-                worksheetData.push([
-                    portal.name,
-                    portal.location,
-                    portal.partner,
-                    portal.amount,
-                    partnerShare,
-                    netIncome
-                ]);
-                
-                totalAmount += portal.amount;
-                totalPartnerShare += partnerShare;
-                totalNetIncome += netIncome;
-            });
-            
-            // Tambahkan baris total
-            worksheetData.push([]);
-            worksheetData.push(['TOTAL', '', '', totalAmount, totalPartnerShare, totalNetIncome]);
-            
-            // Buat worksheet
-            const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-            
-            // Buat workbook dan tambahkan worksheet
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan Portal");
-            
-            // Ekspor ke file Excel
-            XLSX.writeFile(wb, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
-        }
+function editClient(index) {
+  const c = clients[index];
+  document.getElementById("clientName").value = c.name;
+  document.getElementById("clientWhatsapp").value = c.whatsapp;
+  document.getElementById("clientStartDate").value = c.startDate || "";
+  document.getElementById("clientEditIndex").value = index;
+  document.getElementById("cancelEditBtn").style.display = "inline-block";
+}
 
-        // Fungsi untuk reset data
-        function resetData() {
-            if (confirm("Apakah Anda yakin ingin menghapus semua data penagihan? Tindakan ini tidak dapat dibatalkan!")) {
-                clients.forEach(client => {
-                    if (client.status !== 'pending') {
-                        client.status = 'pending';
-                    }
-                });
-                
-                saveData();
-                renderClientList();
-                updateStatistics();
-                alert("Data penagihan berhasil direset. Klien yang belum bayar akan ditagih kembali bulan depan.");
-            }
-        }
+function cancelEditClient() {
+  document.getElementById("clientName").value = "";
+  document.getElementById("clientWhatsapp").value = "";
+  document.getElementById("clientStartDate").value = "";
+  document.getElementById("clientEditIndex").value = "-1";
+  document.getElementById("cancelEditBtn").style.display = "none";
+}
 
-        // Fungsi untuk backup data
-        function backupData(type) {
-            let data, filename;
-            
-            switch(type) {
-                case 'clients':
-                    data = clients;
-                    filename = 'backup_klien_wifi_koin.json';
-                    break;
-                case 'portals':
-                    data = portals;
-                    filename = 'backup_portal_wifi_koin.json';
-                    break;
-                case 'all':
-                    data = {
-                        clients: clients,
-                        portals: portals,
-                        backupDate: new Date().toISOString()
-                    };
-                    filename = 'backup_lengkap_wifi_koin.json';
-                    break;
-            }
-            
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = filename;
-            link.click();
-            
-            alert(`Data ${type} berhasil diunduh!`);
-        }
+function deleteSelectedClients() {
+  const checkboxes = document.querySelectorAll(".select-client:checked");
+  
+  if (checkboxes.length === 0) {
+    alert("Pilih client yang akan dihapus terlebih dahulu");
+    return;
+  }
+  
+  if (confirm(`Apakah Anda yakin ingin menghapus ${checkboxes.length} client?`)) {
+    const indexes = [...checkboxes].map(cb => parseInt(cb.dataset.index));
+    indexes.sort((a, b) => b - a).forEach(i => clients.splice(i, 1));
+    saveData("clients", clients);
+    loadClients();
+    showNotification(`${checkboxes.length} client berhasil dihapus`);
+  }
+}
 
-        // Fungsi untuk restore data
-        function restoreData() {
-            const fileInput = document.getElementById('restore-file');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-                alert('Pilih file backup terlebih dahulu!');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    if (data.clients && data.portals) {
-                        // File backup lengkap
-                        if (confirm('Data lengkap akan digantikan. Lanjutkan?')) {
-                            clients = data.clients;
-                            portals = data.portals;
-                            saveData();
-                            renderClientList();
-                            renderPortalList();
-                            updateStatistics();
-                            alert('Data berhasil direstore!');
-                        }
-                    } else if (Array.isArray(data) && data.length > 0 && data[0].product) {
-                        // File backup klien
-                        if (confirm('Data klien akan digantikan. Lanjutkan?')) {
-                            clients = data;
-                            saveData();
-                            renderClientList();
-                            updateStatistics();
-                            alert('Data klien berhasil direstore!');
-                        }
-                    } else if (Array.isArray(data) && data.length > 0 && data[0].location) {
-                        // File backup portal
-                        if (confirm('Data portal akan digantikan. Lanjutkan?')) {
-                            portals = data;
-                            saveData();
-                            renderPortalList();
-                            alert('Data portal berhasil direstore!');
-                        }
-                    } else {
-                        alert('Format file backup tidak dikenali!');
-                    }
-                } catch (error) {
-                    alert('Error membaca file backup: ' + error.message);
-                }
-            };
-            
-            reader.readAsText(file);
-        }
+// ===== PRODUCT MANAGEMENT =====
+function renderProduks() {
+  const tbody = document.querySelector("#produkTable tbody");
+  if (!tbody) return;
+  
+  tbody.innerHTML = "";
+  
+  produks.forEach((p, i) => {
+    tbody.innerHTML += `<tr>
+      <td>${p.nama}</td>
+      <td>Rp ${p.harga.toLocaleString()}</td>
+      <td>${p.deskripsi}</td>
+      <td>
+        <button class="btn btn-sm" onclick="editProduk(${i})">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProduk(${i})">Hapus</button>
+      </td>
+    </tr>`;
+  });
+  
+  refreshProdukOptions();
+}
 
-        // Inisialisasi saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            renderClientList();
-            renderPortalList();
-            updateStatistics();
-            updateActionButtons();
-            
-            // Event listener untuk tombol aksi klien
-            document.getElementById('btn-paid').addEventListener('click', () => changeClientStatus('paid'));
-            document.getElementById('btn-invoiced').addEventListener('click', () => changeClientStatus('invoiced'));
-            document.getElementById('btn-pending').addEventListener('click', () => changeClientStatus('pending'));
-            document.getElementById('btn-cancelled').addEventListener('click', () => changeClientStatus('cancelled'));
-            
-            // Event listener untuk generate laporan
-            document.getElementById('generate-report').addEventListener('click', generateClientReport);
-            document.getElementById('generate-portal-report').addEventListener('click', generatePortalReport);
-            
-            // Event listener untuk reset data
-            document.getElementById('reset-data').addEventListener('click', resetData);
-            
-            // Event listener untuk checkbox "Semua Data"
-            document.getElementById('report-all').addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(cb => {
-                    if (cb.id !== 'report-all' && cb.id.startsWith('report-')) {
-                        cb.checked = this.checked;
-                    }
-                });
-            });
-            
-            // Event listener untuk tambah klien
-            document.getElementById('save-client').addEventListener('click', function() {
-                const name = document.getElementById('client-name').value;
-                const product = document.getElementById('client-product').value;
-                const amount = parseInt(document.getElementById('client-amount').value);
-                
-                if (name && product && amount) {
-                    const newClient = {
-                        id: clients.length > 0 ? Math.max(...clients.map(c => c.id)) + 1 : 1,
-                        name: name,
-                        product: product,
-                        status: 'pending',
-                        amount: amount
-                    };
-                    
-                    clients.push(newClient);
-                    saveData();
-                    renderClientList();
-                    updateStatistics();
-                    
-                    // Reset form dan tutup modal
-                    document.getElementById('add-client-form').reset();
-                    bootstrap.Modal.getInstance(document.getElementById('addClientModal')).hide();
-                    
-                    alert('Klien berhasil ditambahkan!');
-                } else {
-                    alert('Harap isi semua field!');
-                }
-            });
-            
-            // Event listener untuk tambah portal
-            document.getElementById('save-portal').addEventListener('click', function() {
-                const name = document.getElementById('portal-name').value;
-                const location = document.getElementById('portal-location').value;
-                const amount = parseInt(document.getElementById('portal-amount').value);
-                const partner = document.getElementById('portal-partner').value;
-                
-                if (name && location && amount && partner) {
-                    const newPortal = {
-                        id: portals.length > 0 ? Math.max(...portals.map(p => p.id)) + 1 : 1,
-                        name: name,
-                        location: location,
-                        amount: amount,
-                        partner: partner
-                    };
-                    
-                    portals.push(newPortal);
-                    saveData();
-                    renderPortalList();
-                    
-                    // Reset form dan tutup modal
-                    document.getElementById('add-portal-form').reset();
-                    bootstrap.Modal.getInstance(document.getElementById('addPortalModal')).hide();
-                    
-                    alert('Portal berhasil ditambahkan!');
-                } else {
-                    alert('Harap isi semua field!');
-                }
-            });
-            
-            // Event listener untuk backup data
-            document.getElementById('backup-clients-btn').addEventListener('click', () => backupData('clients'));
-            document.getElementById('backup-portals-btn').addEventListener('click', () => backupData('portals'));
-            document.getElementById('backup-all-btn').addEventListener('click', () => backupData('all'));
-            
-            // Event listener untuk restore data
-            document.getElementById('restore-data-btn').addEventListener('click', restoreData);
-        });
-    </script>
+function addProduk() {
+  const nama = document.getElementById("produkNama").value;
+  const harga = document.getElementById("produkHarga").value;
+  const deskripsi = document.getElementById("produkDeskripsi").value;
+  const editIndex = parseInt(document.getElementById("produkEditIndex").value);
+  
+  if (!nama || !harga) {
+    alert("Nama & harga wajib diisi");
+    return;
+  }
+  
+  if (editIndex > -1) {
+    produks[editIndex] = { nama, harga: parseInt(harga), deskripsi };
+    document.getElementById("produkEditIndex").value = "-1";
+    document.getElementById("cancelEditProdukBtn").style.display = "none";
+  } else {
+    produks.push({ nama, harga: parseInt(harga), deskripsi });
+  }
+  
+  saveData("produks", produks);
+  renderProduks();
+  
+  document.getElementById("produkNama").value = "";
+  document.getElementById("produkHarga").value = "";
+  document.getElementById("produkDeskripsi").value = "";
+  
+  showNotification("Produk berhasil disimpan!");
+}
+
+function editProduk(i) {
+  const p = produks[i];
+  document.getElementById("produkNama").value = p.nama;
+  document.getElementById("produkHarga").value = p.harga;
+  document.getElementById("produkDeskripsi").value = p.deskripsi;
+  document.getElementById("produkEditIndex").value = i;
+  document.getElementById("cancelEditProdukBtn").style.display = "inline-block";
+}
+
+function cancelEditProduk() {
+  document.getElementById("produkNama").value = "";
+  document.getElementById("produkHarga").value = "";
+  document.getElementById("produkDeskripsi").value = "";
+  document.getElementById("produkEditIndex").value = "-1";
+  document.getElementById("cancelEditProdukBtn").style.display = "none";
+}
+
+function deleteProduk(i) {
+  if (confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
+    produks.splice(i, 1);
+    saveData("produks", produks);
+    renderProduks();
+    showNotification("Produk berhasil dihapus");
+  }
+}
+
+// ===== REKENING MANAGEMENT =====
+function loadRekening() {
+  const tbody = document.querySelector("#rekeningTable tbody");
+  if (!tbody) return;
+  
+  tbody.innerHTML = "";
+  
+  if (!Array.isArray(rekenings)) {
+    rekenings = [];
+    saveData("rekening", rekenings);
+  }
+  
+  rekenings.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.bank}</td>
+      <td>${r.noRekening}</td>
+      <td>${r.noDana || ""}</td>
+      <td>
+        <button class="btn btn-sm" onclick="editRekening(${i})">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteRekening(${i})">Hapus</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function simpanRekening() {
+  const bank = document.getElementById("bank").value;
+  const noRekening = document.getElementById("noRekening").value;
+  const noDana = document.getElementById("noDana").value;
+  const editIndex = parseInt(document.getElementById("rekeningEditIndex").value);
+
+  if (!bank || !noRekening) {
+    alert("Bank dan No Rekening wajib diisi");
+    return;
+  }
+
+  if (!Array.isArray(rekenings)) {
+    rekenings = [];
+  }
+
+  if (editIndex > -1) {
+    rekenings[editIndex] = { bank, noRekening, noDana };
+    document.getElementById("rekeningEditIndex").value = "-1";
+    document.getElementById("cancelEditRekeningBtn").style.display = "none";
+  } else {
+    rekenings.push({ bank, noRekening, noDana });
+  }
+  
+  saveData("rekening", rekenings);
+  document.getElementById("rekeningForm").reset();
+  loadRekening();
+  
+  showNotification("Data rekening berhasil disimpan!");
+}
+
+function deleteRekening(index) {
+  if (confirm("Apakah Anda yakin ingin menghapus rekening ini?")) {
+    if (!Array.isArray(rekenings)) {
+      rekenings = [];
+    }
+    
+    rekenings.splice(index, 1);
+    saveData("rekening", rekenings);
+    loadRekening();
+    showNotification("Rekening berhasil dihapus");
+  }
+}
+
+function editRekening(index) {
+  if (!Array.isArray(rekenings)) {
+    rekenings = [];
+    return;
+  }
+  
+  const r = rekenings[index];
+  document.getElementById("bank").value = r.bank;
+  document.getElementById("noRekening").value = r.noRekening;
+  document.getElementById("noDana").value = r.noDana || "";
+  document.getElementById("rekeningEditIndex").value = index;
+  document.getElementById("cancelEditRekeningBtn").style.display = "inline-block";
+}
+
+function cancelEditRekening() {
+  document.getElementById("rekeningForm").reset();
+  document.getElementById("rekeningEditIndex").value = "-1";
+  document.getElementById("cancelEditRekeningBtn").style.display = "none";
+}
+
+// ===== INVOICE SYSTEM =====
+function refreshClientOptions() {
+  const sel = document.getElementById("pilihClient");
+  if (!sel) return;
+  
+  sel.innerHTML = "";
+  
+  clients.forEach((c, i) => {
+    sel.innerHTML += `<option value="${i}">${c.name}</option>`;
+  });
+}
+
+function refreshProdukOptions() {
+  const sel = document.getElementById("pilihProduk");
+  if (!sel) return;
+  
+  sel.innerHTML = "";
+  
+  produks.forEach((p, i) => {
+    sel.innerHTML += `<option value="${i}">${p.nama} - Rp ${p.harga.toLocaleString()}</option>`;
+  });
+}
+
+function generateInvoiceNo() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  
+  let num = localStorage.getItem("lastInvoice") || 0;
+  num = parseInt(num) + 1;
+  localStorage.setItem("lastInvoice", num);
+  
+  return `INV/${year}${month}/${String(num).padStart(4, '0')}`;
+}
+
+function reviewInvoice() {
+  const no = document.getElementById("noInvoice").value;
+  const tgl = new Date(document.getElementById("tglInvoice").value).toLocaleDateString("id-ID");
+  const tempo = new Date(document.getElementById("jatuhTempo").value).toLocaleDateString("id-ID");
+  
+  const clientIndex = parseInt(document.getElementById("pilihClient").value);
+  const client = clients[clientIndex];
+  
+  if (!client) {
+    alert("Pilih client terlebih dahulu");
+    return;
+  }
+  
+  const produkIndex = parseInt(document.getElementById("pilihProduk").value);
+  const produk = produks[produkIndex];
+  
+  if (!produk) {
+    alert("Pilih produk terlebih dahulu");
+    return;
+  }
+  
+  const periode = parseInt(document.getElementById("periode").value);
+  const total = produk.harga * periode;
+  
+  const rek = rekenings.length ? rekenings[0] : { bank: "-", noRekening: "-", noDana: "-" };
+
+  invoiceText = `WIFI KOIN AKHFI
+================
+INV: ${no}
+TGL: ${tgl}
+JTH: ${tempo}
+----------------
+CLIENT: ${client.name}
+WA: ${client.whatsapp}
+----------------
+LAYANAN: ${produk.nama}
+PERIODE: ${periode} Bln
+HARGA: Rp${produk.harga.toLocaleString()}/bln
+----------------
+TOTAL: Rp${total.toLocaleString()}
+================
+BAYAR KE:
+${rek.bank}: ${rek.noRekening}
+DANA: ${rek.noDana || '-'}
+================
+HUBUNGI:
+WA: 085934241038
+TERIMA KASIH
+================`;
+
+  document.getElementById("previewBox").textContent = invoiceText;
+  document.getElementById("btnWa").style.display = "inline-block";
+}
+
+function kirimWA() {
+  const clientIndex = parseInt(document.getElementById("pilihClient").value);
+  const client = clients[clientIndex];
+  
+  if (!client || !client.whatsapp) {
+    alert("Nomor WhatsApp client belum diisi.");
+    return;
+  }
+  
+  const pesan = document.getElementById("previewBox").innerText;
+  const noWa = client.whatsapp.replace(/\D/g, "");
+  const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(pesan);
+  window.open(url, "_blank");
+  
+  setTimeout(() => {
+    showSection('clientTab');
+  }, 2000);
+}
+
+// ===== VOUCHER SYSTEM =====
+function showVoucherSubsection(subsectionId) {
+  const subsections = document.querySelectorAll('.voucher-subsection');
+  subsections.forEach(subsection => {
+    subsection.classList.remove('active');
+  });
+  
+  document.getElementById(subsectionId).classList.add('active');
+  
+  const tabs = document.querySelectorAll('.voucher-tab');
+  tabs.forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  const activeTab = Array.from(tabs).find(tab => 
+    tab.getAttribute('onclick')?.includes(subsectionId)
+  );
+  if (activeTab) {
+    activeTab.classList.add('active');
+  }
+}
+
+function refreshVoucherClientOptions() {
+  const sel = document.getElementById("voucherClient");
+  if (!sel) return;
+  
+  sel.innerHTML = '<option value="">Pilih Client...</option>';
+  
+  clients.forEach((c, i) => {
+    sel.innerHTML += `<option value="${i}">${c.name} - ${c.whatsapp}</option>`;
+  });
+}
+
+function saveMikrotikSettings() {
+  const host = document.getElementById('mikrotikHost').value;
+  const user = document.getElementById('mikrotikUser').value;
+  const password = document.getElementById('mikrotikPassword').value;
+  
+  mikrotikSettings = {
+    host,
+    user,
+    password
+  };
+  
+  localStorage.setItem("mikrotikSettings", JSON.stringify(mikrotikSettings));
+  showNotification("Setting Mikrotik berhasil disimpan!");
+}
+
+function updateProfileInfo() {
+  const profileSelect = document.getElementById('mikrotikProfile');
+  const profileDetails = document.getElementById('profileDetails');
+  
+  const selectedProfile = profileSelect.value;
+  
+  if (selectedProfile && profileMappings[selectedProfile]) {
+    const profile = profileMappings[selectedProfile];
+    profileDetails.innerHTML = `
+      Jenis: ${profile.type}<br>
+      Durasi: ${profile.duration} menit<br>
+      Limit Penggunaan: ${profile.limit}<br>
+      Shared Users: ${profile.sharedUsers}
+    `;
+  } else {
+    profileDetails.innerHTML = 'Pilih profile untuk melihat detail';
+  }
+}
+
+async function generateVoucher() {
+  const clientIndex = parseInt(document.getElementById("voucherClient").value);
+  const client = clients[clientIndex];
+  const profile = document.getElementById('mikrotikProfile').value;
+  
+  if (!client) {
+    alert("Pilih client terlebih dahulu");
+    return;
+  }
+  
+  if (!profile) {
+    alert("Pilih profile hotspot terlebih dahulu");
+    return;
+  }
+  
+  // Test koneksi dulu
+  const isConnected = await testMikrotikConnection();
+  if (!isConnected) {
+    return;
+  }
+  
+  const voucherPrice = document.getElementById("voucherPrice").value;
+  const voucherComment = document.getElementById("voucherComment").value;
+  
+  // Generate kode voucher
+  voucherCode = client.name.replace(/\s+/g, '').toLowerCase();
+  if (voucherCode.length < 4) {
+    voucherCode += Math.floor(1000 + Math.random() * 9000);
+  }
+  
+  const profileInfo = profileMappings[profile];
+  
+  let durationText = "";
+  let durationValue = "";
+  
+  if (profileInfo.duration < 60) {
+    durationText = `${profileInfo.duration} menit`;
+    durationValue = `${profileInfo.duration}m`;
+  } else if (profileInfo.duration < 1440) {
+    const hours = Math.floor(profileInfo.duration / 60);
+    durationText = `${hours} jam`;
+    durationValue = `${hours}h`;
+  } else {
+    const days = Math.floor(profileInfo.duration / 1440);
+    durationText = `${days} hari`;
+    durationValue = `${days}d`;
+  }
+  
+  const voucherPreview = document.getElementById("voucherPreview");
+  const priceText = voucherPrice > 0 ? `Harga: Rp ${parseInt(voucherPrice).toLocaleString()}` : "GRATIS";
+  
+  voucherPreview.innerHTML = `VOUCHER WIFI KOIN AKHFI
+========================
+Username: ${voucherCode}
+Password: ${voucherCode}
+Profile: ${profile}
+Durasi: ${durationText}
+${priceText}
+Limit: ${profileInfo.limit}
+${voucherComment ? `Keterangan: ${voucherComment}` : ''}
+========================
+Cara pakai:
+1. Hubungkan ke WiFi Koin Akhfi
+2. Buka browser
+3. Masukkan Kode Voucher
+4. Nikmati internet
+========================
+Terima kasih!`;
+  
+  voucherPreview.style.display = 'block';
+  document.getElementById("voucherActions").style.display = 'flex';
+  
+  // Simpan data voucher untuk digunakan nanti
+  currentVoucherData = {
+    voucherCode,
+    profile,
+    duration: durationValue,
+    price: voucherPrice,
+    comment: voucherComment
+  };
+}
+
+async function createAndSendVoucher() {
+  if (!currentVoucherData) {
+    alert("Generate voucher terlebih dahulu!");
+    return;
+  }
+  
+  const clientIndex = parseInt(document.getElementById("voucherClient").value);
+  const client = clients[clientIndex];
+  
+  // Buat voucher di Mikrotik
+  const voucherCreated = await createMikrotikVoucher(currentVoucherData);
+  
+  if (!voucherCreated) {
+    return;
+  }
+  
+  // Simpan ke localStorage
+  const newVoucher = {
+    code: currentVoucherData.voucherCode,
+    client: client.name,
+    whatsapp: client.whatsapp,
+    date: new Date().toISOString(),
+    profile: currentVoucherData.profile,
+    price: currentVoucherData.price || 0,
+    comment: currentVoucherData.comment || ''
+  };
+  
+  vouchers.push(newVoucher);
+  saveData("vouchers", vouchers);
+  
+  // Kirim ke WhatsApp
+  const voucherMessage = document.getElementById("voucherPreview").innerText;
+  const noWa = client.whatsapp.replace(/\D/g, "");
+  const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(voucherMessage);
+  window.open(url, "_blank");
+  
+  showNotification("✅ Voucher berhasil dibuat dan dikirim ke WhatsApp!");
+  
+  setTimeout(() => {
+    showSection('clientTab');
+  }, 3000);
+}
+
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Aplikasi dimuat');
+  
+  // Load data
+  clients = loadData("clients");
+  produks = loadData("produks");
+  rekenings = loadData("rekening");
+  vouchers = loadData("vouchers");
+  
+  // Initialize components
+  loadClients();
+  renderProduks();
+  loadRekening();
+  refreshClientOptions();
+  refreshProdukOptions();
+  
+  // Set invoice defaults
+  document.getElementById("noInvoice").value = generateInvoiceNo();
+  document.getElementById("tglInvoice").value = new Date().toISOString().split('T')[0];
+  
+  const nextWeek = new Date();
+  nextWeek.setDate(nextWeek.getDate() + 7);
+  document.getElementById("jatuhTempo").value = nextWeek.toISOString().split('T')[0];
+  
+  // Load Mikrotik settings
+  if (mikrotikSettings.host) {
+    document.getElementById('mikrotikHost').value = mikrotikSettings.host;
+    document.getElementById('mikrotikUser').value = mikrotikSettings.user;
+    document.getElementById('mikrotikPassword').value = mikrotikSettings.password;
+  }
+  
+  // Event listener untuk profile
+  document.getElementById('mikrotikProfile').addEventListener('change', updateProfileInfo);
+  
+  // Initialize profile info
+  updateProfileInfo();
+  
+  console.log('Aplikasi siap digunakan');
+});
+</script>
 </body>
 </html>
