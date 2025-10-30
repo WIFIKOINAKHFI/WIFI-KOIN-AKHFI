@@ -9,7 +9,7 @@
     script-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
     style-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:;
   ">
-  <title>WIFI KOIN AKHFI - Sistem Lengkap</title>
+  <title>WIFI KOIN AKHFI</title>
   <style>
     /* ===== VARIABEL CSS ===== */
     :root {
@@ -670,7 +670,7 @@
 
   <header>
     <img src="gatotkaca.png" alt="Logo WIFI KOIN AKHFI" onerror="this.style.display='none'">
-    <h1>WIFI KOIN AKHFI - Sistem Lengkap</h1>
+    <h1>WIFI KOIN AKHFI</h1>
   </header>
 
   <nav>
@@ -1128,11 +1128,11 @@
       <h3>Pengaturan Telegram</h3>
       <div class="form-group">
         <label for="telegramBotToken">Bot Token</label>
-        <input type="text" id="telegramBotToken" placeholder="Masukkan token bot Telegram">
+        <input type="text" id="telegramBotToken" placeholder="Masukkan token bot Telegram" value="6661877543:AAFFJ4rmmkHJNYj5hFHWuhhSKrTgJUYwtbo">
       </div>
       <div class="form-group">
         <label for="telegramChatId">Chat ID</label>
-        <input type="text" id="telegramChatId" placeholder="Masukkan Chat ID">
+        <input type="text" id="telegramChatId" placeholder="Masukkan Chat ID" value="617429698">
       </div>
       <button class="btn btn-telegram" onclick="saveTelegramSettings()">Simpan Pengaturan Telegram</button>
       <div class="form-note">
@@ -1188,7 +1188,10 @@ let clients = JSON.parse(localStorage.getItem("clients")) || [];
 let produks = JSON.parse(localStorage.getItem("produks")) || [];
 let rekenings = JSON.parse(localStorage.getItem("rekening")) || [];
 let vouchers = JSON.parse(localStorage.getItem("vouchers")) || [];
-let telegramSettings = JSON.parse(localStorage.getItem("telegramSettings")) || {};
+let telegramSettings = JSON.parse(localStorage.getItem("telegramSettings")) || {
+  botToken: "6661877543:AAFFJ4rmmkHJNYj5hFHWuhhSKrTgJUYwtbo",
+  chatId: "617429698"
+};
 let invoiceText = "";
 let voucherCode = "";
 let currentVoucherData = null;
@@ -2994,7 +2997,6 @@ document.addEventListener('DOMContentLoaded', function() {
   produks = loadData("produks");
   rekenings = loadData("rekening");
   vouchers = loadData("vouchers");
-  telegramSettings = JSON.parse(localStorage.getItem("telegramSettings")) || {};
   
   // Initialize components
   loadClients();
@@ -3021,10 +3023,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Load Telegram settings
-  if (telegramSettings.botToken) {
-    document.getElementById('telegramBotToken').value = telegramSettings.botToken;
-    document.getElementById('telegramChatId').value = telegramSettings.chatId;
-  }
+  document.getElementById('telegramBotToken').value = telegramSettings.botToken;
+  document.getElementById('telegramChatId').value = telegramSettings.chatId;
   
   // Load notification settings
   document.getElementById('notificationDays').value = notificationDays;
