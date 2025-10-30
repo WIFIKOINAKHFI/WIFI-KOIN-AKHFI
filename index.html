@@ -24,6 +24,7 @@
       --dark-text: #212529;
       --border: #dee2e6;
       --telegram: #0088cc;
+      --whatsapp: #25D366;
     }
 
     /* ===== RESET & BASE STYLES ===== */
@@ -174,6 +175,10 @@
     
     .btn-telegram {
       background: var(--telegram);
+    }
+    
+    .btn-whatsapp {
+      background: var(--whatsapp);
     }
 
     .btn-sm {
@@ -533,6 +538,27 @@
       margin: 15px 0;
       border: 1px solid var(--border);
     }
+    
+    /* ===== AUTO INVOICE STYLES ===== */
+    .auto-invoice-settings {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 15px 0;
+      border: 1px solid var(--border);
+    }
+    
+    .auto-invoice-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .auto-invoice-actions button {
+      flex: 1;
+      min-width: 120px;
+    }
 
     /* ===== RESPONSIVE STYLES ===== */
     @media (min-width: 768px) {
@@ -678,6 +704,11 @@
         <div class="form-note">Format: 628xxxxxxxxxx (contoh: 6281234567890)</div>
       </div>
       <div class="form-group">
+        <label for="clientTelegram">Telegram ID</label>
+        <input type="text" id="clientTelegram" placeholder="@username atau chat_id">
+        <div class="form-note">ID Telegram client (jika ada)</div>
+      </div>
+      <div class="form-group">
         <label for="clientAddress">Alamat</label>
         <textarea id="clientAddress"></textarea>
       </div>
@@ -715,6 +746,7 @@
             <th class="checkbox-cell">Pilih</th>
             <th>Nama</th>
             <th>WhatsApp</th>
+            <th>Telegram</th>
             <th>Alamat</th>
             <th>Tanggal Mulai</th>
             <th>Jatuh Tempo</th>
@@ -856,7 +888,9 @@
     <div id="previewBox"></div>
     
     <div class="invoice-actions">
-      <button id="btnWa" class="btn btn-success" style="display:none;" onclick="kirimWA()">Kirim ke WhatsApp</button>
+      <button id="btnTelegram" class="btn btn-telegram" style="display:none;" onclick="kirimTelegram()">Kirim ke Telegram</button>
+      <button id="btnWa" class="btn btn-whatsapp" style="display:none;" onclick="kirimWA()">Kirim ke WhatsApp</button>
+      <button id="btnForward" class="btn btn-success" style="display:none;" onclick="forwardToWhatsApp()">Forward ke WhatsApp</button>
       <button class="btn" onclick="kembaliKeMenu()">Kembali ke Menu Utama</button>
     </div>
   </section>
@@ -1006,6 +1040,20 @@
       </div>
     </div>
     
+    <!-- Auto Invoice Settings -->
+    <div class="auto-invoice-settings">
+      <h3>Pengaturan Invoice Otomatis</h3>
+      <div class="form-group">
+        <label for="autoInvoiceDays">Hari sebelum jatuh tempo</label>
+        <input type="number" id="autoInvoiceDays" value="3" min="1" max="30">
+        <div class="form-note">Kirim invoice otomatis X hari sebelum jatuh tempo</div>
+      </div>
+      <div class="auto-invoice-actions">
+        <button class="btn btn-telegram" onclick="sendAutoInvoices()">Kirim Invoice Otomatis</button>
+        <button class="btn btn-success" onclick="saveAutoInvoiceSettings()">Simpan Setting</button>
+      </div>
+    </div>
+    
     <!-- Filter Laporan -->
     <div class="report-filters">
       <h3>Filter Laporan</h3>
@@ -1063,6 +1111,7 @@
             <th class="checkbox-cell">Pilih</th>
             <th>Nama</th>
             <th>WhatsApp</th>
+            <th>Telegram</th>
             <th>Alamat</th>
             <th>Tanggal Mulai</th>
             <th>Jatuh Tempo</th>
@@ -1144,7 +1193,9 @@ let invoiceText = "";
 let voucherCode = "";
 let currentVoucherData = null;
 let notificationDays = parseInt(localStorage.getItem("notificationDays")) || 7;
+let autoInvoiceDays = parseInt(localStorage.getItem("autoInvoiceDays")) || 3;
 let currentReportData = [];
+let currentInvoiceData = null;
 
 // URL CLOUDFLARE WORKER - SESUAIKAN DENGAN URL ANDA
 const CLOUDFLARE_WORKER_URL = 'https://wifi-koin-akhfi.muhammadrahmanarrasyid15.workers.dev';
@@ -1343,6 +1394,7 @@ function loadClients() {
       <td class="checkbox-cell"><input type="checkbox" class="select-client" data-index="${i}"></td>
       <td>${c.name}</td>
       <td>${c.whatsapp}</td>
+      <td>${c.telegram || ""}</td>
       <td>${c.address || ""}</td>
       <td>${c.startDate || ""}</td>
       <td class="${statusClass}">${c.dueDate || ""}</td>
@@ -1388,6 +1440,7 @@ function getDueDateText(dueDate) {
 function handleClientSubmit() {
   const name = document.getElementById("clientName").value;
   const whatsapp = document.getElementById("clientWhatsapp").value;
+  const telegram = document.getElementById("clientTelegram").value;
   const address = document.getElementById("clientAddress").value;
   const startDate = document.getElementById("clientStartDate").value;
   const dueDate = document.getElementById("clientDueDate").value;
@@ -1400,11 +1453,11 @@ function handleClientSubmit() {
   }
   
   if (editIndex > -1) {
-    clients[editIndex] = { name, whatsapp, address, startDate, dueDate, status };
+    clients[editIndex] = { name, whatsapp, telegram, address, startDate, dueDate, status };
     document.getElementById("clientEditIndex").value = "-1";
     document.getElementById("cancelEditBtn").style.display = "none";
   } else {
-    clients.push({ name, whatsapp, address, startDate, dueDate, status: status || 'unbilled' });
+    clients.push({ name, whatsapp, telegram, address, startDate, dueDate, status: status || 'unbilled' });
   }
   
   saveData("clients", clients);
@@ -1413,6 +1466,7 @@ function handleClientSubmit() {
   
   document.getElementById("clientName").value = "";
   document.getElementById("clientWhatsapp").value = "";
+  document.getElementById("clientTelegram").value = "";
   document.getElementById("clientAddress").value = "";
   document.getElementById("clientStartDate").value = "";
   document.getElementById("clientDueDate").value = "";
@@ -1435,6 +1489,7 @@ function editClient(index) {
   const c = clients[index];
   document.getElementById("clientName").value = c.name;
   document.getElementById("clientWhatsapp").value = c.whatsapp;
+  document.getElementById("clientTelegram").value = c.telegram || "";
   document.getElementById("clientAddress").value = c.address || "";
   document.getElementById("clientStartDate").value = c.startDate || "";
   document.getElementById("clientDueDate").value = c.dueDate || "";
@@ -1446,6 +1501,7 @@ function editClient(index) {
 function cancelEditClient() {
   document.getElementById("clientName").value = "";
   document.getElementById("clientWhatsapp").value = "";
+  document.getElementById("clientTelegram").value = "";
   document.getElementById("clientAddress").value = "";
   document.getElementById("clientStartDate").value = "";
   document.getElementById("clientDueDate").value = "";
@@ -1479,9 +1535,10 @@ function filterClients() {
   rows.forEach(row => {
     const name = row.cells[1].textContent.toLowerCase();
     const whatsapp = row.cells[2].textContent.toLowerCase();
-    const address = row.cells[3].textContent.toLowerCase();
+    const telegram = row.cells[3].textContent.toLowerCase();
+    const address = row.cells[4].textContent.toLowerCase();
     
-    if (name.includes(searchTerm) || whatsapp.includes(searchTerm) || address.includes(searchTerm)) {
+    if (name.includes(searchTerm) || whatsapp.includes(searchTerm) || telegram.includes(searchTerm) || address.includes(searchTerm)) {
       row.style.display = '';
     } else {
       row.style.display = 'none';
@@ -1774,14 +1831,119 @@ TERIMA KASIH
 ================`;
 
   document.getElementById("previewBox").textContent = invoiceText;
+  
+  // Simpan data invoice untuk digunakan nanti
+  currentInvoiceData = {
+    no,
+    tgl,
+    tempo,
+    client,
+    produk,
+    periode,
+    total,
+    rek
+  };
+  
+  // Tampilkan tombol sesuai ketersediaan kontak client
+  document.getElementById("btnTelegram").style.display = client.telegram ? "inline-block" : "none";
   document.getElementById("btnWa").style.display = "inline-block";
+  document.getElementById("btnForward").style.display = client.telegram ? "inline-block" : "none";
+}
+
+async function kirimTelegram() {
+  if (!currentInvoiceData) {
+    showNotification("Buat invoice terlebih dahulu", "error");
+    return;
+  }
+  
+  const client = currentInvoiceData.client;
+  
+  if (!client.telegram) {
+    showNotification("Client tidak memiliki ID Telegram", "error");
+    return;
+  }
+  
+  const botToken = telegramSettings.botToken;
+  if (!botToken) {
+    showNotification("Token Bot Telegram belum diatur", "error");
+    return;
+  }
+  
+  const message = `📄 *INVOICE WIFI KOIN AKHFI*
+
+*No Invoice:* ${currentInvoiceData.no}
+*Tanggal:* ${currentInvoiceData.tgl}
+*Jatuh Tempo:* ${currentInvoiceData.tempo}
+
+*Data Client:*
+👤 ${client.name}
+📱 ${client.whatsapp}
+🏠 ${client.address || 'Tidak ada alamat'}
+
+*Detail Layanan:*
+📦 ${currentInvoiceData.produk.nama}
+⏳ ${currentInvoiceData.periode} Bulan
+💵 Rp${currentInvoiceData.produk.harga.toLocaleString()}/bulan
+
+*Total:* 💰 *Rp${currentInvoiceData.total.toLocaleString()}*
+
+*Pembayaran:*
+🏦 ${currentInvoiceData.rek.bank}: ${currentInvoiceData.rek.noRekening}
+📱 DANA: ${currentInvoiceData.rek.noDana || '-'}
+
+*Hubungi:*
+📞 085934241038
+
+*Terima kasih atas kepercayaan Anda!*`;
+  
+  showNotification("🔄 Mengirim invoice ke Telegram...", "success");
+  
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: client.telegram,
+        text: message,
+        parse_mode: 'Markdown'
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.ok) {
+      showNotification("✅ Invoice berhasil dikirim ke Telegram client!", "success");
+      
+      // Update status client menjadi billed
+      const clientIndex = clients.findIndex(c => c.whatsapp === client.whatsapp);
+      if (clientIndex !== -1) {
+        clients[clientIndex].status = 'billed';
+        saveData("clients", clients);
+        updateStatistics();
+      }
+      
+      setTimeout(() => {
+        showSection('clientTab');
+      }, 2000);
+    } else {
+      showNotification(`❌ Gagal mengirim ke Telegram: ${result.description}`, "error");
+    }
+  } catch (error) {
+    showNotification(`❌ Error: ${error.message}`, "error");
+  }
 }
 
 function kirimWA() {
-  const clientIndex = parseInt(document.getElementById("pilihClient").value);
-  const client = clients[clientIndex];
+  if (!currentInvoiceData) {
+    showNotification("Buat invoice terlebih dahulu", "error");
+    return;
+  }
   
-  if (!client || !client.whatsapp) {
+  const client = currentInvoiceData.client;
+  
+  if (!client.whatsapp) {
     alert("Nomor WhatsApp client belum diisi.");
     return;
   }
@@ -1791,9 +1953,217 @@ function kirimWA() {
   const url = "https://wa.me/" + noWa + "?text=" + encodeURIComponent(pesan);
   window.open(url, "_blank");
   
+  // Update status client menjadi billed
+  const clientIndex = clients.findIndex(c => c.whatsapp === client.whatsapp);
+  if (clientIndex !== -1) {
+    clients[clientIndex].status = 'billed';
+    saveData("clients", clients);
+    updateStatistics();
+  }
+  
+  showNotification("Invoice dikirim ke WhatsApp");
+  
   setTimeout(() => {
     showSection('clientTab');
   }, 2000);
+}
+
+async function forwardToWhatsApp() {
+  if (!currentInvoiceData) {
+    showNotification("Buat invoice terlebih dahulu", "error");
+    return;
+  }
+  
+  const client = currentInvoiceData.client;
+  
+  if (!client.telegram) {
+    showNotification("Client tidak memiliki ID Telegram", "error");
+    return;
+  }
+  
+  if (!client.whatsapp) {
+    alert("Nomor WhatsApp client belum diisi.");
+    return;
+  }
+  
+  const botToken = telegramSettings.botToken;
+  if (!botToken) {
+    showNotification("Token Bot Telegram belum diatur", "error");
+    return;
+  }
+  
+  // Kirim pesan ke bot Telegram untuk meneruskan ke WhatsApp
+  const message = `📋 *PERMINTAAN FORWARD INVOICE*
+
+Client meminta invoice dikirim ke WhatsApp:
+
+*Nama:* ${client.name}
+*WhatsApp:* ${client.whatsapp}
+*Invoice:* ${currentInvoiceData.no}
+*Total:* Rp${currentInvoiceData.total.toLocaleString()}
+
+*Silakan forward invoice berikut ke WhatsApp client:*`;
+  
+  const invoiceMessage = document.getElementById("previewBox").innerText;
+  
+  try {
+    // Kirim permintaan forward ke admin Telegram
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: telegramSettings.chatId,
+        text: message + "\n\n" + invoiceMessage,
+        parse_mode: 'Markdown'
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.ok) {
+      showNotification("✅ Permintaan forward berhasil dikirim ke admin!", "success");
+      
+      // Update status client menjadi billed
+      const clientIndex = clients.findIndex(c => c.whatsapp === client.whatsapp);
+      if (clientIndex !== -1) {
+        clients[clientIndex].status = 'billed';
+        saveData("clients", clients);
+        updateStatistics();
+      }
+      
+      setTimeout(() => {
+        showSection('clientTab');
+      }, 2000);
+    } else {
+      showNotification(`❌ Gagal mengirim permintaan: ${result.description}`, "error");
+    }
+  } catch (error) {
+    showNotification(`❌ Error: ${error.message}`, "error");
+  }
+}
+
+// ===== AUTO INVOICE FUNCTIONS =====
+async function sendAutoInvoices() {
+  const botToken = telegramSettings.botToken;
+  if (!botToken) {
+    showNotification("Token Bot Telegram belum diatur", "error");
+    return;
+  }
+  
+  const today = new Date();
+  let invoiceCount = 0;
+  let errorCount = 0;
+  
+  showNotification("🔄 Mengirim invoice otomatis...", "success");
+  
+  for (const client of clients) {
+    // Cek apakah client mendekati jatuh tempo dan belum ditagih
+    if (client.dueDate && client.status === 'unbilled') {
+      const due = new Date(client.dueDate);
+      const diffTime = due - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays <= autoInvoiceDays && diffDays >= 0) {
+        // Buat invoice untuk client ini
+        const produk = produks.length > 0 ? produks[0] : { nama: "Layanan WiFi", harga: 100000, deskripsi: "Layanan bulanan" };
+        const rek = rekenings.length > 0 ? rekenings[0] : { bank: "-", noRekening: "-", noDana: "-" };
+        
+        const invoiceNo = generateInvoiceNo();
+        const invoiceDate = today.toLocaleDateString("id-ID");
+        const dueDate = new Date(client.dueDate).toLocaleDateString("id-ID");
+        const total = produk.harga;
+        
+        const message = `📄 *INVOICE OTOMATIS WIFI KOIN AKHFI*
+
+*No Invoice:* ${invoiceNo}
+*Tanggal:* ${invoiceDate}
+*Jatuh Tempo:* ${dueDate}
+
+*Data Client:*
+👤 ${client.name}
+📱 ${client.whatsapp}
+🏠 ${client.address || 'Tidak ada alamat'}
+
+*Detail Layanan:*
+📦 ${produk.nama}
+⏳ 1 Bulan
+💵 Rp${produk.harga.toLocaleString()}/bulan
+
+*Total:* 💰 *Rp${total.toLocaleString()}*
+
+*Pembayaran:*
+🏦 ${rek.bank}: ${rek.noRekening}
+📱 DANA: ${rek.noDana || '-'}
+
+*Hubungi:*
+📞 085934241038
+
+*Terima kasih atas kepercayaan Anda!*`;
+        
+        try {
+          // Coba kirim ke Telegram jika ada
+          if (client.telegram) {
+            const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                chat_id: client.telegram,
+                text: message,
+                parse_mode: 'Markdown'
+              })
+            });
+            
+            const result = await response.json();
+            
+            if (result.ok) {
+              // Update status client menjadi billed
+              const clientIndex = clients.findIndex(c => c.whatsapp === client.whatsapp);
+              if (clientIndex !== -1) {
+                clients[clientIndex].status = 'billed';
+                invoiceCount++;
+              }
+            } else {
+              errorCount++;
+            }
+          }
+        } catch (error) {
+          errorCount++;
+          console.error(`Error sending to ${client.name}:`, error);
+        }
+      }
+    }
+  }
+  
+  // Simpan perubahan status
+  saveData("clients", clients);
+  updateStatistics();
+  
+  if (invoiceCount > 0) {
+    showNotification(`✅ ${invoiceCount} invoice berhasil dikirim otomatis!`, "success");
+  }
+  
+  if (errorCount > 0) {
+    showNotification(`⚠️ ${errorCount} invoice gagal dikirim`, "warning");
+  }
+  
+  if (invoiceCount === 0 && errorCount === 0) {
+    showNotification("Tidak ada client yang perlu dikirim invoice otomatis", "success");
+  }
+}
+
+function saveAutoInvoiceSettings() {
+  const days = parseInt(document.getElementById('autoInvoiceDays').value);
+  if (days >= 1 && days <= 30) {
+    autoInvoiceDays = days;
+    localStorage.setItem("autoInvoiceDays", days.toString());
+    showNotification("Setting invoice otomatis berhasil disimpan!");
+  } else {
+    showNotification("Masukkan angka antara 1-30", "error");
+  }
 }
 
 // ===== VOUCHER SYSTEM =====
@@ -2158,6 +2528,7 @@ function generateReport() {
       <td class="checkbox-cell"><input type="checkbox" class="select-report" data-index="${originalIndex}"></td>
       <td>${c.name}</td>
       <td>${c.whatsapp}</td>
+      <td>${c.telegram || ""}</td>
       <td>${c.address || ""}</td>
       <td>${c.startDate || ""}</td>
       <td class="${statusClass}">${c.dueDate || ""}</td>
@@ -2225,11 +2596,11 @@ function downloadReport() {
     return;
   }
   
-  let csv = "Nama,WhatsApp,Alamat,Tanggal Mulai,Jatuh Tempo,Status\n";
+  let csv = "Nama,WhatsApp,Telegram,Alamat,Tanggal Mulai,Jatuh Tempo,Status\n";
   
   currentReportData.forEach(client => {
     const statusText = statusMapping[client.status].text;
-    csv += `"${client.name}","${client.whatsapp}","${client.address || ''}","${client.startDate || ''}","${client.dueDate || ''}","${statusText}"\n`;
+    csv += `"${client.name}","${client.whatsapp}","${client.telegram || ''}","${client.address || ''}","${client.startDate || ''}","${client.dueDate || ''}","${statusText}"\n`;
   });
   
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -2271,6 +2642,7 @@ async function sendReportToTelegram() {
   currentReportData.forEach((client, index) => {
     message += `${index + 1}. *${client.name}*\n`;
     message += `   📱: ${client.whatsapp}\n`;
+    message += `   📧 Telegram: ${client.telegram || 'Tidak ada'}\n`;
     message += `   🏠: ${client.address || 'Tidak ada alamat'}\n`;
     message += `   📅 Mulai: ${client.startDate || 'Tidak ada'}\n`;
     message += `   ⏰ Jatuh Tempo: ${client.dueDate || 'Tidak ada'}\n`;
@@ -2337,11 +2709,11 @@ function exportClientsToCSV() {
     return;
   }
   
-  let csv = "Nama,WhatsApp,Alamat,Tanggal Mulai,Jatuh Tempo,Status\n";
+  let csv = "Nama,WhatsApp,Telegram,Alamat,Tanggal Mulai,Jatuh Tempo,Status\n";
   
   clients.forEach(client => {
     const statusText = statusMapping[client.status].text;
-    csv += `"${client.name}","${client.whatsapp}","${client.address || ''}","${client.startDate || ''}","${client.dueDate || ''}","${statusText}"\n`;
+    csv += `"${client.name}","${client.whatsapp}","${client.telegram || ''}","${client.address || ''}","${client.startDate || ''}","${client.dueDate || ''}","${statusText}"\n`;
   });
   
   downloadCSV(csv, "clients.csv");
@@ -2406,10 +2778,10 @@ function exportAllToCSV() {
   let zip = new JSZip();
   
   if (clients.length > 0) {
-    let csv = "Nama,WhatsApp,Alamat,Tanggal Mulai,Jatuh Tempo,Status\n";
+    let csv = "Nama,WhatsApp,Telegram,Alamat,Tanggal Mulai,Jatuh Tempo,Status\n";
     clients.forEach(client => {
       const statusText = statusMapping[client.status].text;
-      csv += `"${client.name}","${client.whatsapp}","${client.address || ''}","${client.startDate || ''}","${client.dueDate || ''}","${statusText}"\n`;
+      csv += `"${client.name}","${client.whatsapp}","${client.telegram || ''}","${client.address || ''}","${client.startDate || ''}","${client.dueDate || ''}","${statusText}"\n`;
     });
     zip.file("clients.csv", csv);
   }
@@ -2656,6 +3028,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Load notification settings
   document.getElementById('notificationDays').value = notificationDays;
+  
+  // Load auto invoice settings
+  document.getElementById('autoInvoiceDays').value = autoInvoiceDays;
   
   // Event listener untuk profile
   document.getElementById('mikrotikProfile').addEventListener('change', updateProfileInfo);
